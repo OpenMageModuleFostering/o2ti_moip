@@ -187,9 +187,10 @@ class O2TI_Moip_Model_Api {
             endif;
         endif;
 
-       
+       if( Mage::getSingleton('moip/standard')->getConfigData('ambiente') == "teste")
             $alterapedido = rand(999999, 99999999);
-        
+        else 
+            $alterapedido = "";
         $recebedor = array(
             'LoginMoIP' => $pgto['conta_moip'],
             'Apelido' => $pgto['apelido'],

@@ -37,12 +37,20 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 	      $ch = curl_init(); 
 			curl_setopt($ch, CURLOPT_URL,$url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 500);
 			curl_setopt($ch, CURLOPT_POST, true);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array($header, $documento));
 			$res = curl_exec($ch);
+			if($res === false)
+				{
+				    
+				    Mage::log(curl_error($ch), null, 'O2TI_Moip.log', true);
+				    Mage::log($xml, null, 'O2TI_Moip.log', true);
+				    $this->generateToken($xml);
+				}
 		 	curl_close($ch); 
+
 
 		 	 $res = simplexml_load_string($res);
 		 	 if($res->Resposta->Status == "Sucesso"){
@@ -57,7 +65,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 		 	 else {
 		 	 	$result['status'] = (string)$res->Resposta->Status;
 		 	 	$result['erro'] = (string)$res->Resposta->Erro;
-		 	 	Mage::log($result['erro'], null, 'O2TI_Moip.log', true);
+		 	 	Mage::log("erro em status do server moip".$result['erro'], null, 'O2TI_Moip.log', true);
         		Mage::log($xml, null, 'O2TI_Moip.log', true);
 		 	 	return $result;
 		 	 }
