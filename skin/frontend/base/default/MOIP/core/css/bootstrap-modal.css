@@ -846,6 +846,11 @@ fieldset[disabled] .btn-success.active {
     margin-left: 0%;
   }
 }
+
+.col-xs-12.col-sm-6.col-md-6.no-padding {
+    margin-bottom: 25px;
+}
+
 button#moip-onclick {
     margin-top: 20px;
 }
