@@ -139,6 +139,8 @@
 				<mensagem_redirect_moip><![CDATA[<p>Seu pedido não foi processado, favor efetuar o pagamento.</p><p>Você será redirecionado para o <b>Moip</b> em alguns instantes.</p>]]>
 				</mensagem_redirect_moip>
 				<title>Pagamento 100% Seguro - MoIP | Grupo IG</title>
+				<order_status>pending</order_status>
+				<validador_retorno>qualquervalorsemespacooucaracterespecia13</validador_retorno>
 				<validopara_moip>1</validopara_moip>
 				<conta_moip>elisei</conta_moip>
 				<apelido>Instalação Padrão O2TI | ALTERE PARA O NOME DA SUA EMPRESA</apelido>
@@ -146,9 +148,22 @@
 				<tipoderecebimento>1</tipoderecebimento>
 				<pagamento_direto>1</pagamento_direto>
 				<parcelamento>1</parcelamento>
-				<parcelamento_de1>1</parcelamento_de1>
-				<parcelamento_ate1>12</parcelamento_ate1>
-				<parcelamento_juros1>1.99</parcelamento_juros1>
+				<parcelamento_c_de1>1</parcelamento_c_de1>
+				<parcelamento_c_ate1>12</parcelamento_c_ate1>
+				<parcelamento_c_juros1>1.99</parcelamento_c_juros1>
+				<jurostipo>1</jurostipo>				
+				<parcelamento_s_juros2>1.25</parcelamento_s_juros2>
+				<parcelamento_s_juros3>2.49</parcelamento_s_juros3>
+				<parcelamento_s_juros4>3.74</parcelamento_s_juros4>
+				<parcelamento_s_juros5>4.98</parcelamento_s_juros5>
+				<parcelamento_s_juros6>6.23</parcelamento_s_juros6>
+				<parcelamento_s_juros7>7.47</parcelamento_s_juros7>
+				<parcelamento_s_juros8>8.72</parcelamento_s_juros8>
+				<parcelamento_s_juros9>9.96</parcelamento_s_juros9>
+				<parcelamento_s_juros10>11.21</parcelamento_s_juros10>
+				<parcelamento_s_juros11>12.45</parcelamento_s_juros11>
+				<parcelamento_s_juros12>13.70</parcelamento_s_juros12>
+				<formas_pagamento>BoletoBancario,DebitoBancario,CartaoCredito</formas_pagamento>
 				<nummaxparcelamax>12</nummaxparcelamax>
 				<valorminimoparcela>5</valorminimoparcela>
 				<vcmentoboleto>3</vcmentoboleto>

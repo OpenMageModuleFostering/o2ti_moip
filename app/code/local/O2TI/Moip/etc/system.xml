@@ -111,7 +111,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </apelido>
- <tipoderecebimento translate="label">
+            <tipoderecebimento translate="label">
               <label>Receber o valor do parcelamento à vista?</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
                     <p>Deixe marcado como sim para o recebimento convencional no moip, não altere se não possuir autorização para recebimento parcelado.</p>
@@ -124,61 +124,17 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </tipoderecebimento>
-            <pagamento_direto translate="label">
-              <label>Usar Transparente</label>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>9</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </pagamento_direto>
+           
             <formas_pagamento translate="label">
               <label>Formas de Pagamento</label>
               <frontend_type>multiselect</frontend_type>
               <source_model>O2TI_Moip_Model_Source_FormasPagamento</source_model>
-              <sort_order>10</sort_order>
+              <sort_order>09</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </formas_pagamento>
-            <parcelamento translate="label">
-              <label>Ativar parcelamento?</label>
-              <frontend_type>select</frontend_type>
-              <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>11</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </parcelamento>
-            <parcelamento_de1 translate="label">
-              <label>1° - Parcelas de:</label>
-              <frontend_type>text</frontend_type>
-              <sort_order>12</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </parcelamento_de1>
-            <parcelamento_ate1 translate="label">
-              <label>1° - Parcelas até:</label>
-              <frontend_type>text</frontend_type>
-              <sort_order>13</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </parcelamento_ate1>
-            <parcelamento_juros1 translate="label">
-              <label>1° - Juros de (%):</label>
-              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
-                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
-                </div></div>]]>
-              </comment>
-              <frontend_type>text</frontend_type>
-              <sort_order>14</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </parcelamento_juros1>
+
             <nummaxparcelamax translate="label">
               <label>Número Máximo de Parcelas Permitido</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -186,7 +142,7 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>15</sort_order>
+              <sort_order>10</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -198,11 +154,310 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>16</sort_order>
+              <sort_order>11</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </valorminimoparcela>
+
+
+            <jurostipo translate="label">
+              <label>Usar juros composto?</label>
+              <frontend_type>select</frontend_type>
+              <source_model>adminhtml/system_config_source_yesno</source_model>
+              <sort_order>12</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </jurostipo>
+            <parcelamento_c_de1 translate="label">
+              <label>1° - Parcelas de:</label>
+              <depends>
+                <jurostipo>1</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>13</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_c_de1>
+            <parcelamento_c_ate1 translate="label">
+              <label>1° - Parcelas até:</label>
+              <depends>
+                <jurostipo>1</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>14</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_c_ate1>
+            <parcelamento_c_juros1 translate="label">
+              <label>1° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>1</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>15</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_c_juros1>
+            
+
+
+
+
+
+
+             <parcelamento_s_juros2 translate="label">
+              <label>2° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>31</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros2>
+
+           
+            <parcelamento_s_juros3 translate="label">
+              <label>3° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>32</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros3>
+
+
+           
+            <parcelamento_s_juros4 translate="label">
+              <label>4° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>35</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros4>
+
+
+
+          
+            <parcelamento_s_juros5 translate="label">
+              <label>5° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>38</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros5>
+
+
+            <parcelamento_s_juros6 translate="label">
+              <label>6° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>41</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros6>
+
+
+           
+            <parcelamento_s_juros7 translate="label">
+              <label>7° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>44</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros7>
+
+
+
+           
+            <parcelamento_s_juros8 translate="label">
+              <label>8° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>47</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros8>
+
+
+
+          
+            <parcelamento_s_juros9 translate="label">
+              <label>9° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>50</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros9>
+
+
+            <parcelamento_s_juros10 translate="label">
+              <label>10° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>53</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros10>
+
+
+
+      
+            <parcelamento_s_juros11 translate="label">
+              <label>11° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>56</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros11>
+
+
+           
+            <parcelamento_s_juros12 translate="label">
+              <label>12° - Juros de (%):</label>
+              <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Faixas de parcelamento com cartão de crédito. (somente para Transparente)</p>
+                </div></div>]]>
+              </comment>
+              <depends>
+                <jurostipo>0</jurostipo>
+              </depends>
+              <frontend_type>text</frontend_type>
+              <sort_order>59</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </parcelamento_s_juros12>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <vcmentoboleto translate="label">
               <label>Dias de Vencimento para o Boleto:</label>
 		<comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -210,7 +465,7 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>17</sort_order>
+              <sort_order>80</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -223,7 +478,7 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>18</sort_order>
+              <sort_order>81</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -232,7 +487,7 @@
             <allowspecific translate="label">
               <label>Pagamento a partir de países aplicáveis</label>
               <frontend_type>allowspecific</frontend_type>
-              <sort_order>19</sort_order>
+              <sort_order>82</sort_order>
               <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
@@ -241,7 +496,7 @@
             <specificcountry translate="label">
               <label>Pagamento a partir de determinados países</label>
               <frontend_type>multiselect</frontend_type>
-              <sort_order>21</sort_order>
+              <sort_order>83</sort_order>
               <source_model>adminhtml/system_config_source_country</source_model>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>

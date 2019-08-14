@@ -13,11 +13,7 @@ $installer = $this;
 $installer->startSetup();
 
 
-$installer->run("ALTER TABLE  `moip` ADD  `num_parcelas` INT NOT NULL AFTER  `datetime` ,
-ADD  `ult_dig`  VARCHAR( 30 ) NOT NULL AFTER  `num_parcelas` ,
-ADD  `taxa_moip` VARCHAR( 30 ) NOT NULL AFTER  `ult_dig` ,
-ADD  `valor_pago` VARCHAR( 30 ) NOT NULL AFTER  `taxa_moip` ,
-ADD  `aceito_cofre` INT NOT NULL AFTER  `valor_pago`");
+$installer->run('');
 
 $installer->startSetup();
 

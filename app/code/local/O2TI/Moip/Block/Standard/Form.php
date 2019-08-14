@@ -257,7 +257,7 @@ class O2TI_Moip_Block_Standard_Form extends Mage_Payment_Block_Form {
 
 	//confs de parcelamento
 	public function getParcelamento($dataToReturn) {
-		$parcelas = "";
+		$parcelas = array();
 		$k = "";
 		$parcelax = "";
 		$precox = "";
@@ -268,22 +268,24 @@ class O2TI_Moip_Block_Standard_Form extends Mage_Payment_Block_Form {
 		$cartTotal = Mage::getModel('checkout/session')->getQuote()->getGrandTotal();
 
 		if ($cartTotal > 5) {
-			$parcelas .= "<option value=\"\">Selecione o número de parcelas</option>";
-			$parcelas .= "<option value=\"1\">Pagamento à vista</option>";
 			$parcelamento = $api->getParcelamento($cartTotal);
-
-			foreach ($parcelamento as $k => $v) {
-				if ($k <= Mage::getSingleton('moip/standard')->getConfigData('nummaxparcelamax')) {
-					$precox = str_replace(",", "", $v['total']);
-					$parcelax = str_replace(",", "", $v['valor']);
-					if ($v['juros'] == "1.99"):
-						$asterisco = "*";
-					else:
-						$asterisco = " ";
-					endif;
-					$parcelas .= "<option value=\"".$k."\"> ".$k."x " . Mage::helper('core')->currency($parcelax, true, false) .$asterisco. " | Total: " .Mage::helper('core')->currency($precox, true, false)."</option>";
+			$parcela_decode = json_decode($parcelamento,true);
+			foreach ($parcela_decode as $key => $value) {
+				
+				if ($key <= Mage::getSingleton('moip/standard')->getConfigData('nummaxparcelamax')) {
+					
+					
+						$juros = $parcela_decode[$key]['juros'];
+						$parcelas_result = $parcela_decode[$key]['parcela'];
+						$total_parcelado = $parcela_decode[$key]['total_parcelado'];
+						if($juros > 0)
+							$asterisco = '*';
+						else 
+							$asterisco = '';
+						$parcelas[]= '<option value="'.$key.'">'.$key.'x de '.$parcelas_result.' no total de '.$total_parcelado.' '.$asterisco.'</option>';
+					
+					}
 				}
-			}
 		}else {
 			$parcelas = "<option value=\"1\"> Pagamento à vista </option>";
 		}
@@ -312,13 +314,13 @@ class O2TI_Moip_Block_Standard_Form extends Mage_Payment_Block_Form {
 	}
 	public function getTextoParcelas() {
 		$parcelamento =  Mage::getSingleton('moip/standard')->getInfoParcelamento();
-		if ($parcelamento['juros1'] == 0) {
-			echo "<div id=\"addparcelasdesc\"> Sem juros até ".$parcelamento['ate1']." parcelas ";
+		if ($parcelamento['c_juros1'] == 0) {
+			echo "<div id=\"addparcelasdesc\"> Sem juros até ".$parcelamento['c_ate1']." parcelas";
 			if ($parcelamento['ate1'] < 13) {
 				return ", após juros de 1,99% ao mês.</div>";
 			}
 		}else {
-			return "<div id=\"addparcelasdesc\"> Com juros de ".$parcelamento['juros1']."% ao mês.</div>";
+			return "<div id=\"addparcelasdesc\"> Com juros de ".$parcelamento['c_juros1']."% ao mês.</div>";
 		}
 	}
 

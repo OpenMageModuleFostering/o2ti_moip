@@ -75,14 +75,16 @@ class O2TI_Moip_Model_Api {
     }
 
     public function generatePedido($data, $pgto) {
-
+        if($pgto['credito_parcelamento'] == ""){
+            $pgto['credito_parcelamento'] = 2;
+        }
         $standard = Mage::getSingleton('moip/standard');
         $parcelamento = $standard->getInfoParcelamento();
         $meio = $pgto["forma_pagamento"];
         $vcmentoboleto = $pgto["vcmentoboleto"];
         $forma_pgto = "";
         $validacao_nasp = $standard->getConfigData('validador_retorno');
-        $url_retorno =  Mage::getBaseUrl('web', true)."/Moip/standard/success/validacao/".$validacao_nasp."/";
+        $url_retorno =  Mage::getBaseUrl()."Moip/standard/success/validacao/".$validacao_nasp."/";
         $valorcompra = $data['valor'];
         $vcmentoboleto = $standard->getConfigData('vcmentoboleto');
         $vcmento = date('c', strtotime("+" . $vcmentoboleto . " days"));
@@ -90,34 +92,66 @@ class O2TI_Moip_Model_Api {
         if($pgto['tipoderecebimento'] =="0"):
           $tipoderecebimento = "Parcelado";
         else:
-           $tipoderecebimento = ""; 
+           $tipoderecebimento = "Avista"; 
         endif;
         $parcelamento = $standard->getInfoParcelamento();
-        $max_parcelas = $parcelamento['ate1'];
-        $min_parcelas = $parcelamento['de1'];
-        $juros = $parcelamento['juros1'];
-        if($max_parcelas == 12){
-          $pacelamento_xml = array(
-                              'Parcelamento' => array(
-                                      'MinimoParcelas' => $min_parcelas,
-                                      'MaximoParcelas' => $max_parcelas,
-                                      'Juros' => $juros,
-                              ),
-                            );
-        } else{
-          $pacelamento_xml = array(
-                'Parcelamento' => array(
-                                    'MinimoParcelas' => $min_parcelas,
-                                    'MaximoParcelas' => $max_parcelas,
-                                    'Juros' => $juros,
-                              ),
-                'Parcelamento' => array(
-                                    'MinimoParcelas' => $max_parcelas+1,
-                                    'MaximoParcelas' => '12',
-                                    'Juros' => '1.99',
-                              ),
-                            );
+         $tipo_parcelamento = Mage::getSingleton('moip/standard')->getConfigData('jurostipo');
+        
+        if($tipo_parcelamento == 1){
+            
+                $max_parcelas = $parcelamento['c_ate1'];
+                $min_parcelas = $parcelamento['c_de1'];
+                $juros = $parcelamento['c_juros1'];
+
+                if($max_parcelas == 12){
+                  $pacelamento_xml = array(
+                                      'Parcelamento' => array(
+                                              'MinimoParcelas' => $min_parcelas,
+                                              'MaximoParcelas' => $max_parcelas,
+                                              'Recebimento'=>$tipoderecebimento,
+                                              'Juros' => $juros,
+                                      ),
+                                    );
+                } else{
+                  $pacelamento_xml = array(
+                        'Parcelamento' => array(
+                                            'MinimoParcelas' => $min_parcelas,
+                                            'MaximoParcelas' => $max_parcelas,
+                                            'Recebimento'=>$tipoderecebimento,
+                                            'Juros' => $juros,
+                                      ),
+                        'Parcelamento' => array(
+                                            'MinimoParcelas' => $max_parcelas+1,
+                                            'MaximoParcelas' => '12',
+                                            'Recebimento'=>$tipoderecebimento,
+                                            'Juros' => '1.99',
+                                      ),
+                                    );
+                }
+        } else {
+            $parcelas = array('');
+            for ($i=1; $i <= 12; $i++) {
+                $juros_parcela = 's_juros'.$i;
+                $parcelas[$i] = array('Parcelamento' => array(
+                                            'MinimoParcelas' => $i,
+                                            'MaximoParcelas' => $i+1,
+                                            'Juros' => $parcelamento[$juros_parcela],
+                                            'Repassar' => 'true',
+                                      ),
+                );
+                if($i == 12){
+                    for ($i=2; $i <= 12; $i++) {
+                        $pacelamento_xml[$i] = $parcelas[$pgto['credito_parcelamento']];
+                    }
+                }
+
+             }
+            $pacelamento_xml = end($pacelamento_xml);
+
         }
+
+        
+
         if ($meio == "BoletoBancario"):
             if (Mage::getStoreConfig('o2tiall/pagamento_avancado/pagamento_boleto')):
                 if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor')):
@@ -171,7 +205,7 @@ class O2TI_Moip_Model_Api {
             "CEP" => $data['pagador_cep'],
             "TelefoneFixo" => $data['pagador_ddd'] . $data['pagador_telefone']
         );
-        $id_proprio = $alterapedido.$pgto['conta_moip'].'_'.$data['id_transacao'];
+        $id_proprio = $pgto['conta_moip'].'_'.$data['id_transacao'];
         $dados = array(
             "Razao" => "Pagamento do pedido #" . $data['id_transacao'],
             "Valores" => array('Valor' => number_format($valorcompra, 2, '.', '')),
@@ -192,10 +226,6 @@ class O2TI_Moip_Model_Api {
         $xml = $this->generateXml($json);
         return $xml;
     }
-    
-   
-
-    
     public function generateUrl($token) {
         if ($this->getAmbiente() == "teste")
             $url = $token;
@@ -204,89 +234,124 @@ class O2TI_Moip_Model_Api {
         return $url;
     }
 
-    public function getParcelamento($valor) {
+    public function getParcelamentoComposto($valor) {
         $standard = Mage::getSingleton('moip/standard');
         $parcelamento = $standard->getInfoParcelamento();
-        $result = array();
-        if ($parcelamento['ate1'] >= 1) {
-            $result1 = $this->getJurosComposto($valor, $parcelamento['juros1'], $parcelamento['ate1']);
-            foreach ($result1 as $k => $v) {
-                if ($k >= $parcelamento['de1'])
-                    $result[$k] = $v;
-            }
+        $parcelas = array();
+        $juros = array();
+        $primeiro = 1;
+        $max_div = $valor/(int)Mage::getSingleton('moip/standard')->getConfigData('valorminimoparcela');
+
+        if($parcelamento['c_ate1'] < $max_div){
+            $max_div = $parcelamento['c_ate1'];
         }
-        if ($parcelamento['ate1'] < 13) {
-            $result1 = $this->getJurosComposto($valor, "1.99", "12");
-            foreach ($result1 as $k => $v) {
-                if ($k > $parcelamento['ate1'])
-                    $result[$k] = $v;
-            }
-        }
-        return $result;
+
+            for ($i=1; $i <= $max_div; $i++) {
+                if($i > 1){
+                    $total_parcelado[$i] = $this->getJurosComposto($valor, $parcelamento['c_juros1'], $i)*$i;
+                    $parcelas[$i] = $this->getJurosComposto($valor, $parcelamento['c_juros1'], $i);
+                    $juros[$i] = $parcelamento['c_juros1'];
+                }
+                else {
+                    $total_parcelado[$i] =  $valor;
+                    $parcelas[$i] = $valor*$i;
+                    $juros[$i] = 0;
+                }
+                if($i <= Mage::getSingleton('moip/standard')->getConfigData('nummaxparcelamax')){
+                    $json_parcelas[$i] = array( 
+                                                'parcela' => Mage::helper('core')->currency($parcelas[$i], true, false),
+                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false), 
+                                                'juros' => $juros[$i]
+                                            );
+                    $primeiro++;
+                }
+             }
+             if($primeiro < 12 && $primeiro < ($valor/(int)Mage::getSingleton('moip/standard')->getConfigData('valorminimoparcela')) )
+             {
+                 while ($primeiro <= 12) {
+                    $total_parcelado[$primeiro] = number_format($this->getJurosComposto($valor, '1.99', $i)*$primeiro, 2, '.', '');
+                    $parcelas[$primeiro] = $this->getJurosComposto($valor, '1.99', $primeiro);
+                    $juros[$primeiro] = '1.99';
+                    
+                    $json_parcelas[$primeiro] = array( 
+                                                'parcela' => Mage::helper('core')->currency($parcelas[$primeiro], true, false),
+                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$primeiro], true, false), 
+                                                'juros' => '1.99'
+                                            );
+                    $primeiro++;
+                 }
+             }
+        $json_parcelas = json_encode($json_parcelas);
+        return $json_parcelas;
+
     }
 
-    public function getJurosComposto($valor, $juros, $parcelasR) {
-        $parc1 = "";
-        $parc = "";
-        $juros = $juros / 100;
-        $valParcela = $valor * pow((1 + $juros), $parcelasR);
-        $valParcela = $valParcela / $parcelasR;
-        if ($juros <= 0 || empty($juros)):
-            $valor = $valor;
-        else:
-            $valor = (($valor / 100) * $juros) + $valor;
-        endif;
-        $j = '';
-        $splitss = (int) ($valor / 5);
-        if ($splitss <= 12):
-            $div = $splitss;
-        else:
-            $div = 12;
-        endif;
-        if ($valor <= 5):
-            $div = 1;
-        endif;
-        $standard = Mage::getModel('moip/standard');
-        $nummaxparcelamax = $standard->getConfigData('nummaxparcelamax');
-        $valorminimo = $standard->getConfigData('valorminimoparcela');
-        $parc1 .= '<ValorDaParcela Total="' . number_format($valor, 2) . '" Juros="0" Valor="' . number_format($valor, 2) . '">1</ValorDaParcela>';
-        for ($j = 2; $j <= $parcelasR; $j++) {
-            $cf = pow((1 + $juros), $j);
-            $cf = (1 / $cf);
-            $cf = (1 - $cf);
-            if($cf > 0)
-            $cf = ($juros / $cf);
-            $parcelas = ($valor * $cf);
-            $parcelas = $parcelas;
-            $valors = $valor;
-            if ($juros != 0 && $parcelas >= $valorminimo && $j <= $nummaxparcelamax):
-                $parc .= '<ValorDaParcela Total="' . number_format(($parcelas * $j), 2) . '" Juros="' . ($juros * 100) . '" Valor="' . number_format($parcelas, 2) . '">' . $j . '</ValorDaParcela>';
-            endif;
+     public function getParcelamentoSimples($valor) {
+        $standard = Mage::getSingleton('moip/standard');
+        $parcelamento = $standard->getInfoParcelamento();
+        $parcelas = array();
+        $juros = array();
+        $primeiro = 1;
+        $max_div = (int)($valor/Mage::getSingleton('moip/standard')->getConfigData('valorminimoparcela'));
+        
+        if(Mage::getSingleton('moip/standard')->getConfigData('nummaxparcelamax') > $max_div){
+            $max_div = $max_div;
+        } else {
+            $max_div = Mage::getSingleton('moip/standard')->getConfigData('nummaxparcelamax');
+        }
 
-            if ($juros == 0 && $j <= $parcelasR && ($valor / $j) >= $valorminimo):
-                $parc .= '<ValorDaParcela Total="' . number_format($valor, 2) . '" Juros="0" Valor="' . number_format(($valor / $j), 2) . '">' . $j . '</ValorDaParcela>';
-            endif;
-        }
-        $responseMoIP = '<ns1:ChecarValoresParcelamentoResponse xmlns:ns1="http://www.moip.com.br/ws/alpha/">
-		<Resposta>
-		' . $parc1 . '
-		' . $parc . '
-		</Resposta>
-		</ns1:ChecarValoresParcelamentoResponse>';
-        $res = simplexml_load_string($responseMoIP);
-        $result = array();
-        $i = 1;
-        foreach ($res as $resposta) {
-            foreach ($resposta as $data) {
-                if ($data->getName() == "ValorDaParcela") {
-                    $result[$i]['total'] = $data->attributes()->Total;
-                    $result[$i]['valor'] = $data->attributes()->Valor;
-                    $result[$i]['juros'] = $data->attributes()->Juros;
-                    $i++;
+        for ($i=1; $i <= $max_div; $i++) {
+                $juros_parcela = 's_juros'.$i;
+              
+                if($i > 1){
+                    $taxa = $parcelamento[$juros_parcela] / 100;
+                    $valor_add = $valor * $taxa;
+                    $total_parcelado[$i] =  $valor + $valor_add;
+                    $parcelas[$i] =  ($valor  + $valor_add)/$i;
+                    $juros[$i] = $parcelamento[$juros_parcela];
                 }
-            }
+                else {
+                    $total_parcelado[$i] =  $valor;
+                    $parcelas[$i] = $valor*$i;
+                    $juros[$i] = 0;
+                }
+                if($i <= Mage::getSingleton('moip/standard')->getConfigData('nummaxparcelamax')){
+                    $json_parcelas[$i] = array( 
+                                                'parcela' => Mage::helper('core')->currency($parcelas[$i], true, false),
+                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false), 
+                                                'juros' => $juros[$i]
+                                            );
+                     }
+             }
+        $json_parcelas = json_encode($json_parcelas);
+        return $json_parcelas;
+
+    }
+
+    public function getParcelamento($valor) {
+      
+        $tipo_parcelamento = Mage::getSingleton('moip/standard')->getConfigData('jurostipo');
+
+        if($tipo_parcelamento == 1){
+            $tipo = $this->getParcelamentoComposto($valor);
+        } else {
+            $tipo = $this->getParcelamentoSimples($valor);
         }
-        return $result;
+
+        return $tipo;
+        
+    }
+
+    public function getJurosSimples($valor, $juros, $parcela) {
+        
+        return $valParcela;
+    }
+
+    public function getJurosComposto($valor, $juros, $parcela) {
+        $taxa = $juros / 100;
+        $valParcela = $valor * pow((1 + $taxa), $parcela);
+        $valParcela = $valParcela/$parcela;
+        return $valParcela;
     }
 
 }

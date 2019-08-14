@@ -147,6 +147,7 @@ class O2TI_Moip_Block_Info extends Mage_Payment_Block_Info
                 $dados['realorder_id'] = $result->getRealorder_id();
                 $dados['order_idmoip'] = $result->getorder_idmoip(); 
                 $dados['boleto_line'] = $result->getBoleto_line();
+                $dados['customer_id'] = $result->getCustomerId();
                 $dados['brand'] = $result->getBrand();
                 $dados['creditcard_parc'] = $result->getCreditcard_parc();
                 $dados['first6'] = $result->getFirst6();

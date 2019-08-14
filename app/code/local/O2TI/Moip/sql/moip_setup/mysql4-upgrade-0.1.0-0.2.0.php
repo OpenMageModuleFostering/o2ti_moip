@@ -9,3 +9,13 @@
  * @copyright  Copyright (c) 2013 O2ti Soluções Web
  * @license    Licença válida por tempo indeterminado
  */
+$installer = $this;
+$installer->startSetup();
+
+
+$installer->run('');
+
+$installer->startSetup();
+
+$installer->endSetup();
+?>

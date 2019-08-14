@@ -1,29 +1,23 @@
-#icone img, #band img, #moip_debito_bandeiras img{width:50px;}
-#title {width:99%; float:left;background:#000; color:#fff;border-radius:3px 3px 0 0;font-size:12px;padding: 5px 0 5px 5px;}
-#subtitle { padding:5px 0 5px 5px;font-size:12px;}
-#icone {min-width:45px;width:21%; float:left;}
-#desc {width: 46%; float:left;}
-#desc2 {width:79%; float:left;}
-#desc h3, #valor h3 {font-size:11px;}
-#valor {width: 33%; float:left;}
-.desc {font-size:10px;}
-#bandeiras {min-width:45px;width:20%;min-height: 195px; float:left;}
-#linhaboleto, #linhaparcelas, #linhatransf {  background: none repeat scroll 0 0 #F1F1F1;  border-bottom: 1px solid #CCCCCC;  cursor: pointer;  float: left;  padding-bottom: 5px;  padding-left: 20px;  padding-top: 5px;  width: 91%;}
-#linhaboleto:hover, #linhaparcelas:hover, #linhatransf:hover {background:#fff}
-#conteudotransf, #linhacartao, #conteudoboleto{width:100%; float:left;display:none;border-bottom: 1px solid #CCCCCC; padding-top:10px; padding-bottom:10px}
-#payment_form_o2ti_moip_standard{margin: 0; width: 100%;list-style:none;}
-#payment_form_o2ti_moip_standard > label{display: block; clear: both;}
-.forma_pg {background: none repeat scroll 0 0 #FFFFFF;border-bottom: 1px solid #CCCCCC;cursor: pointer;float: left;left: 5px;padding-bottom: 5px;padding-top: 5px;position: relative;top: 28px;width: 5%;}
-#pf {diplay:none;}
-.tooltip {color: #000000; outline: none;cursor: help; text-decoration: none;position: relative;}
-.tooltip span {margin-left: -999em;position: absolute;padding: 10px;}
-.tooltip:hover span {border-radius: 5px 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px; font-family: Calibri, Tahoma, Geneva, sans-serif;position: absolute; left: 1em; top: 2em; z-index: 99;margin-left: 0; width: 200px;}
-.tooltip:hover em {font-family: Candara, Tahoma, Geneva, sans-serif; font-size: 1.2em; font-weight: bold;display: block; padding: 0.2em 0 0.6em 0;}
-.help {background: #9FDAEE; border: 1px solid #2BB0D7;}
-.col-main dl {    padding: 0px;}
-div#checkout-review-submit .buttons-set .btn-checkout {background-position: right 50%;height: 60px;padding-top: 1px;}
-#onestepcheckout_place_order_button {
-    float: right;
-    line-height: 25px;
-    width: 203px;
-}
+ul.form-list{clear:both;}
+ul.form-list .wide > div.input-box > select{width: 100% !important;}
+ul.form-list .wide.cc-cvv > div{display: block;float: left;}
+ul.form-list .wide.cc-cvv > div.cc{width: 60% !important;}
+ul.form-list .wide.cc-cvv > div.cvv{width: 20% !important;margin-left: 10% !important;}
+ul.form-list .wide.cc-validade > div > select{width: 35% !important;margin-left: 5% !important;float: left;}
+ul.form-list .wide.cc-validade > div > select#credito_expiracao_mes{margin: 0 !important;}
+
+ul.form-list.dados-titular > li > label{clear: none !important; width: 105px;float: left !important;padding-top: 5px;}
+ul.form-list.dados-titular > li > div{ width: 50% !important;clear: none !important; float: left;}
+#formcli > ul > li > label > em {right: 2px !important;}
+ul.inline li{float: left;width: 30%;margin-right: 2%; text-align: center;}
+ul.inline li img{width: 100%; height: auto; clear: both; display: block;margin-bottom: 5px;}
+
+.moip-payment-method-content{display: none;clear: both; width: 1005;}
+
+ul.inline.input-switcher-4 > li{width: 23%}
+ul.inline.input-switcher-5 > li{width: 18%}
+
+.tooltip-moip-handler{position: relative !important;}
+.tooltip-moip{display: none;position: absolute; right: 0px;top: auto;background: #cccccc;padding: 20px;border-radius: 10px;min-width:  245px;box-shadow: 0 0 10px #000;z-index:999;}
+.tooltip-moip-handler:hover .tooltip-moip{display: block;}
+.span3.method-image > img {float: right;margin-right: 15px;margin-top: 25px;}

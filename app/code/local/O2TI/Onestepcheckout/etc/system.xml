@@ -266,16 +266,7 @@
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
-			<street translate="label">
-                            <label>Endereço</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>onestepcheckout/system_config_source_optionaddfield</source_model>
-                            <sort_order>1</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment>Obrigatório para o meio de pagamento</comment>
-                        </street>
+			
                         <street_lines translate="label comment">
                             <label>Número de linhas do endereço </label>
                             <sort_order>2</sort_order>
@@ -336,7 +327,7 @@
                     </fields>
                 </addfield>
                <termcondition translate="label">
-                    <label>Termos e condições</label>
+                    <label>Box Modal</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>6</sort_order>
                     <show_in_default>1</show_in_default>
@@ -344,7 +335,7 @@
                     <show_in_store>1</show_in_store>
                     <fields>
                     	<allow_options translate="label">
-                            <label>Habilitar termos e condições</label>
+                            <label>Habilitar Modal de termos e condições</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>1</sort_order>
@@ -368,7 +359,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>informe a largura</comment>
+                            <comment>informe a largura, nao colocar px ou %, apenas números</comment>
                         </boxwidth>
                         <boxheight translate="label">
                             <label>Altura</label>
@@ -377,7 +368,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Informe a altura</comment>
+                            <comment>Informe a altura, nao colocar px ou %, apenas números</comment>
                         </boxheight>
                     </fields>
                 </termcondition>

@@ -535,15 +535,7 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 				else
 					$result = $this->getOnepage()->saveShipping($data, $customerAddressId);
 			}
-			else {
-				$this->_getQuote()->getShippingAddress()
-				->setCountryId('')
-				->setPostcode('')
-				->setCollectShippingRates(true);
-				$this->_getQuote()->save();
-				$this->loadLayout()->renderLayout();
-				return;
-			}
+			
 		}
 
 		$this->loadLayout()->renderLayout();

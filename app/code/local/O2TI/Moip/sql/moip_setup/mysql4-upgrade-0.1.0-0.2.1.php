@@ -13,21 +13,7 @@ $installer = $this;
 $installer->startSetup();
 
 
-$installer->run("
-CREATE TABLE IF NOT EXISTS `moip` (
-  `transaction_id` int(11) NOT NULL AUTO_INCREMENT,
-  `realorder_id` int(11) NOT NULL,
-  `sale_id` int(11) NOT NULL,
-  `xml_sent` text NOT NULL,
-  `xml_return` text NOT NULL,
-  `status` varchar(20) NOT NULL,
-  `formapg` varchar(60) NOT NULL,
-  `bandeira` varchar(60) NOT NULL,
-  `digito` varchar(60) NOT NULL,
-  `vencimento` datetime NOT NULL,	
-  `datetime` datetime NOT NULL,
-  PRIMARY KEY (`transaction_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;");
+$installer->run('');
 
 $installer->startSetup();
 

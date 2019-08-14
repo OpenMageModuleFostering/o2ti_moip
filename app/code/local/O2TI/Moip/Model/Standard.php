@@ -163,22 +163,36 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
     public function getInfoParcelamento() {
         $config = array();
         $max = 12;
-        $config['de1'] = (int) $this->getConfigData('parcelamento_de1');
-        $config['ate1'] = (int) $this->getConfigData('parcelamento_ate1');
-        $config['juros1'] = $this->getConfigData('parcelamento_juros1');
-        $config['de2'] =  $this->getConfigData('parcelamento_de2');
-        $config['ate2'] = (int) $this->getConfigData('parcelamento_ate2');
-        $config['juros2'] = $this->getConfigData('parcelamento_juros2');
-        $config['de3'] = (int) $this->getConfigData('parcelamento_de3');
-        $config['ate3'] = (int) $this->getConfigData('parcelamento_ate3');
-        $config['juros3'] = $this->getConfigData('parcelamento_juros3');
+        $config['c_de1'] = (int) $this->getConfigData('parcelamento_c_de1');
+        $config['c_ate1'] = (int) $this->getConfigData('parcelamento_c_ate1');
+        $config['c_juros1'] = $this->getConfigData('parcelamento_c_juros1');
+        $config['c_de2'] =  $this->getConfigData('parcelamento_c_de2');
+        $config['c_ate2'] = (int) $this->getConfigData('parcelamento_c_ate2');
+        $config['c_juros2'] = $this->getConfigData('parcelamento_c_juros2');
+        $config['c_de3'] = (int) $this->getConfigData('parcelamento_c_de3');
+        $config['c_ate3'] = (int) $this->getConfigData('parcelamento_c_ate3');
+        $config['c_juros3'] = $this->getConfigData('parcelamento_c_juros3');
+        
+
+
+
+       
+        $config['s_juros1'] = $this->getConfigData('parcelamento_s_juros1');
+        $config['s_juros2'] = $this->getConfigData('parcelamento_s_juros2');
+        $config['s_juros3'] = $this->getConfigData('parcelamento_s_juros3');
+        $config['s_juros4'] = $this->getConfigData('parcelamento_s_juros4');
+        $config['s_juros5'] = $this->getConfigData('parcelamento_s_juros5');
+        $config['s_juros6'] = $this->getConfigData('parcelamento_s_juros6');
+        $config['s_juros7'] = $this->getConfigData('parcelamento_s_juros7');
+        $config['s_juros8'] = $this->getConfigData('parcelamento_s_juros8');
+        $config['s_juros9'] = $this->getConfigData('parcelamento_s_juros9');
+        $config['s_juros10'] = $this->getConfigData('parcelamento_s_juros10');
+        $config['s_juros11'] = $this->getConfigData('parcelamento_s_juros11');
+        $config['s_juros12'] = $this->getConfigData('parcelamento_s_juros12');
+        
+
         $config['vcmentoboleto'] = $this->getConfigData('vcmentoboleto');
-        if ($config['ate1'] > $max)
-            $config['ate1'] = $max;
-        if ($config['ate2'] > $max)
-            $config['ate2'] = $max;
-        if ($config['ate3'] > $max)
-            $config['ate3'] = $max;
+
         return $config;
     }
     function getListaProdutos() {

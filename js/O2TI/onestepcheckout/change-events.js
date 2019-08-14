@@ -1,45 +1,5 @@
 jQuery(function() {
-	var flag = 1;
-	var i = 1;
-	var shipaddselect = jQuery("#shipping-address-select");
-	var change = 0;
-	var change_select = 0;
-	var timer;
-	var islogin = logined();
-	var hasadd = hasaddress();
-	jQuery("#billing-address-select").bind({
-		change: function() {
-			if (flag == 1) {
-				change_select = 0;
-				if (jQuery(this).val().length > 0) {
-					countryid = "BR";
-					updateBillingForm(jQuery(this).val(), flag);
-				} else {
-					updateBillingForm(jQuery(this).val(), flag);
-				}
-			} else {
-				updateBillingForm(jQuery(this).val(), flag);
-				change_select = 1;
-			}
-		}
-	});
-	jQuery("#shipping-address-select").bind({
-		change: function() {
-			if (flag == 0) {
-				change_select = 1;
-				if (jQuery(this).val().length > 0) {
-					countryid = "BR";
-					if (countryid) {
-						updateShippingForm(jQuery(this).val());
-					}
-				} else {
-					if (jQuery("#shipping-address-select").val()) {
-						updateShippingForm(jQuery(this).val());
-					}
-				}
-			}
-		}
-	});
+
 	jQuery('[id="shipping:same_as_billing"]').click(function() {
 				jQuery('#shipping_show').hide();
 				jQuery("#o2ti-osc-p2").removeClass('onestepcheckout-numbers onestepcheckout-numbers-3').addClass('onestepcheckout-numbers onestepcheckout-numbers-2');
@@ -47,7 +7,7 @@ jQuery(function() {
 				jQuery("#o2ti-osc-p4").removeClass('onestepcheckout-numbers onestepcheckout-numbers-5').addClass('onestepcheckout-numbers onestepcheckout-numbers-4');
 				flag = 1;
 				shipping.setSameAsBilling(true);
-				$('shipping:same_as_billing').checked = false;
+				jQuery('shipping:same_as_billing').checked = false;
 				jQuery('#shipping_show').hide();
 				jQuery("#ship_to_same_address").val(1);
 	});
@@ -70,7 +30,7 @@ jQuery(function() {
 				jQuery("#o2ti-osc-p4").removeClass('onestepcheckout-numbers onestepcheckout-numbers-5').addClass('onestepcheckout-numbers onestepcheckout-numbers-4');
 				flag = 1;
 				shipping.setSameAsBilling(true);
-				$('shipping:same_as_billing').checked = false;
+				jQuery('shipping:same_as_billing').checked = false;
 				jQuery('#shipping_show').hide();
 				jQuery("#ship_to_same_address").val(1);
 				
@@ -94,10 +54,9 @@ jQuery(function() {
 			case 'text':
 			case 'textarea':
 				jQuery(this).val('');
-				break;
+			break;
 			case 'checkbox':
 			case 'radio':
-				
 			}
 		});
 	};

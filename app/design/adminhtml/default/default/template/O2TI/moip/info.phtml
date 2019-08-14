@@ -23,6 +23,9 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 			<label>4 Últimos dígitos do cartão</label>
 			<div class="input-text"><strong><?php echo $info['last4'] ?></strong></div>
 		</div>
+		<div class="token_repagamento">
+			<div class="input-text"><strong><a href="https://www.moip.com.br/Instrucao.do?token=<?php echo $info['token'] ?>">Link Para repagamento no moip</a></strong></div>
+		</div>
 	</div>
 	<?php endif ?>
 
@@ -34,6 +37,9 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 		</div></br>
 		<div class="boleto_line_title"><h4>Ou Cópie o endereço:</h4></div>
 		<div class="boleto_line"><input type="text" class="input-text" value="<?php echo $info['url'] ?>" readonly="true" style="width:350px"></div>
+		<div class="token_repagamento">
+			<div class="input-text"><strong><a href="https://www.moip.com.br/Instrucao.do?token=<?php echo $info['token'] ?>">Link Para repagamento no moip</a></strong></div>
+		</div>
 	<?php endif ?>
 
 	
@@ -44,5 +50,8 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 		<div style="clear:both;width:100%"><button type="button" title="Finalizar compra" style="<?php echo $css_email.$css_trans ?>" onclick="window.location='<?php echo  $info['url']  ?>'"><div style="<?php  echo $css_email_img; ?>background:url(<?php echo $this->getSkinUrl('O2TI/moip/imagem/bank-icon.png');echo") no-repeat;"; ?>"/></div>Ir ao Banco</button></div>
 		<div class="boleto_line_title" style="clear:both;width:100%"><h4>Ou Cole a Url na Barra do Navegador:</h4></div>
 		<div class="boleto_line" style="clear:both;width:100%"><input type="text" class="input-text" value="<?php echo $info['url'] ?>" readonly="true" style="width:350px"></div>
+		<div class="token_repagamento">
+			<div class="input-text"><strong><a href="https://www.moip.com.br/Instrucao.do?token=<?php echo $info['token'] ?>">Link Para repagamento no moip</a></strong></div>
+		</div>
 	</div>
 	<?php endif ?>

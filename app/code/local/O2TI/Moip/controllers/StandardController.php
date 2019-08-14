@@ -48,6 +48,8 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 		 	 if($res->Resposta->Status == "Sucesso"){
 		 	 	$result['status'] = (string)$res->Resposta->Status;
 		 	 	$result['token'] = (string)$res->Resposta->Token;
+		 	 	Mage::log($result['token'], null, 'O2TI_Moip.log', true);
+        		Mage::log($xml, null, 'O2TI_Moip.log', true);
 		 	 	$session->setResult_decode($result);
 		 	 	
 		 	 	return $result;
@@ -77,7 +79,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 		$session->setPgtoarry($pgtoArray);
 		$session->setClient_array($fields);
 		$this->loadLayout();
-		$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('O2TI_Moip_Block_Standard_Redirect'));
+		#$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('O2TI_Moip_Block_Standard_Redirect'));
 		if($pgtoArray['forma_pagamento'] == "BoletoBancario"){
 			$this->getLayout()->getBlock('content')->append('moip.boleto');
 		}
@@ -119,12 +121,16 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 				$order = Mage::getModel('sales/order')->load($order_magento, 'increment_id');
 				$id_order = $order->getId();
 				$states_atual = $order->getStatus();
-				if($states_atual == "pending"  && $data['status_pagamento'] != "2"){
+				if($states_atual == "pending"){
 					try{
 						$order->sendNewOrderEmail();
 					}
 					catch (Exception $ex) {  };
 				}
+				if($states_atual == 'processing'){
+								$naexecuta = 1;
+				}
+				Mage::log("Nasp acionou para o pedido ".$order_magento. " - Status - " .$data['status_pagamento'], null, 'O2TI_Moip.log', true);
 				if ($order->isCanceled() && $data['status_pagamento'] != "5") {
 					if (Mage::helper('sales/reorder')->canReorder($order)) {
 						$order->setState(Mage_Sales_Model_Order::STATE_NEW);
@@ -167,7 +173,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 							if($states_atual != 'processing'){
 								$state = Mage_Sales_Model_Order::STATE_PROCESSING;
 								$status = 'processing';
-								$comment = $this->getStatusPagamentoMoip($status);
+								$comment = $this->getStatusPagamentoMoip($status).' - Codig. Moip: '.$data['cod_moip'];
 								$invoice = $order->prepareInvoice();
 								if ($this->getStandard()->canCapture())
 								{
@@ -184,23 +190,27 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 					case "2":
 						$state = Mage_Sales_Model_Order::STATE_HOLDED;
 						$status = 'holded';
-						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
+						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']).' - Codig. Moip: '.$data['cod_moip'];
 					break;
 					case "3":
 							if($states_atual != 'processing' && $states_atual != 'holded'){
 								$state = Mage_Sales_Model_Order::STATE_HOLDED;
 								$status = 'holded';
-								$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
+								$comment = $this->getStatusPagamentoMoip($data['status_pagamento']).' - Codig. Moip: '.$data['cod_moip'];
 							} else {
 								$naexecuta = 1;
 							}
 					break;
-					
 					case "5":
 						$state = Mage_Sales_Model_Order::STATE_CANCELED;
 						$status = 'canceled';
-						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
+						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']).' - Codig. Moip: '.$data['cod_moip'].' - Motivo: '.utf8_encode($data['classificacao']);
 						$order->cancel();
+					break;
+					case "6":
+						$state = Mage_Sales_Model_Order::STATE_HOLDED;
+						$status = 'holded';
+						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']).' - Codig. Moip: '.$data['cod_moip'];
 					break;
 				}
 				if($naexecuta != 1){
@@ -209,6 +219,9 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 					$order->save();
 					echo 'Processo de retorno concluido para o pedido #'.$id_order.' Status '.$status;
 					Mage::log("Cliente do pedido ".$id_order. " - Status - " .$status, null, 'O2TI_Moip.log', true);
+				}
+				else {
+					Mage::log("Nao atualizado moip Cliente do pedido ".$id_order. " - Status - " .$status, null, 'O2TI_Moip.log', true);
 				}
 		}
 	}
@@ -260,7 +273,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 				break;
 			default:
 				$param = "nao criado";
-				break;
+			break;
 		}
 		return $param;
 	}

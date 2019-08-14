@@ -148,13 +148,7 @@
             <onestepcheckout>
                 <class>O2TI_Onestepcheckout_Block</class>
             </onestepcheckout>
-			<adminhtml>            
-				<rewrite>
-					<sales_order_grid>O2TI_Onestepcheckout_Block_Adminhtml_Onestepcheckout_Sales_Order_Grid</sales_order_grid> 
-				</rewrite>
-				<rewrite>	<system_config_form_field_regexception>O2TI_Onestepcheckout_Block_Adminhtml_Onestepcheckout_System_Config_Form_Field_Addtimerange</system_config_form_field_regexception>
-				</rewrite>	
-			</adminhtml>  
+		 
         </blocks>
         <helpers>
             <onestepcheckout>
@@ -162,15 +156,6 @@
             </onestepcheckout>
         </helpers>
         <events>
-            <model_config_data_save_before>
-            <observers>
-                <onstepcheckout>
-                    <type>singleton</type>
-                    <class>onestepcheckout/observer</class>
-                    <method>model_config_data_save_before</method>
-                </onstepcheckout>
-            </observers>
-           </model_config_data_save_before>
            <checkout_cart_add_product_complete>
            		<observers>
                 <onstepcheckout>
@@ -240,9 +225,12 @@
 				<create_account>1</create_account>
 				<style_color>000000</style_color>
 				<botao_color>000000</botao_color>
+				<default_country>BR</default_country>
 			</config>
 			<layout>
+				<use_secure>1</use_secure>
 				<page_titulo>Pagamento</page_titulo>
+				<page_conteudo>Sua compra segura via MoIP</page_conteudo>
 				<page_layout>3</page_layout>
 				<style_cor>000000</style_cor>
 				<botao_cor>000000</botao_cor>

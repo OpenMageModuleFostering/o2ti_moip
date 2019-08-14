@@ -11,10 +11,10 @@
  */
 $installer = $this;
 $installer->startSetup();
-
+$tablePrefix = (string) Mage::getConfig()->getTablePrefix();
 
 $installer->run("
-CREATE TABLE IF NOT EXISTS `o2ti_moip` (
+CREATE TABLE IF NOT EXISTS `{tablePrefix}o2ti_moip` (
   `order_id` int(11) NOT NULL AUTO_INCREMENT,
   `realorder_id` int(11) DEFAULT NULL,
   `meio_pg` longtext DEFAULT NULL,
