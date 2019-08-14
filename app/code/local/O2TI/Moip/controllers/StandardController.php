@@ -46,16 +46,20 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 
 		 	 $res = simplexml_load_string($res);
 		 	 if($res->Resposta->Status == "Sucesso"){
-		 	 	$result['status'] = (string)$res->Resposta->Status;
-		 	 	$result['token'] = (string)$res->Resposta->Token;
+		 	 	$result['status'] = $res->Resposta->Status->__toString();
+		 	 	$result['token'] = $res->Resposta->Token->__toString();
 		 	 	$session->setResult_decode($result);
+		 	 	
 		 	 	return $result;
 		 	 	}
 		 	 else {
 		 	 	$result['status'] = (string)$res->Resposta->Status;
 		 	 	$result['erro'] = (string)$res->Resposta->Erro;
+		 	 	Mage::log($result['erro'], null, 'O2TI_Moip.log', true);
+        		Mage::log($xml, null, 'O2TI_Moip.log', true);
 		 	 	return $result;
-		 	 } 
+		 	 }
+
 		    
     }
 	public function redirectAction() {
@@ -106,9 +110,10 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 		$validacao = $this->getRequest()->getParams();
 		if($validacao['validacao'] == $standard->getConfigData('validador_retorno')){
 				$data = $this->getRequest()->getPost();
-				$login = $standard->getConfigData('conta_moip');
+				$login = $standard->getConfigData('conta_moip')."_";
 				$data_moip = trim($data['id_transacao']);
-				$order_magento = str_replace($login, "", $data_moip);
+				$order_magento = strpos($data_moip, $login);
+				$order_magento = substr($data_moip, strpos($data_moip, "_") + 1);
 				$model = Mage::getModel('moip/write');
 				$model->load($order_magento, 'key_payment');
 				$order = Mage::getModel('sales/order')->load($order_magento, 'increment_id');
@@ -190,11 +195,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 								$naexecuta = 1;
 							}
 					break;
-					case "4":
-						$state = Mage_Sales_Model_Order::STATE_HOLDED;
-						$status = 'boleto_impresso';
-						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
-					break;
+					
 					case "5":
 						$state = Mage_Sales_Model_Order::STATE_CANCELED;
 						$status = 'canceled';
@@ -204,6 +205,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 				}
 				if($naexecuta != 1){
 					$order->setState($state, $status, $comment, $notified = true, $includeComment = true);
+					$order->sendOrderUpdateEmail(true, $comment);
 					$order->save();
 					echo 'Processo de retorno concluido para o pedido #'.$id_order.' Status '.$status;
 					Mage::log("Cliente do pedido ".$id_order. " - Status - " .$status, null, 'O2TI_Moip.log', true);

@@ -82,11 +82,11 @@ class O2TI_Moip_Model_Api {
         $vcmentoboleto = $pgto["vcmentoboleto"];
         $forma_pgto = "";
         $validacao_nasp = $standard->getConfigData('validador_retorno');
-        $url_retorno = Mage::getBaseUrl()."/Moip/standard/success/validacao/".$validacao_nasp."/";
+        $url_retorno =  Mage::getBaseUrl('web', true)."/Moip/standard/success/validacao/".$validacao_nasp."/";
         $valorcompra = $data['valor'];
         $vcmentoboleto = $standard->getConfigData('vcmentoboleto');
         $vcmento = date('c', strtotime("+" . $vcmentoboleto . " days"));
-        $forma_boleto = array('DiasExpiracao' => $vcmento);
+        $forma_boleto = array('DataVencimento' => $vcmento);
         if($pgto['tipoderecebimento'] =="0"):
           $tipoderecebimento = "Parcelado";
         else:
@@ -153,10 +153,9 @@ class O2TI_Moip_Model_Api {
             endif;
         endif;
 
-        if ($this->getAmbiente() == "teste")
+       
             $alterapedido = rand(999999, 99999999);
-        else
-            $alterapedido = "";
+        
         $recebedor = array(
             'LoginMoIP' => $pgto['conta_moip'],
             'Apelido' => $pgto['apelido'],
@@ -172,11 +171,12 @@ class O2TI_Moip_Model_Api {
             "CEP" => $data['pagador_cep'],
             "TelefoneFixo" => $data['pagador_ddd'] . $data['pagador_telefone']
         );
+        $id_proprio = $alterapedido.$pgto['conta_moip'].'_'.$data['id_transacao'];
         $dados = array(
             "Razao" => "Pagamento do pedido #" . $data['id_transacao'],
             "Valores" => array('Valor' => number_format($valorcompra, 2, '.', '')),
             "Recebedor" => $recebedor,
-            "IdProprio" => $alterapedido . $data['id_transacao'],
+            "IdProprio" => $id_proprio,
             "Pagador" => array(
                 "Nome" => $data['pagador_nome'],
                 "Email" => $data['pagador_email'],

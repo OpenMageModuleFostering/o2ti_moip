@@ -103,22 +103,26 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
     }
    
     public function getStandardCheckoutFormFields() {
-        if ($this->getQuote()->getIsVirtual()) {
+         if ($this->getQuote()->getIsVirtual()) {
             $a = $this->getQuote()->getBillingAddress();
             $b = $this->getQuote()->getShippingAddress();
         } else {
             $a = $this->getQuote()->getShippingAddress();
             $b = $this->getQuote()->getBillingAddress();
         };
-		$ss=Mage::getSingleton('customer/session')->getCustomer()->getEmail();		
-		if(!empty($ss)){
-			$email=Mage::getSingleton('customer/session')->getCustomer()->getEmail();
-		}elseif($b->getEmail() != "n/a@na.na")
-		$email= $b->getEmail();
-		elseif($a->getEmail() != "n/a@na.na")
-		$email= $a->getEmail();
+        $ss=Mage::getSingleton('customer/session')->getCustomer()->getEmail();      
+        if(!empty($ss)){
+            $email=Mage::getSingleton('customer/session')->getCustomer()->getEmail();
+        }elseif($b->getEmail() != "n/a@na.na")
+        $email= $b->getEmail();
+        elseif($a->getEmail() != "n/a@na.na")
+        $email= $a->getEmail();
+        if($email == "n/a@na.na"){
+            $email = "comprador@email.com";
+        }
         $currency_code = Mage::app()->getStore()->getCurrentCurrencyCode();
         $totalArr = $a->getTotals();
+
         $cep = substr(preg_replace("/[^0-9]/", "", $a->getPostcode()) . '00000000', 0, 8);
         $amount = $a->getGrandTotal();
         $shipping = $a->getShippingAmount();
@@ -138,7 +142,7 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
             'peso_compra' => $this->getPesoProdutosPedido(),
             'pagador_nome' => $a->getFirstname() . ' ' . $a->getLastname(),
             //'pagador_email' => Mage::getSingleton('customer/session')->getCustomer()->getEmail(),// this is original code of Moip
-			'pagador_email' => $a->getEmail(),
+			'pagador_email' => $email,
             'pagador_ddd' => $this->getNumberOrDDD($a->getTelephone(), true),
             'pagador_telefone' => $this->getNumberOrDDD($a->getTelephone()),
             'pagador_logradouro' => $a->getStreet(1),
