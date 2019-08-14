@@ -24,11 +24,18 @@ class MOIP_Transparente_Model_Standard extends Mage_Payment_Model_Method_Abstrac
         if (!($data instanceof Varien_Object)) {
             $data = new Varien_Object($data);
         }
+
         $info = $this->getInfoInstance();
         $info->setFormaPagamento($data->getFormaPagamento());
         $info->setDebitoInstituicao($data->getDebitoInstituicao());
         $info->setCreditoInstituicao($data->getCreditoInstituicao());
         $info->setCreditoNumero($data->getCreditoNumero());
+        $info->setUseCofre($data->getUseCofre());
+        $info->setCofreBrand($data->getCofreBrand());
+        $info->setCofreNumero($data->getCofreNumero());
+        $info->setCofreParcelamento($data->getCofreParcelamento());
+        $info->setCofreCvv($data->getCofreCvv());
+        $info->setSaveCart($data->getSaveCart());
         $info->setCreditoExpiracaoMes($data->getCreditoExpiracaoMes());
         $info->setCreditoExpiracaoAno($data->getCreditoExpiracaoAno());
         $info->setCreditoCodigoSeguranca($data->getCreditoCodigoSeguranca());
@@ -81,6 +88,12 @@ class MOIP_Transparente_Model_Standard extends Mage_Payment_Model_Method_Abstrac
         $pgtoArray['apelido'] = $this->getConfigData('apelido');
         $pgtoArray['credito_instituicao'] = $info->getCreditoInstituicao();
         $pgtoArray['credito_numero'] = $info->getCreditoNumero();
+        $pgtoArray['use_cofre'] = $info->getUseCofre();
+        $pgtoArray['cofre_brand'] = $info->getCofreBrand();
+        $pgtoArray['cofre_numero'] = $info->getCofreNumero();
+        $pgtoArray['cofre_parcelamento'] = $info->getCofreParcelamento();
+        $pgtoArray['cofre_cvv'] = $info->getCofreCvv();
+        $pgtoArray['save_cart'] = $info->getSaveCart();
         $pgtoArray['credito_expiracao_mes'] = $info->getCreditoExpiracaoMes();
         $pgtoArray['credito_expiracao_ano'] = $info->getCreditoExpiracaoAno();
         $pgtoArray['credito_codigo_seguranca'] = $info->getCreditoCodigoSeguranca();
@@ -126,8 +139,8 @@ class MOIP_Transparente_Model_Standard extends Mage_Payment_Model_Method_Abstrac
             'pagador_ddd' => $this->getNumberOrDDD($a->getTelephone(), true),
             'pagador_telefone' => $this->getNumberOrDDD($a->getTelephone()),
             'pagador_logradouro' => $a->getStreet(1),
-            'pagador_numero' => $this->getNumEndereco($a->getStreet(1)),
-            'pagador_complemento' => $a->getStreet(2),
+            'pagador_numero' => $a->getStreet(2),
+            'pagador_complemento' => $a->getStreet(3),
             'pagador_bairro' => $a->getStreet(4),
             'pagador_cep' => $cep,
             'pagador_cidade' => $a->getCity(),

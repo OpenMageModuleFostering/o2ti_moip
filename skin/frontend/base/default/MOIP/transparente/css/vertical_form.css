@@ -42,3 +42,33 @@ li > .method-price{float:left; display:block;width: 10%;margin-left:10px}
 .transparente-payment-method-content .form-list label{float:left !important;}
 
 #formcli{clear: both;}
+li.cofre {
+width: 100%;
+clear: both;
+float: left;
+border-bottom: 1px solid #ccc;
+padding-bottom: 10px;
+}
+.image_cofre {
+width: 30%;
+float: left;
+margin-right: 5%;
+}
+.image_cofre > img{
+	width: 70%;
+	float: left;
+	padding: 10%;
+}
+.cofre_number {
+width: 55%;
+float: left;
+}
+
+.radio_cofre {
+float: left;
+width: 10%;
+}
+input#cartao_salvo {
+margin-top: 15px;
+margin-left: 5px;
+}

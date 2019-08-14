@@ -43,7 +43,7 @@
 					</li>
 					<li>
 						<label>Institui&ccedil;&atilde;o:</label>
-						<select id="instituicao" name="bandeira">
+						<select id="bandeira" name="bandeira">
 						  <option value="Visa">Visa</option>
 						  <option value="Mastercard">Mastercard</option>
 						  <option value="AmericanExpress">AmericanExpress</option>
@@ -91,5 +91,9 @@
 				</ul>
 			</div>
 </form>
-
-	
+<script type="text/javascript">
+//<![CDATA[
+jQuery("#bandeira option[value=<?php echo $dados['credito_instituicao'] ?>]").attr('selected','selected');
+jQuery("#Parcelas option[value=<?php echo $dados['credito_parcelamento'] ?>]").attr('selected','selected');
+//]]>
+</script>

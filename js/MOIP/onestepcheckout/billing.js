@@ -1,25 +1,7 @@
 jQuery(function() {
 	
 
-	jQuery('#billing\\:confirm_password').focusout(function() {
-		var val_pass=jQuery('#billing\\:customer_password').val();
-		var val_pass2=jQuery('#billing\\:confirm_password').val();
-		if(val_pass != val_pass2){
-			jQuery("#senha_invalida").html('');
-			jQuery(".senha_invalida").removeClass('validation-advice');
-			jQuery('#billing\\:confirm_password').after('<div class="validation-advice senha_invalida" id="senha_invalida">As Senhas não são iguais</div>');}
-		else{
-			jQuery("#senha_invalida").html('');
-			jQuery(".senha_invalida").removeClass('validation-advice');
-		}
-	});
-	jQuery('#billing\\:taxvat').focusout(function() {
-		var cpf = jQuery('#billing\\:taxvat').val();
-		var cpf = cpf.replace(/\./g, "");
-		var cpf = cpf.replace(/\-/g, "");
-		if(cpf>0)
-		TestaCPF(cpf);
-	});
+	
 
 	jQuery('#billing\\:email').focusout(function() {
 		jQuery('#advice-validate-email-billing\\:email').html("");
@@ -32,24 +14,11 @@ jQuery(function() {
 		updateEmailmsg(val);
 		}
 		else{
-		jQuery('#advice-validate-email-billing\\:email').html("");
-		jQuery('#billing\\:email').after('<div class="validation-advice email_invalido" id="advice-validate-email-billing:email">Informe um endereço de email válido. Por exemplo seunome@gmail.com.</div>');
+
 		}
 	}
 	});
 	
-	var counter = 0;
-	jQuery('.form-list').find('.field').each(function(){
-		if(counter%2==0){
-			jQuery(this).addClass('even');
-			if(jQuery(this).next().is('.wide')){
-				counter++;
-			}
-		}else{
-			jQuery(this).addClass('odd');
-		}
-		counter++;
-	})
 
 });
 

@@ -473,6 +473,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			$customerAddressId = $this->getRequest()->getPost($isbilling.'_address_id', false);
 			
 			if (($postData['country_id']!='')  or $customerAddressId) {
+
 				$postData = $this->filterdata($postData);
 				$postData['use_for_shipping']='1';
 				if (version_compare(Mage::getVersion(), '1.4.0.1', '>='))
@@ -483,9 +484,9 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 					$data['email'] = trim($data['email']);
 				}
 				if ($isbilling="billing") {
-					$result = $this->getOnepage()->saveBilling($data, $customerAddressId);}
+					$result = $this->getOnepage()->saveBilling($data, '');}
 				else
-					$result = $this->getOnepage()->saveShipping($data, $customerAddressId);
+					$result = $this->getOnepage()->saveShipping($data, '');
 			}
 			
 		}
@@ -955,22 +956,17 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		$this->loadLayout()->renderLayout();
 
 	}
+	
 
 	public function updatebillingform() {
 		if ($this->getRequest()->isPost()) {
+			$billing_data = $this->getRequest()->getPost('billing', array());
 			$postData=$this->getRequest()->getPost();
 			$customerAddressId = $postData['billing_address_id'];
 			if (intval($customerAddressId)!=0) {
-				$postData = $this->filterdata($postData);
-				if (version_compare(Mage::getVersion(), '1.4.0.1', '>='))
-					$data = $this->_filterPostData($postData);
-				else
-					$data=$postData;
-
-				if (isset($data['email'])) {
-					$data['email'] = trim($data['email']);
-				}
-				$result = $this->getOnepage()->saveBilling($data, $customerAddressId);
+				$data = $postData;
+				$billingAddressId = $this->getRequest()->getPost('billing_address_id');
+				$result = $this->getOnepage()->saveBilling($billing_data, $billingAddressId);
 			}
 			else {
 

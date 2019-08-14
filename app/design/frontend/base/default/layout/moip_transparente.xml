@@ -1,32 +1,26 @@
 <?xml version="1.0"?>
 <layout version="0.1.0">
-	<sales>
-		<block type="Transparente/Standard_Info" name="transparente.info" template="MOIP/transparente/info.phtml"></block>
-	</sales>
 	<onepagecheckout_index_index>
 		<reference name="head">
+			<action method="removeItem"><type>skin_js</type><name>js/lib/jquery-1.10.2.min.js</name></action>
 			<action method="addJs" ifconfig="moipall/config/enable_jquery"><script>MOIP/jquery.js</script></action>
-   	 		<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>				
-			<action method="addJs"><script>MOIP/transparente/checkout.js</script></action>
-
-
+   	 		<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>
+   	 		
 		</reference>
 	</onepagecheckout_index_index>
-	 <checkout_onepage_index>
+
+	<checkout_onepage_index>
 		<reference name="head">
-			<action method="addJs" ifconfig="moipall/config/enable_jquery"><script>MOIP/jquery.js</script></action>
-	   	 	<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>
-	   	 	<action method="addJs"><script>MOIP/jquery.mask.min.js</script></action>
-	   	 	<action method="addJs"><script>MOIP/script_mask.js</script></action>
-	   	 	<action method="addJs"><script>MOIP/validacao.js</script></action>
-	   	 	<action method="addJs"><script>MOIP/transparente/checkout.js</script></action>
+	   	 	
 		</reference>
 	</checkout_onepage_index>
-	<transparente_standard_redirect>
 
+	<transparente_standard_redirect>
 		<reference name="head">
+			<action method="removeItem"><type>skin_js</type><name>js/lib/jquery-1.10.2.min.js</name></action>
 			<action method="setTitle"><params><![CDATA[Pagamento via MoIP S/A]]></params></action> 
 			<action method="addJs" ifconfig="moipall/config/enable_jquery"><script>MOIP/jquery.js</script></action>
+
    	 		<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>
    	 		<action method="addJs"><script>MOIP/transparente/bootstrap.min.js</script></action>
    	 		<action method="addJs"><script>MOIP/transparente/bootstrap-modal.js</script></action>
@@ -34,43 +28,41 @@
 			<action method="addJs"><script>MOIP/script_mask.js</script></action>
    	 		<action method="addJs"><script>MOIP/validacao.js</script></action>
 			<action method="addCss"><stylesheet>MOIP/transparente/css/bootstrap.css</stylesheet></action>
+  	 	
+
 
 			<!-- para o tema ultimo remove esse comentario, nao esquecer da linha de baixo e do checkout 
-	<action method="removeItem"><type>js</type><name>infortis/jquery/jquery-1.7.2.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/jquery-noconflict.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.owlcarousel.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.easing.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.accordion.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.tabs.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.ba-throttle-debounce.min.js</name></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.owlcarousel.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.easing.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.accordion.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.tabs.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.ba-throttle-debounce.min.js</script></action>
--->
+				<action method="removeItem"><type>js</type><name>infortis/jquery/jquery-1.7.2.min.js</name></action>
+				<action method="removeItem"><type>js</type><name>infortis/jquery/jquery-noconflict.js</name></action>
+				<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.owlcarousel.min.js</name></action>
+				<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.easing.min.js</name></action>
+				<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.accordion.min.js</name></action>
+				<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.tabs.min.js</name></action>
+				<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.ba-throttle-debounce.min.js</name></action>
+				<action method="addJs"><script>infortis/jquery/plugins/jquery.owlcarousel.min.js</script></action>
+				<action method="addJs"><script>infortis/jquery/plugins/jquery.easing.min.js</script></action>
+				<action method="addJs"><script>infortis/jquery/plugins/jquery.accordion.min.js</script></action>
+				<action method="addJs"><script>infortis/jquery/plugins/jquery.tabs.min.js</script></action>
+				<action method="addJs"><script>infortis/jquery/plugins/jquery.ba-throttle-debounce.min.js</script></action>
+
+				outros exemplos:
+				em breve...
+			-->
 		</reference>
 		<reference name="root">
 			<action method="setTemplate"><template>page/1column.phtml</template></action>
 		</reference>
-		<reference name="left">
-			
+		<reference name="content">
 			<block type="MOIP_Transparente_Block_Standard_Redirect" name="transparente.comum" template="MOIP/transparente/redirect.phtml">
-            </block>
-			<block type="MOIP_Transparente_Block_Standard_Redirect" name="transparente.transferencia" template="MOIP/transparente/transferencia.phtml">
-            </block>
-            <block type="MOIP_Transparente_Block_Standard_Redirect" name="transparente.boleto" template="MOIP/transparente/boleto.phtml">
-					<block type="MOIP_Transparente_Block_Standard_Redirect" name="cartao_form" template="MOIP/transparente/layout_boleto.phtml">
-            			<action method="setBlockId"><block_id>cartao_form</block_id></action>
-					</block>
-            </block>
-             <block type="MOIP_Transparente_Block_Standard_Redirect" name="transparente.cartao" template="MOIP/transparente/cartao.phtml">
-             	<block type="MOIP_Transparente_Block_Standard_Redirect" name="cartao_form" template="MOIP/transparente/refaz.phtml">
-            		<action method="setBlockId"><block_id>cartao_form</block_id></action>
-            	</block>
+				<block type="MOIP_Transparente_Block_Standard_Redirect" name="transparente.transferencia" template="MOIP/transparente/transferencia.phtml"></block>
+	            <block type="MOIP_Transparente_Block_Standard_Redirect" name="transparente.boleto" template="MOIP/transparente/boleto.phtml"></block>
+	            <block type="MOIP_Transparente_Block_Standard_Redirect" name="transparente.cartao" template="MOIP/transparente/cartao.phtml">
+	             	<block type="MOIP_Transparente_Block_Standard_Redirect" name="cartao_form" template="MOIP/transparente/refaz.phtml">
+	            		<action method="setBlockId"><block_id>cartao_form</block_id></action>
+	            	</block>
+	            </block>
             </block>
 		</reference>
-		
 	</transparente_standard_redirect>
 
 	<transparente_index_index>
@@ -87,7 +79,7 @@
 	
 	<sales_order_view>
 		<reference name="head">
-				<action method="addJs"><script>MOIP/jquery.js</script></action>
+			<action method="addJs"><script>MOIP/jquery.js</script></action>
    	 		<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>
    	 		<action method="addJs"><script>MOIP/transparente/bootstrap.min.js</script></action>
    	 		<action method="addJs"><script>MOIP/transparente/bootstrap-modal.js</script></action>
@@ -98,20 +90,11 @@
 		</reference>
 	</sales_order_view>
 
-	<transparente_info>
-		<reference name="content">
-				<action method="setTemplate"><template>MOIP/transparente/info.phtml</template></action>
-				<block type="MOIP_Transparente_Block_Info" name="transparente_info"  template="MOIP/transparente/info.phtml">
-					<block type="MOIP_Transparente_Block_Info" name="transparente.info" template="MOIP/transparente/form.phtml">
-	            		<action method="setBlockId"><block_id>refaz_forma</block_id></action>
-	            	</block>
-				</block>
-		</reference>
-	</transparente_info>
+	
 
-	 <customer_address_form>
+	<customer_address_form>
         <reference name="head">
-				<action method="addJs"><script>MOIP/jquery.js</script></action>
+			<action method="addJs"><script>MOIP/jquery.js</script></action>
    	 		<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>
    	 		<action method="addJs"><script>MOIP/transparente/bootstrap.min.js</script></action>
    	 		<action method="addJs"><script>MOIP/transparente/bootstrap-modal.js</script></action>
@@ -120,9 +103,36 @@
    	 		<action method="addJs"><script>MOIP/validacao.js</script></action>
 			<action method="addCss"><stylesheet>MOIP/transparente/css/bootstrap.css</stylesheet></action>
 		</reference>
-		
         <reference name="my.account.wrapper">
             <block type="customer/address_edit" name="customer_address_edit" template="MOIP/customer/address/edit.phtml"/>
         </reference>
     </customer_address_form>
+
+    <sales>
+		<block type="MOIP_Transparente_Block_Standard_Info" name="transparente.info" template="MOIP/transparente/info.phtml"></block>
+	</sales>
+
+	
+    <customer_account>
+	    <reference name="customer_account_navigation">
+	        <action method="addLink" translate="label" module="transparente"><name>transparente</name><path>transparente/index/Cartoes</path><label>Meus Cartões</label></action>
+	    </reference>
+	</customer_account>
+
+	<transparente_index_cartoes>
+		<reference name="head">
+			<action method="addJs"><script>MOIP/jquery.js</script></action>
+   	 		<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>
+   	 		 <action method="addItem"><type>skin_css</type><name>MOIP/transparente/css/cartao_save.css</name></action>
+		</reference>
+		<update handle="customer_account"/>
+		<reference name="root">
+			<action method="setTemplate"><template>page/2columns-left.phtml</template></action>
+		</reference>
+		<reference name="content">
+			<block type="MOIP_Transparente_Block_Standard_CartSave" template="MOIP/transparente/cartoes_my_account.phtml">
+			</block>
+		</reference>
+		
+	</transparente_index_cartoes>
 </layout>

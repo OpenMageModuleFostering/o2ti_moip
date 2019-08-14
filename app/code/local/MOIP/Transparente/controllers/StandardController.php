@@ -13,6 +13,11 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 	public function getStandard() {
 		return Mage::getSingleton('transparente/standard');
 	}
+	public function _prepareLayout()
+	{
+		$this->addMessages(Mage::getSingleton('core/session')->getMessages(true));
+		parent::_prepareLayout();
+	}
 
 	protected function _expireAjax() {
 		if (!Mage::getSingleton('checkout/session')->getQuote()->hasItems()) {
@@ -44,13 +49,6 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array($header, $documento));
 			$res = curl_exec($ch);
-			if($res === false)
-				{
-				    
-				    Mage::log(curl_error($ch), null, 'MOIP_Transparente.log', true);
-				    Mage::log($xml, null, 'MOIP_Transparente.log', true);
-				    $this->generateToken($xml);
-				}
 		 	curl_close($ch); 
 
 
@@ -61,14 +59,14 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 		 	 	Mage::log($result['token'], null, 'MOIP_Transparente.log', true);
         		Mage::log($xml, null, 'MOIP_Transparente.log', true);
 		 	 	$session->setResult_decode($result);
-		 	 	
 		 	 	return $result;
 		 	 	}
 		 	 else {
-		 	 	$result['status'] = (string)$res->Resposta->Status;
 		 	 	$result['erro'] = (string)$res->Resposta->Erro;
-		 	 	Mage::log("erro em status do server transparente".$result['erro'], null, 'MOIP_Transparente.log', true);
+		 	 	Mage::log("Erro em status do server transparente ".$result['erro'], null, 'MOIP_Transparente.log', true);
         		Mage::log($xml, null, 'MOIP_Transparente.log', true);
+        		Mage::getSingleton('core/session')->addError('Não foi possível processar o seu pagamento: motivo '.$result['erro'].' Corrija o dado solcitado e tente comprar novamente.');
+
 		 	 	return $result;
 		 	 }
 
@@ -76,6 +74,9 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
     }
 	public function redirectAction() {
 		$session = Mage::getSingleton('checkout/session');
+		$session->setCurrent_order('');
+		$session->setPgtoarry('');
+		$session->setClient_array('');
 		$getSaltes = Mage::getModel('sales/order');
 		$standard = $this->getStandard();
 		$fields = $session->getTransparenteFields();
@@ -88,16 +89,6 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 		$session->setPgtoarry($pgtoArray);
 		$session->setClient_array($fields);
 		$this->loadLayout();
-		#$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('MOIP_Transparente_Block_Standard_Redirect'));
-		if($pgtoArray['forma_pagamento'] == "BoletoBancario"){
-			$this->getLayout()->getBlock('content')->append('transparente.boleto');
-		}
-		elseif ($pgtoArray['forma_pagamento'] == "DebitoBancario") {
-			$this->getLayout()->getBlock('content')->append('transparente.transferencia');
-		}
-		elseif ($pgtoArray['forma_pagamento'] == "CartaoCredito") {
-			$this->getLayout()->getBlock('content')->append('transparente.cartao');
-		}
 		$this->renderLayout();
 	}
 	
@@ -118,6 +109,7 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 	public function successAction() {
 		$standard = $this->getStandard();
 		$naexecuta = "";
+		$nao_processa = "";
 		$validacao = $this->getRequest()->getParams();
 		if($validacao['validacao'] == $standard->getConfigData('validador_retorno')){
 				$data = $this->getRequest()->getPost();
@@ -126,9 +118,18 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 				$order_magento = strpos($data_transparente, $login);
 				$order_magento = substr($data_transparente, strpos($data_transparente, "_") + 1);
 				$model = Mage::getModel('transparente/write');
-				$model->load($order_magento, 'key_payment');
+				
 				$order = Mage::getModel('sales/order')->load($order_magento);
 				$id_order = $order->getId();
+				$incrementid = $order->getIncrementId();
+				$model->load($incrementid, 'realorder_id');
+				$meio_pago = $model->getMeioPg();			
+				if($meio_pago == "CartaoCredito"){
+					if($model->getAceitaCofre() == 1){
+						$model->setCofre($data['cofre']);
+						$model->save();
+					}
+				}
 				$states_atual = $order->getStatus();
 				if($states_atual == "processing"){
 					$naexecuta = 1;
@@ -139,16 +140,21 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 				if($states_atual == "closed"){
 					$naexecuta = 1;
 				}
+				if($states_atual == 'canceled' && $data['status_pagamento']!=1){
+					$naexecuta = 1;
+				}
 				if($states_atual == 'canceled' && $data['status_pagamento']==5){
 					$naexecuta = 1;
 				}
 				Mage::log("Nasp acionou para o pedido ".$order_magento. " - Status - " .$data['status_pagamento'], null, 'MOIP_Transparente.log', true);
-				if ($order->isCanceled() && $data['status_pagamento'] != "5") {
-					if (Mage::helper('sales/reorder')->canReorder($order)) {
+				if ($order->isCanceled() && $data['status_pagamento'] == "1") {
+					
 						$order->setState(Mage_Sales_Model_Order::STATE_NEW);
 						$produtos = array();
+						
+						#$order->hold()->save();
 						foreach ($order->getAllItems() as $item) {
-							$item->setQtyCanceled(1);
+							$item->setQtyCanceled($item->getQtyOrdered());
 							$item->save();
 							$stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getProductId());
 							$stockItem->subtractQty($item->getQtyOrdered());
@@ -160,11 +166,11 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 							$rowTotal = $item->getPrice();
 							$orderItem = Mage::getModel('sales/order_item')
 									->setStoreId($order->getStore()->getStoreId())
-									->setQuoteItemId(NULL)
+									->setQuoteItemId($item->getId())
 									->setQuoteParentItemId(NULL)
 									->setProductId($item->getId())
 									->setProductType($item->getTypeId())
-									->setQtyBackordered(NULL)
+									->setQtyBackordered($qty)
 									->setTotalQtyOrdered($qty)
 									->setQtyOrdered($qty)
 									->setName($item->getName())
@@ -177,12 +183,31 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 									->setOrder($order);
 							$orderItem->save();
 						}
+
 						$order->save();
-					}
+
+						$nao_processa = 1;
+						$state = Mage_Sales_Model_Order::STATE_PROCESSING;
+						$status = 'processing';
+						$comment = $this->getStatusPagamentoTransparente($status).' - Codig. Transparente: '.$data['cod_moip'];
+						$order->setState($state, $status, $comment, $notified = true, $includeComment = true);
+						$order->save();
+						$order->unhold()->save();
+						$invoice = $order->prepareInvoice();
+								if ($this->getStandard()->canCapture())
+								{
+										$invoice->register()->capture();
+								}
+						Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
+						$invoice->sendEmail();
+						$invoice->setEmailSent(true);
+						$order->save();
+						sleep(1);
+					
 				}
 				switch ($data['status_pagamento']) {
 					case "1":
-							if($states_atual != 'processing'){
+							if($states_atual != 'processing' && $nao_processa != 1){
 								$state = Mage_Sales_Model_Order::STATE_PROCESSING;
 								$status = 'processing';
 								$comment = $this->getStatusPagamentoTransparente($status).' - Codig. Transparente: '.$data['cod_moip'];
@@ -214,12 +239,16 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 							}
 					break;
 					case "5":
+						$order->hold()->save();
+						$order->unhold()->save();
+						sleep(1);
 						$state = Mage_Sales_Model_Order::STATE_CANCELED;
 						$status = 'canceled';
 						$comment = $this->getStatusPagamentoTransparente($data['status_pagamento']).' - Codig. Transparente: '.$data['cod_moip'].' - Motivo: '.utf8_encode($data['classificacao']);
 						$order->cancel();
 					break;
 					case "6":
+						
 						$state = Mage_Sales_Model_Order::STATE_HOLDED;
 						$status = 'holded';
 						$comment = $this->getStatusPagamentoTransparente($data['status_pagamento']).' - Codig. Transparente: '.$data['cod_moip'];
@@ -234,10 +263,10 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 							}
 						}
 					echo 'Processo de retorno concluido para o pedido #'.$id_order.' Status '.$status;
-					Mage::log("Cliente do pedido ".$id_order. " - Status - " .$states_atual, null, 'MOIP_Transparente.log', true);
+					Mage::log("Cliente do pedido ".$id_order. " - Status - " .$states_atual ." retorno completo ".implode('', $data), null, 'MOIP_Transparente.log', true);
 				}
 				else {
-					Mage::log("Nao atualizado transparente Cliente do pedido ".$id_order. " - Status - " .$states_atual , null, 'MOIP_Transparente.log', true);
+					Mage::log("Nao atualizado transparente Cliente do pedido ".$id_order. " - Status - " .$states_atual ." retorno completo ".implode('', $data) , null, 'MOIP_Transparente.log', true);
 				}
 		}
 	}
@@ -321,36 +350,31 @@ class MOIP_Transparente_StandardController extends Mage_Core_Controller_Front_Ac
 	}
 
 			
-public function post_correio($url, $get) {
+		public function post_correio($url, $get) {
 				$url = explode('?', $url, 2);
-				
 				$ch = curl_init($url[0]."?".http_build_query($get));
 				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				
 				return curl_exec($ch);
 			}
 	public function buscaCepAction() {
 		$data = $this->getRequest()->getParams();
 		if ($data['meio'] == "buscaend") {
-			
-			$rua = $data['busca_end'];
+			$rua = $data['logradouro'];
 			$vSomeSpecialChars = array("á", "á","é","é", "í","í", "ó", "ú", "Á","À","É","È", "Í", "Ì","Ó", "Ú", "ç", "Ç", "ã", "Ã", "õ", "Õ");
 			$vReplacementChars = array("a", "a", "e","e", "i","i", "o", "u", "A", "A","E","E", "I", "I","O", "U", "c", "C", "a", "A", "o", "O");
 			$rua = str_replace($vSomeSpecialChars, $vReplacementChars, $rua);
-			$rua = preg_replace('/[^\p{L}\p{N}]/u', '+', $rua);
+			$rua = trim($rua);
 			$uf = $data['busca_uf'];
-			$url_end = "http://endereco.ecorreios.com.br/getAddress.php?";
+			$url_end = "http://endereco.ecorreios.com.br/app/enderecoCep.php";
 			$get = array(
-				'cep' =>'',
+				'cep' => '0',
 				'busca_end' =>$rua,
 				'busca_uf' =>$uf,
 				);
 			$config = array('adapter' => 'Zend_Http_Client_Adapter_Socket');
 			$resposta = $this->post_correio($url_end, $get);
-			
-			
 			$this->getResponse()->setBody($resposta);
 		}
 
@@ -365,20 +389,22 @@ public function post_correio($url, $get) {
 				$ch = curl_init($url[0]."?".http_build_query($get));
 				curl_setopt($ch, CURLOPT_POST, 1);
 				curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
-				curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_0 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8A293 Safari/6531.22.7');
-				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				Mage::log(curl_exec($ch));
 				return curl_exec($ch);
 			}
 			$cep = $data['cep'];
 			$cep = substr(preg_replace("/[^0-9]/", "", $cep) . '00000000', 0, 8);
-			$url_end = "http://endereco.ecorreios.com.br/getAddress.php?cep={$cep}";
+			$url_end = "http://endereco.ecorreios.com.br/app/enderecoCep.php?cep={$cep}";
 			$config = array('adapter' => 'Zend_Http_Client_Adapter_Socket');
 			$client = new Zend_Http_Client($url_end, $config);
 			$response = $client->request();
-			$endereco =  Zend_Json::decode($response->getBody());
+			
+			if($response->getBody() != "503"){
+			$res = $response->getBody();
+			
+			$endereco = Mage::helper('core')->jsonDecode($res);
+			
+
 			switch ($endereco['uf']) {
 				case "AC":
 					$endereco['ufid'] = 485;
@@ -462,7 +488,8 @@ public function post_correio($url, $get) {
 					$endereco['ufid'] = 511;
 					break;
 			}
-			$this->getResponse()->setBody(Zend_Json::encode($endereco));
+			$this->getResponse()->setBody(Mage::helper('core')->jsonEncode((object)$endereco));
+			}
 		}
 	}
 }

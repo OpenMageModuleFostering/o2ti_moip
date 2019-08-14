@@ -439,7 +439,19 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </vcmentoboleto>
-            
+             <estoqueboleto translate="label">
+              <label>Permitir compra por boleto apenas e estoque for maior ou igual a:</label>
+      <comment><![CDATA[<br /><div class="custom-options  "><div class="box" style="width:243px;">
+                    <p>Informe a quantidade mínima em estoque que permite ao cliente pagar por boleto.</br>
+      Para não limitar a geração do boleto informe um valor negativo ex: -99.</p>
+                </div></div>]]>
+              </comment>
+              <frontend_type>text</frontend_type>
+              <sort_order>81</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </estoqueboleto>
            
             <allowspecific translate="label">
               <label>Pagamento a partir de países aplicáveis</label>

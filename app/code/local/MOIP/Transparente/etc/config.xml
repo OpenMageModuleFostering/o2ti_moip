@@ -2,7 +2,7 @@
 <config>
 	<modules>
 		<MOIP_Transparente>
-			<version>0.2.0</version>
+			<version>0.2.1</version>
 		</MOIP_Transparente>
 	</modules>
 	<global>
@@ -136,9 +136,10 @@
 				<pagamento_direto>1</pagamento_direto>
 				<parcelamento>1</parcelamento>
 				<jurostipo>1</jurostipo>
+				<estoqueboleto>-99</estoqueboleto>
 				<parcelamento_c_de1>1</parcelamento_c_de1>
 				<parcelamento_c_ate1>12</parcelamento_c_ate1>
-				<parcelamento_c_juros1>1.99</parcelamento_c_juros1>
+				<parcelamento_c_juros1>2.99</parcelamento_c_juros1>
 				<parcelamento_s_juros2>1.25</parcelamento_s_juros2>
 				<parcelamento_s_juros3>2.49</parcelamento_s_juros3>
 				<parcelamento_s_juros4>3.74</parcelamento_s_juros4>

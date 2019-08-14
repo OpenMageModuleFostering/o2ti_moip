@@ -62,16 +62,16 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 				$api = $this->getTransparente();
 				$resposta_transparente =  $info['token'];
 				if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") { 
-				    $url = "https://desenvolvedor.moip.com.br/sandbox/Instrucao.do?token=";
-				    $urljs = "https://desenvolvedor.moip.com.br/sandbox/";
+				     $url = "https://desenvolvedor.moip.com.br/sandbox/Instrucao.do?token=";
+  					 $urljs = "https://desenvolvedor.moip.com.br/sandbox/";
 				   }
 				   else {
 				    $url = "https://www.moip.com.br/Instrucao.do?token=";
-				    $urljs = "https://www.moip.com.br/";
+    				$urljs = "https://www.moip.com.br/";
 				}
 			?>
-<script type="text/javascript" charset="ISO-8859-1" src="<?php echo $urljs ?>/transparente/TransparenteWidget-v2.js" onerror="erro_mail('erro caiu o transparente widget')" ></script>
-<div id="TransparenteWidget" data-token="<?php echo $info['token'] ?>" callback-method-error="erroValidacao" callback-method-success="sucesso"></div>
+<script type="text/javascript" charset="ISO-8859-1" src="<?php echo $urljs ?>transparente/MoipWidget-v2.js" onerror="erro_mail('erro caiu o transparente widget')" ></script>
+<div id="MoipWidget" data-token="<?php echo $resposta_transparente ?>" callback-method-error="erroValidacao" callback-method-success="sucesso"></div>
 <div class="refaz_pg" style="clear:both;width:100%">
 	<div>
 		<button type="button" title="Finalizar compra"  style="background:none repeat scroll 0 0 #337baa;margin:10px;border-radius:3px;padding:10px 5px;width:250px;float:left;text-align:center;color:#ffffff;font-weight:normal;font-size:13px;display:block;text-decoration:none;font-family:Arial,Helvetica,sans-serif;border: none;margin-top: 10px !important;" onclick="jQuery('#showXml').modal('toggle')">
@@ -90,9 +90,10 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 			</div>
 			<div class="retorno_transparente">
 			</div>
+			<div class="erros_transparente"></div>
 			<form method="POST" action='<?php echo Mage::getBaseUrl('web', true); ?>transparente/index/Novaforma/' id="refaz_pg_forma">
 				<input type="hidden"  name="forma_de_pagamento" id="forma_de_pagamento" value="" >
-				<input type="hidden"  name="transparente_id" value="<?php echo $info['token'] ?>">
+				<input type="hidden"  name="transparente_id" value="<?php echo $resposta_transparente ?>">
 				<input type="hidden"  name="order_id" value="<?php echo $info['realorder_id'] ?>">
 				
 
@@ -101,9 +102,11 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 						<li data-target="CartaoCredito" class='transparente-payment-method-line' style="padding: 10px 15px;background: #EEE;border-radius: 5px 5px 0 0;margin-right: 10px;cursor:pointer;">
 							Cartão de Crédito
 						</li>
-						<li data-target="BoletoBancario" class='transparente-payment-method-line' style="padding: 10px 15px;background: #EEE;border-radius: 5px 5px 0 0;margin-right: 10px;cursor:pointer;">
-							Boleto Bancário
-						</li>
+						<?php if($info['result_meio'] == "Boleto Bancário"): ?>
+							<li data-target="BoletoBancario" class='transparente-payment-method-line' style="padding: 10px 15px;background: #EEE;border-radius: 5px 5px 0 0;margin-right: 10px;cursor:pointer;">
+								Boleto Bancário
+							</li>
+						<?php endif; ?>
 						<li data-target="DebitoBancario" class='transparente-payment-method-line' style="padding: 10px 15px;background: #EEE;border-radius: 5px 5px 0 0;margin-right: 10px;cursor:pointer;">
 							Débito Bancário
 						</li>
@@ -117,7 +120,7 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 					<div><h4>Selecione o Banco.</h4></div>
 					<div>
 						<ul>
-							<li><label><input type="radio" name="instituicao"  id="instituicao" value="BancodoBrasil" onclick="jQuery('.pagar_trans').show()"> Banco do Brasil</label></li>
+							<li><label><input type="radio" name="instituicao"  id="instituicao" value="BancoDoBrasil" onclick="jQuery('.pagar_trans').show()"> Banco do Brasil</label></li>
 							<li><label><input type="radio" name="instituicao"  id="instituicao" value="Bradesco" onclick="jQuery('.pagar_trans').show()"> Bradesco</label></li>
 							<li><label><input type="radio" name="instituicao" id="instituicao" value="Itau" onclick="jQuery('.pagar_trans').show()"> Itaú</label></li>
 							<li><label><input type="radio" name="instituicao" id="instituicao" value="Banrisul" onclick="jQuery('.pagar_trans').show()"> Banrisul</label></li>
@@ -174,11 +177,11 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 									<li>
 										<label>Institui&ccedil;&atilde;o:</label>
 										<select id="bandeira" name="bandeira">
-										  <option value="VISA">Visa</option>
-										  <option value="MASTERCARD">Mastercard</option>
-										  <option value="AMERICANEXPRESS">AmericanExpress</option>
-										  <option value="HIPERCARD">Hipercard</option>
-										  <option value="DINERS">Diners</option>
+										  <option value="Visa">Visa</option>
+										  <option value="Mastercard">Mastercard</option>
+										  <option value="AmericanExpress">AmericanExpress</option>
+										  <option value="Hipercard">Hipercard</option>
+										  <option value="Diners">Diners</option>
 										</select>
 									</li>
 									<li>
@@ -193,8 +196,8 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 									</li>
 									<li>
 										<label>Expira&ccedil;&atilde;o:</label>
-										<input type="text" id="Expiracao" name="Expiracao_mes" onkeypress="return txtBoxFormat(this, '99', event);" maxlength="2" placeholder="Ex. 10/15"  size="2" class="input-text" >
-										<input type="text" id="Expiracao" name="Expiracao_ano"   onkeypress="return txtBoxFormat(this, '99', event);" maxlength="2" placeholder="Ex. 10/15"  size="2" class="input-text" >
+										<input type="text" id="Expiracao" name="Expiracao_mes"  maxlength="2" placeholder="Ex. 10/15"  size="2" class="input-text" >
+										<input type="text" id="Expiracao" name="Expiracao_ano"   maxlength="2" placeholder="Ex. 10/15"  size="2" class="input-text" >
 									</li>
 									<li>
 										<button type="button" id="sendToTransparente2" class="btn-transparente buttontransparente" style="margin-top: 10px !important;" onclick="jQuery('.cartao_dados').hide();jQuery('.pagador_dados_pessoais').show('slow');">Prosseguir</button>
@@ -210,15 +213,15 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 								</li>
 								<li>
 									<label>CPF:</label>
-									<input type="text" id="CPF" name="CPF"  class="input-text" onkeypress="return txtBoxFormat(this, '99999999999', event);" maxlength="11">
+									<input type="text" id="CPF" name="CPF"  class="input-text"  maxlength="11">
 								</li>
 								<li>
 									<label>Data Nascimento:</label>
-									<input type="text" id="DataNascimento" name="DataNascimento" onkeypress="return txtBoxFormat(this, '99/99/9999', event);" maxlength="10" placeholder="Ex. 10/10/1985" class="input-text" ><br>
+									<input type="text" id="DataNascimento" name="DataNascimento"  maxlength="10" placeholder="Ex. 10/10/1985" class="input-text" ><br>
 								</li>
 								<li>
 									<label>Telefone:</label>
-									<input type="text" id="Telefone" name="Telefone" onkeypress="return txtBoxFormat(this, '(99)9999-9999', event);" placeholder="Ex. (11)9999-9999" maxlength="14" class="input-text"  ><br>
+									<input type="text" id="Telefone" name="Telefone"  placeholder="Ex. (11)9999-9999" maxlength="14" class="input-text"  ><br>
 								</li>
 								<li>
 										<a href="#" style="margin-top: 10px !important; float:left" onclick="jQuery('.cartao_dados').show('slow');jQuery('.pagador_dados_pessoais').hide();">&larr; Voltar</a>
@@ -235,6 +238,10 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 <script type="text/javascript">
 //<![CDATA[
 jQuery(document).ready(function() {
+		jQuery('#Telefone').mask("(00)0000-0000Z", {placeholder: "(__)____-_____",translation: {'Z': {pattern: /[0-9]/, optional: true}}});
+		jQuery('#CPF').mask("000.000.000-00", {placeholder: "___.___.___-__"});
+	  	jQuery('#DataNascimento').mask("99/99/9999", {placeholder: "__/__/____"}); 
+	  	jQuery('#cvv').mask("999Z", {placeholder: "999",translation: {'Z': {pattern: /[0-9]/, optional: true}}}); 
 	jQuery('.input-switcher > li').bind({
 		click: function() {
 			jQuery(this).parent().children('li').fadeTo(300, 0.4);
@@ -307,8 +314,29 @@ jQuery(document).ready(function() {
 					};
 				}
 				var erroValidacao = function(data) {
+					jQuery("#loading_mask_loader").hide();
+					infosTransparente = '<li class="erro" style="list-style: none;margin-left: 29px;font-weight: bold;">'+data.Mensagem+'</li>';
+			        jQuery(".erros_transparente").html("");
+			        jQuery(".erros_transparente").append(infosTransparente); 
+					var infosTransparente ="";
+			            for (i=0; i<data.length; i++) {
+			                Transparente = data[i];
+
+			                for(j in Transparente)
+			                {
+			                    atributo = j;
+			                    if(atributo == "Mensagem")
+			                    {
+			                        valor = Transparente[j];
+			                        infosTransparente = '<li class="erro" style="list-style: none;margin-left: 29px;font-weight: bold;">'+valor+'</li>';
+			                    }
+			                }
+
+			                jQuery(".erros_transparente").html("");
+			                jQuery(".erros_transparente").append(infosTransparente); 
+            			}
 					jQuery(".retorno_transparente").html("Pagamento não pode ser refeito, confira os dados e tente novamente.");
-					jQuery("#refaz_pg_forma").show();
+					jQuery("#refaz_pg_forma").hide();
     			}
 				jQuery("#refaz_pg_forma").submit(function(e){
 					    var postData = jQuery(this).serializeArray();
@@ -330,7 +358,7 @@ jQuery(document).ready(function() {
 								if(jQuery("#forma_de_pagamento").val() == "DebitoBancario"){
 									var settings = {
 										"Forma" : "DebitoBancario",
-										"Instituicao": "BancoDoBrasil"
+										"Instituicao":jQuery('input[name="instituicao"]:checked').val()
 									};
 								};
 								if(jQuery("#forma_de_pagamento").val() == "CartaoCredito")
@@ -354,7 +382,7 @@ jQuery(document).ready(function() {
 												}
 									}
 								};
-								TransparenteWidget(settings);
+								MoipWidget(settings);
 					        },
 					        
 					    });

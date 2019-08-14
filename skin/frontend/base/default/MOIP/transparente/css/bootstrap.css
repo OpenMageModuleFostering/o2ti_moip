@@ -34,7 +34,7 @@
 .repay-form li > div label{display: block; float:left;padding-right: 11px}
 
 /* layout */
-.row{width:100%;display:block;clear:both;float: left;}
+
 .col-md-6{width: 48.5%;float:left;display: block;clear: none;margin-left:3%}
 .row .col-md-6:first-child{margin:0;}
 

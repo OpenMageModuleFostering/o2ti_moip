@@ -41,6 +41,21 @@ class MOIP_Transparente_IndexController extends Mage_Core_Controller_Front_Actio
             echo end($parcelas);
 		}
 	}
+	public function CartoesAction() {
+		$this->loadLayout();
+        $this->renderLayout();
+	}
+	public function RemoveAction() {
+		if($this->getRequest()->getParams()){
+			$data = $this->getRequest()->getParams();
+			$model = Mage::getModel('transparente/write');
+			$model->load($data['cofre_remove'], 'cofre');
+			$model->setAceitaCofre(0);			
+			$model->setCofre();
+			$model->save();
+			return true;
+		}
+	}
 	public function NovaformaAction() {
 		if($this->getRequest()->getParams()){
 			$model = Mage::getModel('transparente/write');

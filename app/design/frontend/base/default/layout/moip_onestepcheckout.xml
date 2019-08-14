@@ -4,8 +4,9 @@
    
     <checkout_onepage_index>
 		<reference name="head">
-				
+				<action method="removeItem"><type>skin_js</type><name>js/lib/jquery-1.10.2.min.js</name></action>
 	   	 		<action method="addJs" ifconfig="moipall/config/enable_jquery"><script>MOIP/jquery.js</script></action>
+	   	 		
 	   	 		<action method="addJs"><script>MOIP/jquery_noconflict.js</script></action>
 	   	 		<action method="addJs"><script>MOIP/onestepcheckout/jquery.fancybox-1.3.1.js</script></action>
 	   	 		<action method="addJs"><script>MOIP/onestepcheckout/change-events.js</script></action>
@@ -13,23 +14,13 @@
 	   	 		<action method="addJs"><script>MOIP/script_mask.js</script></action>
 	   	 		<action method="addJs"><script>MOIP/validacao.js</script></action>
 	   	 		<action method="addJs"><script>MOIP/transparente/checkout.js</script></action>
+	   	 		<action method="addJs"><script>varien/accordion.js</script></action>
+	   	 		<action method="addItem"><type>skin_js</type><name>js/opcheckout.js</name></action>
 	   	 		<action method="addCss"><stylesheet>MOIP/onestepcheckout/css/onestepcheckout.css</stylesheet></action>
 	   	 		<action method="addCss"><stylesheet>MOIP/onestepcheckout/css/jquery.fancybox-1.3.1.css</stylesheet></action>
 
-	   	 		<!-- para o tema ultimo remove esse comentario, nao esquecer da linha de baixo e do checkout 
-<action method="removeItem"><type>js</type><name>infortis/jquery/jquery-1.7.2.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/jquery-noconflict.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.owlcarousel.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.easing.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.accordion.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.tabs.min.js</name></action>
-<action method="removeItem"><type>js</type><name>infortis/jquery/plugins/jquery.ba-throttle-debounce.min.js</name></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.owlcarousel.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.easing.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.accordion.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.tabs.min.js</script></action>
-<action method="addJs"><script>infortis/jquery/plugins/jquery.ba-throttle-debounce.min.js</script></action>
--->
+	   	 
+
 <!-- estes são exemplos de como remover outros js do site
 use o <type>skin_js</type> se o js estiver na pasta skin
 <action method="removeItem"><type>skin_js</type><name>js/jquery.js</name></action>
@@ -51,7 +42,7 @@ ou use <type>js</type> caso o js da pasta pasta_da_loja/js
 				<block type="customer/account_forgotpassword" name="checkout.onepage.forgotpassword" as="forgotpassword" template="MOIP/onestepcheckout/daskboard/onepage/forgotpassword.phtml"/>
 
 				<block type="onestepcheckout/checkout_onepage_billing" name="checkout.onepage.billing" as="billing" template="MOIP/onestepcheckout/daskboard/onepage/billing.phtml">
-					<block type="onestepcheckout/checkout_onepage_billing" name="checkout.onepage.billing.billingform" as="billing_form" template="MOIP/onestepcheckout/daskboard/onepage/billing/billing_form.phtml"/>
+					<block type="onestepcheckout/checkout_onepage_billing" name="checkout.onepage.billing.billingform" as="billing_form" template="MOIP/onestepcheckout/daskboard/onepage/billing/billingform.phtml"/>
 
 				</block>
 
@@ -64,8 +55,8 @@ ou use <type>js</type> caso o js da pasta pasta_da_loja/js
 				<block type="onestepcheckout/checkout_onepage_shipping" name="checkout.onepage.shipping" as="shipping" template="MOIP/onestepcheckout/daskboard/onepage/shipping.phtml">
 					<block type="onestepcheckout/checkout_onepage_shipping" name="checkout.onepage.shipping.shippingform" as="shipping_form" template="MOIP/onestepcheckout/daskboard/onepage/shipping/shipping_form.phtml"/>
 				</block>
-				<block type="checkout/onepage_shipping_method" name="onestepcheckout.onepage.shipping_method" as="shipping_method" template="MOIP/onestepcheckout/daskboard/onepage/shipping_method.phtml">
-					<block type="checkout/onepage_shipping_method_available" name="onestepcheckout.onepage.shipping_method.available" as="available" template="MOIP/onestepcheckout/daskboard/onepage/shipping_method/available.phtml"/>
+				<block type="checkout/onepage_progress" name="checkout.onepage.shipping_method" as="shipping_method" template="MOIP/onestepcheckout/daskboard/onepage/shipping_method.phtml">
+					<block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="MOIP/onestepcheckout/daskboard/onepage/shipping_method/available.phtml"/>
 				</block>
 				<block type="checkout/onepage_payment" name="onestepcheckout.onepage.payment" as="payment" template="MOIP/onestepcheckout/daskboard/onepage/payment.phtml">
 					<block type="checkout/onepage_payment_methods" name="onestepcheckout.onepage.payment.methods" as="methods" template="MOIP/onestepcheckout/daskboard/onepage/payment/methods.phtml"/>
@@ -79,14 +70,24 @@ ou use <type>js</type> caso o js da pasta pasta_da_loja/js
 							<action method="addItemRender"><type>bundle</type><block>bundle/checkout_cart_item_renderer</block><template>MOIP/onestepcheckout/daskboard/onepage/review/item.phtml</template></action>
 							<block type="checkout/cart_totals" name="checkout.onepage.review.info.totals" as="totals" template="MOIP/onestepcheckout/daskboard/onepage/review/totals.phtml"/>
 							
-							<block type="core/text_list" name="checkout.onepage.review.info.items.before" as="items_before"/>
+							
 							
 						</block>
-						
+						<block type="core/text_list" name="checkout.onepage.review.info.items.before" as="items_before" translate="label">
+							<label>Items Before</label>
+						</block>
+						<block type="core/text_list" name="checkout.onepage.review.info.items.after" as="items_after" translate="label">
+							<label>Items After</label>
+						</block>
 						
                 </block>
 			</block>
         </reference>
+        <reference name="checkout.onepage.review.info.items.after">
+			<block type="monkey/checkout_subscribe" name="magemonkey.subscribe" template="magemonkey/checkout/subscribe.phtml">
+			<block type="monkey/signup" name="left.monkeysignup" template="magemonkey/lists.phtml" />
+			</block>
+		</reference>
     </checkout_onepage_index>
 
 	<onestepcheckout_index_updateshippingmethod>
@@ -142,8 +143,11 @@ ou use <type>js</type> caso o js da pasta pasta_da_loja/js
 			<action method="setTemplate"><template>MOIP/onestepcheckout/emptyupdate.phtml</template></action>
 		</reference>
 		<reference name="content">
-			<block type="onestepcheckout/checkout_onepage_billing_sortbilling" name="checkout.onepage.billing.disablesortbilling" as="disablesortbilling" template="MOIP/onestepcheckout/daskboard/onepage/billing/billing_form.phtml"/>		
-		</reference>		
+				
+					<block type="onestepcheckout/checkout_onepage_billing" name="checkout.onepage.billing.billingform" as="billing_form" template="MOIP/onestepcheckout/daskboard/onepage/billing/billingform.phtml"/>
+
+				
+		</reference>
 	</onestepcheckout_index_updatebillingform>
 	<sales_order_view>
 		<reference name="sales.order.info">

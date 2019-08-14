@@ -13,12 +13,12 @@
 class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 
 	protected function _construct() {
-		$dataToReturn = "";
+		
 		$transparente_layout = Mage::getStoreConfig('moipall/config/transparente_layout');
-		if ($transparente_layout == "Vertical"):
-			$this->setTemplate('MOIP/transparente/vertical_form.phtml');
-		else:
+		if ($transparente_layout == "Horizontal"):
 			$this->setTemplate('MOIP/transparente/horizontal_form.phtml');
+		else:
+			$this->setTemplate('MOIP/transparente/vertical_form.phtml');
 		endif;
 		parent::_construct();
 	}
@@ -131,21 +131,21 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 			if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor')) {
 				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc')."%.";
 			}
-			$descontotexto = $textoresumo ."<br/>Págavel unicamente via internet bank.";
+			$descontotexto = $textoresumo ."<br/>Via internet bank.";
 
 
 			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') != "" &&  $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2')  && $valor_pedido < Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
 				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2')."%.";
-				$descontotexto = $textoresumo ."<br/>Págavel unicamente via internet bank.";
+				$descontotexto = $textoresumo ."<br/>Via internet bank.";
 			}
 
 			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') != "" && $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
 				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3')."%.";
-				$descontotexto = $textoresumo ."<br/>Págavel unicamente via internet bank.";
+				$descontotexto = $textoresumo ."<br/>Via internet bank.";
 			}
 
 		}else {
-			$textoresumo = "Págavel via internet bank.";
+			$textoresumo = "Via internet bank.";
 			$descontotexto = "";
 		}
 		if ($dataToReturn == 'preview') {
@@ -291,18 +291,16 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 		}
 
 		if ($dataToReturn == 'preview') {
-			if($parcelax > 0){
-			$v['valor'] = Mage::helper('core')->currency($parcelax, true, false);
-			return "{$v['valor']}";
+			if($key > 1){
+				return "{$parcelas_result}";
 			}
 			else {
-				$cartTotal = Mage::helper('core')->currency($cartTotal, true, false);
-				return "{$cartTotal}";
+				return "{$total_parcelado}";
 			}
 		}
 		if ($dataToReturn == 'preview_parcelas') {
-			if($k > 1){
-			return "Pague em até {$k}x";
+			if($key > 1){
+			return "Pague em até {$key}x";
 			} else {
 				return "Pague em à vista";
 			}
@@ -312,23 +310,44 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 			return $parcelas;
 		}
 	}
-	public function getTextoParcelas() {
-
-		if( $tipo_parcelamento = Mage::getSingleton('transparente/standard')->getConfigData('jurostipo') == 1){
-			$parcelamento =  Mage::getSingleton('transparente/standard')->getInfoParcelamento();
-			if ($parcelamento['c_juros1'] == 0) {
-				echo "<div id=\"addparcelasdesc\"> Sem juros até ".$parcelamento['c_ate1']." parcelas";
-				if ($parcelamento['c_ate1'] < 13) {
-					return ", após juros de 1,99% ao mês.</div>";
-				}
-			}else {
-				return "<div id=\"addparcelasdesc\"> Com juros de ".$parcelamento['c_juros1']."% ao mês.</div>";
-			}
+	public function imageCofre($brand){
+		if($brand == "Visa"){
+			$image_brand = $this->getVisaImage();
+		} elseif ($brand == "Mastercard") {
+			$image_brand = $this->getMastercardImage();
+		} elseif ($brand == "AmericanExpress") {
+			$image_brand = $this->getAmericanExpressImage();
+		} elseif ($brand == "Diners") {
+			$image_brand = $this->getDinersImage();
+		} elseif ($brand == "Hipercard") {
+			$image_brand = $this->getHipercardImage();
 		} else {
-			return; 
+			$image_brand = "";
 		}
+		return $image_brand;
 	}
+	public function getCofre() {
+		if (Mage::getSingleton('customer/session')->isLoggedIn()) {
+			$data_array = array();
+			$customerData = Mage::getSingleton('customer/session')->getCustomer();
+			$resource = Mage::getSingleton('core/resource');
 
+			$readConnection = $resource->getConnection('core_read');
+			$tablePrefix = (string) Mage::getConfig()->getTablePrefix()."moip_transparente";
+			$table = $readConnection->getTableName($tablePrefix);
+			$query = 'SELECT * FROM ' . $table .' WHERE customer_id='.$customerData->getID().' AND cofre IS NOT NULL';
+			$results = $readConnection->fetchAll($query);
+			if($results){
+				return Mage::helper('core')->jsonEncode((object)$results);
+			} else {
+				return 'false';	
+			}
+			
+		} else {
+			return 'false';
+		}
+
+	}
 	//get customer data
 	public function getCustomerData($selector) {
 

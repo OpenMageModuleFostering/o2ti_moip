@@ -1,1 +1,50 @@
-<?php ?>
+<?php $session = Mage::getSingleton('checkout/session'); ?>
+<?php $result_decode = $session->getResult_decode(); ?>
+<?php $client_array = $session->getClient_array(); ?>
+<?php $pgtoArraya = $session->getPgtoarry(); ?>
+<?php $pgtoArray = $this->getOrder_dados($client_array); ?>
+<?php if(Mage::getSingleton('customer/session')->isLoggedIn()) {   $customerData = Mage::getSingleton('customer/session')->getCustomer();} ?>
+<?php if (!Mage::helper('core/cookie')->isUserNotAllowSaveCookie()): ?>
+<script type="text/javascript">
+//<![CDATA[
+    var _gaq = _gaq || [];
+  	_gaq.push(['_setAccount', '<?php echo  Mage::getStoreConfig("moipall/google/idgoogle") ?>']);
+    <?php echo $this->getTrackingTransparente($client_array);  ?>
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+//]]>
+</script>
+<?php endif; ?>
+<?php $order = Mage::getModel('sales/order')->load($pgtoArray['id_transacao']); ?>
+<?php $this->getSaveDate($pgtoArray['id_transacao'], $result_decode, $customerData, $pgtoArraya, $client_array); ?>
+
+<script type="text/javascript" charset="ISO-8859-1" src="<?php echo $this->getUrlAmbiente(); ?>transparente/MoipWidget-v2.js" onerror="erro_mail('erro caiu o transparente widget')" ></script>
+<div id="MoipWidget" data-token="<?php echo $result_decode['token'] ?>" callback-method-error="erroValidacao" callback-method-success="sucesso"></div>
+
+<div class="grid12-12">
+	<h3>Seu pedido foi enviado com sucesso, <strong><?php echo $client_array['pagador_nome'] ?></strong>!</h3>
+</div>	
+<?php 
+	if($pgtoArraya['forma_pagamento'] == "BoletoBancario")
+		echo $this->getChildHtml('transparente.boleto');
+	elseif ($pgtoArraya['forma_pagamento'] == "DebitoBancario")
+		echo $this->getChildHtml('transparente.transferencia');
+	else
+		echo $this->getChildHtml('transparente.cartao');
+?>
+
+<div class="col-md-6 grid12-6 omega">
+	<div class="order-id-wrapper">
+		<p>O número do seu pedido é:</p>
+		<span class="order-id">#<?php echo Mage::getSingleton('checkout/session')->getLastRealOrderId() ?></span>
+		<h4>Seu pedido será enviado por <?php  echo $order->getShippingDescription(); ?></h4>
+	</div>
+	<div class="row">
+		<a href="<?php echo Mage::helper('core/url')->getHomeUrl(); ?>" class="back-to-store">Voltar para a home</a>
+	</div>
+</div>
+<?php echo  Mage::getStoreConfig("moipall/google/outros_funil"); ?>
+

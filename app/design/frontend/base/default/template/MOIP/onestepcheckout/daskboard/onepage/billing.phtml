@@ -1,4 +1,4 @@
-
+<script type="text/javascript" src="<?php echo $this->getJsUrl('MOIP/onestepcheckout/billing.js') ?>"></script>
 	<div id="co-billing-form">
 		<fieldset>
 			<ul class="form-list">
@@ -17,31 +17,26 @@
 								<?php echo $this->getChildHtml('billing_form');?>
 						</ul>
 						<ul class="form-list">
-							
 								<?php if ($this->isCustomerLoggedIn()):?>
-								<li  class="control">
-									
+									<li  class="control">
 										<input type="checkbox" name="save_in_address_book" <?php if (!Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling()):?>   value="1" <?php else: ?> value='0' <?php endif; ?>onchange="if(window.shipping) shipping.setSameAsBilling(false);"<?php if (!Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling()):?> checked="checked"<?php endif;?>  title="<?php echo $this->__('Save in address book') ?>" id="billing:save_in_address_book" class="checkbox" />
 										<label for="billing:save_in_address_book" ><?php echo $this->__('Salvar como novo endereço') ?></label>
-								</li>
-							
+									</li>
 								<?php else : ?>
-									
 										<input type="hidden" name="billing[save_in_address_book]" value="1" />
 										<input type="hidden" name="billing[address_id]"  value=""/>
-									
 								<?php endif; ?>
-							
+
 								<?php if(Mage::getStoreConfig('onestepcheckout/config/allowshippingotheraddress')):?>
-								<li  class="control">
-									<?php if(!Mage::helper('onestepcheckout')->onlyProductDownloadable()):?>
-										<input type="checkbox" name="ship_to_same_address"  value="1" title="<?php echo $this->__('ship to same address') ?>" id="ship_to_same_address" class="checkbox" checked="checked" oncharge="jQuery('#billing\\:save_in_address_book').val('1');"  > <label for="ship_to_same_address" ><?php echo $this->__('Ship to same address') ?></label>
-									<?php else:?>
-										<input type="hidden" name="ship_to_same_address"  value="1" title="<?php echo $this->__('ship to same address') ?>">
-									<?php endif; ?>
+									<li  class="control">
+										<?php if(!Mage::helper('onestepcheckout')->onlyProductDownloadable()):?>
+											<input type="checkbox" name="ship_to_same_address"  value="1" title="<?php echo $this->__('ship to same address') ?>" id="ship_to_same_address" class="checkbox" checked="checked" oncharge="jQuery('#billing\\:save_in_address_book').val('1');"  > <label for="ship_to_same_address" ><?php echo $this->__('Ship to same address') ?></label>
+										<?php else:?>
+											<input type="hidden" name="ship_to_same_address"  value="1" title="<?php echo $this->__('ship to same address') ?>">
+										<?php endif; ?>
+									</li>
 								<?php else:?>
-									<input type="hidden" name="ship_to_same_address"  value="1" title="<?php echo $this->__('ship to same address') ?>">
-								</li>
+										<input type="hidden" name="ship_to_same_address"  value="1" title="<?php echo $this->__('ship to same address') ?>">
 								<?php endif; ?>
 							
 						</ul>
@@ -74,8 +69,10 @@ function updateBillingForm(address_id, flag) {
 				type: "POST",
 				url: "<?php echo Mage::getUrl('onestepcheckout/index/updatebillingform')?>",
 				data: jQuery("#onestep_form").serialize(),
+				
 				success: function(msg) {
 					jQuery('#moip_onstepcheckout_billing_form').html(msg);
+					
 					updateShippingType();
 				}
 			});

@@ -128,7 +128,7 @@ class MOIP_Transparente_Model_Api {
         $Pagador->addChild('IdPagador',$data['pagador_email']);
         $EnderecoCobranca = $Pagador->addChild('EnderecoCobranca');
         $EnderecoCobranca->addChild('Logradouro', $data['pagador_logradouro']);
-        $EnderecoCobranca->addChild('Numero', $data['pagador_complemento']);
+        $EnderecoCobranca->addChild('Numero', $data['pagador_numero']);
         $EnderecoCobranca->addChild('Complemento', $data['pagador_complemento']);
         $EnderecoCobranca->addChild('Bairro', $data['pagador_bairro']);
         $EnderecoCobranca->addChild('Cidade', $data['pagador_cidade']);
@@ -136,7 +136,7 @@ class MOIP_Transparente_Model_Api {
         $EnderecoCobranca->addChild('Pais', 'BRA');
         $EnderecoCobranca->addChild('CEP', $data['pagador_cep']);
         $EnderecoCobranca->addChild('TelefoneFixo', $data['pagador_ddd'] . $data['pagador_telefone']);
-        $Parcelamentos = $InstrucaoUnica->addChild('Parcelamentos', $vcmento);
+        $Parcelamentos = $InstrucaoUnica->addChild('Parcelamentos');
         if($tipo_parcelamento == 1){
                 $max_parcelas = $parcelamento['c_ate1'];
                 $min_parcelas = $parcelamento['c_de1'];
@@ -203,6 +203,7 @@ class MOIP_Transparente_Model_Api {
         $standard = Mage::getSingleton('transparente/standard');
         $parcelamento = $standard->getInfoParcelamento();
         $parcelas = array();
+        $json_parcelas = array();
         $juros = array();
         $primeiro = 1;
         $max_div = $valor/(int)Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela');
@@ -245,9 +246,10 @@ class MOIP_Transparente_Model_Api {
              if($primeiro < 12 && $primeiro < ($valor/(int)Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela')) )
              {
                  while ($primeiro <= 12) {
-                    $total_parcelado[$primeiro] = number_format($this->getJurosComposto($valor, '2.99', $i)*$primeiro, 2, '.', '');
+                    $total_parcelado[$primeiro] = "";
                     $parcelas[$primeiro] = $this->getJurosComposto($valor, '2.99', $primeiro);
-                    $juros[$primeiro] = '1.99';
+                    $total_parcelado[$primeiro] =  $parcelas[$primeiro]*$primeiro;
+                    $juros[$primeiro] = '2.99';
                     
                     $json_parcelas[$primeiro] = array( 
                                                 'parcela' => Mage::helper('core')->currency($parcelas[$primeiro], true, false),

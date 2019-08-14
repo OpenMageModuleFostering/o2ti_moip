@@ -1,21 +1,25 @@
 /* page blocks */
-.moip-osc-checkoutcontainer { display: block; clear: both; width: 100%; }
+.moip-osc-checkoutcontainer { display: block;  width: 100%; float: left; }
+.moip-osc-column {float: left;}
 .moip-osc-checkoutcontainer .moip-osc-column-left { display: block; float: left; }
 .moip-osc-checkoutcontainer .moip-osc-column-2 { display: block; width: 65%; margin-left: 2%; float: left; }
 .moip-osc-checkoutcontainer .moip-osc-column-2 .moip-osc-column-middle { display: block; width: 47%; float: left; min-width: 280px !important; }
 .moip-osc-checkoutcontainer .moip-osc-column-2 .moip-osc-column-right { display: block; width: 48%; float: left; margin-left: 2%; min-width: 280px !important; }
 .moip-osc-checkoutcontainer .moip-osc-block-title h3 { margin: 0; padding: 5px; line-height: 1.50; }
 .moip-osc-checkoutcontainer .moip-osc-block-content { border: 1px solid #ccc; border-radius: 0 0 5px 5px; padding: 15px; }
-.moip-osc-checkoutcontainer .review { float: left; width: 97%; clear: both; margin-top: 20px; }
-.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .shipping-payment { width: 45%; float: left; min-width: 280px !important; }
-.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .shipping-payment .moip-osc-column { width: 100%; margin: 0 0 15px 0; }
-.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review { width: 52%; clear: none; margin-left: 1%; margin-top: 0; }
-.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review .moip-osc-column-middle { width: 100%; clear: both; margin: 0; }
-.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review .moip-osc-column-middle #id_comments { width: 100%; border-radius: 5px; clear: both; margin: 0; }
-.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review .moip-osc-column-right { width: 100%; clear: both; margin: 0; }
+.moip-osc-checkoutcontainer .review { float: left; width: 97%; margin-top: 20px; }
+.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .shipping-payment { width: 45%; float: left; min-width: 280px !important; float: left;}
+.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .shipping-payment .moip-osc-column { width: 100%; margin: 0 0 15px 0; float: left;}
+.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review { width: 50%; clear: none !important; margin-left: 1%; margin-top: 0; }
+.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review .moip-osc-column-middle { float: left;width: 100%;  margin: 0; }
+.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review .moip-osc-column-middle #id_comments { float: left;width: 100%; border-radius: 5px;  margin: 0; }
+.moip-opc-2columns .moip-osc-checkoutcontainer .moip-osc-column-2 .review .moip-osc-column-right { float: left;width: 100%;  margin: 0; }''
 .coluna_1_checkout.span4.grid12-4 {
 float: left;
 width: 35%;
+}
+textarea#gift-message-whole-message {
+width: 250px;
 }
 .checkbox {z-index: 9;}
 .coluna_2_checkout.span8.grid12-8 {
@@ -29,16 +33,19 @@ width: 65%;
 .onestepcheckout-numbers-4{background-image:url("../images/04.png") !important;background-repeat: no-repeat !important;}
 .onestepcheckout-numbers-5{background-image:url("../images/05.png") !important;background-repeat: no-repeat !important;}
 .onestepcheckout-numbers-6{background-image:url("../images/bkg-step-review.png") !important;background-repeat: no-repeat !important;}
+input.validation-passed{background-image:url("../images/passed-icon.jpg") !important;background-repeat: no-repeat !important; background-position: right !important;}
+input.validation-failed{background-image:url("../images/error-icon.jpg") !important;background-repeat: no-repeat !important; background-position: right !important;}
 
 /* form list */
-.form-list .field { float: left !important; width: 47.5% !important; }
+fieldset {border: 0;clear: both;}
+.form-list .field { float: left !important; width: 48% !important;margin-right: 2%;}
 .form-list .field.odd { margin-left: 5%; }
 .form-list .wide,
 .form-list .fields { width: 100%; clear: both; }
 .form-list label em { position: absolute; top: 0; right: 0; color: red; }
-.form-list .input-box { width: 100% !important; }
+.form-list .input-box { width: 93% !important; }
 .form-list .input-box input,
-.form-list .input-box select { width: 97% !important; border-radius: 3px; padding: 5px; }
+.form-list .input-box select { width: 100% !important; border-radius: 3px; padding: 5px; }
 .form-list .input-box input[type="checkbox"],
 .form-list .input-box input[type="radio"] { width: auto !important; float: left; clear: none; margin-right: 5px; }
 .dados-pj { display: none }
@@ -46,8 +53,8 @@ width: 65%;
 .customer-dob .dob-month { margin: 0; max-width: 26px !important; }
 #loading-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.5) }
 #loading-mask #loading_mask_loader { position: absolute; top: 50%; left: 50%; width: 230px; height: auto; background: #fff; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px #000; margin-left: -115px; display: block; text-align: center; padding: 20px; margin-top: -39px; }
-#loginbox { background: #000000; padding: 10px 0px !important; color: #fff; text-decoration: none; border-radius: 5px; margin-bottom: 10px; float: left; clear: both; width: 100%; text-align: center; }
-#co-billing-form { clear: both; }
+#loginbox { background: #000000; padding: 10px 0px !important; color: #fff; text-decoration: none; border-radius: 5px; margin-bottom: 10px; float: left; width: 100%; text-align: center; }
+#co-billing-form {  }
 .update_shipping,
 .update_payment { width: 100%; text-align: center; font-size: 14px; min-height: 115px; padding-top: 50px; }
 #co-payment-form { min-height: 150px !important; }
@@ -57,6 +64,7 @@ width: 65%;
 .moip-osc-block { min-width: 280px !important; }
 #shipping_show {
 margin-top: 10px !important;
+float: left
 }
 .checkout-onepage-index .col-main {
 width: 100% !important;
@@ -73,9 +81,7 @@ display: none;
 .erro_frete, .erro_frete_sem_cep {
 	display: none;
 }
-#shipping_show {
-margin-top: 20px;
-}
+
 
 .moip-osc-page-tittle {
 margin-top: 43px;
@@ -95,8 +101,19 @@ font-weight: bold;
 color: red;
 padding: 10px;
 }
-
-#advice-validate-one-required-by-name-debito_instituicao {
+input.radio.validation-failed {
+-webkit-appearance: none;
+background: none !important;
+border-radius: 100%;
+border: 4px solid #FF0000 !important;
+display: inline-block;
+height: 10px;
+margin-bottom: 0;
+position: relative;
+padding: 5px;
+width: 12px;
+}
+#advice-validate-one-required-by-name-debito_instituicao, #advice-validate-one-required-by-name-cartao_salvo {
 position: relative;
 min-width: 191px;
 }
@@ -135,33 +152,52 @@ float: left;
 	bottom: 0;
 	display: none;
 }
+.busca_end_label{
+	clear: both;
+width: 100%;
+float: left
+}
+.form-list .wide {
+float: left;
+clear: both;
+width: 102%;
+}
+.form-list .customer-dob .dob-year {
+width: 50px !important;
+}
+.form-list .customer-dob .dob-day, .form-list .customer-dob .dob-month {
+width: 22px  !important;
+margin-right: 10px  !important;
+}
+
+ul.erros_cadastro_valores {
+text-align: left;
+color: red;
+}
+h2.endereco_title, h3.como_comprar_title, h3.dados_pessoais {
+clear: both;
+}
 
 
 
 /* Css para estilo diferente no shipping */
-#checkout-shipping-method-loadding > dd > ul > li {
-border-color: #ccc !important;
-border: 1px solid; border-radius: 4px;min-height: 36px;width: 100%;
+input.shipping_method_handle {
+float: left;
+margin: 5px;
 }
 
-#checkout-shipping-method-loadding > dd > ul > li img {
-float: left;
-padding: 3px;
-max-height: 30px;}
-#checkout-shipping-method-loadding > dd > ul > li > span {
-float: left;
-background: #ccc;
-padding: 9px;
-border-radius: 4px 0 0 4px;
-width: 6%;
+#checkout-shipping-method-loadding > dd > ul > li {
+border-color: #ccc !important;
+border: 1px solid; border-radius: 4px;
+padding: 5px;
 }
+
+
 #checkout-shipping-method-loadding > dd > ul > li > label {
-float: left;
-width: 85%;
+width: 100%;
 }
 .sp-methods .price {
 font-weight: bold;
-float: left;
 }
 
 .sp-methods dd {
@@ -169,26 +205,7 @@ margin: 3px 0 0px !important;
 }
 
 
-.title_shipping, .image_shipping {
-float: left;
-}
-
 .image_shipping {
-width: 35%;
-}
-
-.title_shipping {
-width: 64%;
-}
-.sp-methods .price {
-float: left;
-width: 100% !important;
-}
-
-.form-list .customer-dob .dob-year {
-width: 50px !important;
-}
-.form-list .customer-dob .dob-day, .form-list .customer-dob .dob-month {
-width: 22px  !important;
-margin-right: 10px  !important;
+width: 25%;
+float: none;
 }

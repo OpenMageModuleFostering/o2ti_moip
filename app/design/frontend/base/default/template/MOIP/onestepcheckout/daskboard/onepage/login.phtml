@@ -8,10 +8,9 @@
 							<h1>Acesse sua conta!</h1>
 
 						</div>
-				<form id="login-form" method="post">
+				<form id="login-form-checkout" method="post">
 				<fieldset>
 					<div >
-						<h3><?php echo $this->__('Por favor, informe os dados abaixo.') ?></h3>
 						<ul class="form-list" style="width:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxwidth')-20?>px;">
 							<li>
 								<label for="login-email" class="required" >E-mail<em>*</em></label>
@@ -45,7 +44,7 @@
 		</div>
 <script type="text/javascript">
 //<![CDATA[
-    var loginForm = new VarienForm('login-form', true);
+    var loginForm = new VarienForm('login-form-checkout', true);
     $('login-email').observe('keypress', bindLoginPost);
     $('login-password').observe('keypress', bindLoginPost);
     function bindLoginPost(evt){

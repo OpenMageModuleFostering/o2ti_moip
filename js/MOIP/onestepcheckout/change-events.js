@@ -1,5 +1,37 @@
 jQuery(function() {
-
+	jQuery("#billing-address-select").change(function(){
+		flag=1	;
+			if(flag==1){	
+					change_select=0;
+					if(this.value==""){							
+							updateBillingForm(this.value,flag);
+					}
+					else{
+							updateBillingForm(this.value) ;
+					}								
+				}				
+				else{
+					updateBillingForm(this.value);
+					change_select=1;
+				}
+		});
+	jQuery("#shipping-address-select").change(function(){
+		flag=1	;
+			if(flag==1){	
+					change_select=0;
+					if(this.value==""){							
+						
+						updateShippingForm(this.value,flag);
+					}
+					else{
+						updateShippingForm(this.value);
+					}								
+				}				
+				else{
+					updateShippingForm(this.value);
+					change_select=1;
+				}
+		});
 	jQuery('[id="shipping:same_as_billing"]').click(function() {
 				jQuery('#shipping_show').hide();
 				jQuery("#moip-osc-p2").removeClass('onestepcheckout-numbers onestepcheckout-numbers-3').addClass('onestepcheckout-numbers onestepcheckout-numbers-2');
@@ -22,6 +54,7 @@ jQuery(function() {
 				jQuery("#moip-osc-p4").removeClass('onestepcheckout-numbers onestepcheckout-numbers-4').addClass('onestepcheckout-numbers onestepcheckout-numbers-5');
 				flag = 0;
 				jQuery("#shipping_show").show();
+				jQuery("#shipping-new-address-form").show();
 				jQuery("#ship_to_same_address").val(0);
 			} else {
 				jQuery('#shipping_show').hide();
@@ -69,4 +102,12 @@ jQuery(function() {
 				}
 		}
 	});
+	if (window.console){
+		if(window.clear){
+			var estilo = "color:red;font-size:24px";
+			console.log("%cParabéns desenvolvedor!", estilo);
+			console.log("Este é o primeiro passo para corrigirmos o funcionamento do seu magento.");
+			console.log("Por favor consulte a documentação: http://suporte.o2ti.com");
+		}
+	}
 });

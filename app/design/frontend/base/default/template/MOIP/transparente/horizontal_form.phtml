@@ -1,456 +1,280 @@
-
-<?php
-	$nome = "";
-	$cpf = "";
-	$telefone = "";
-	$selector = "";
-	$dn = "";
-?>
+<?php $cofre = $this->getCofre(); ?>
+<?php $nome ="" ?>
+<?php $telefone ="" ?>
+<?php $cpf ="" ?>
+<?php $dn ="" ?>
 <script type="text/javascript">
 //<![CDATA[
-fechar = function(){
-	jQuery('.transparente-payment-method-content').slideUp();
-}
-function setCcType(ccType)
-{
-	if(ccType != 'HI'){
-		jQuery('#transparente_cc_type').val(ccType);
-		jQuery('#credito_numero').addClass('validate-cc-number');
-		jQuery('#credito_numero').addClass('validate-cc-type');
-	} else {
-		jQuery('#credito_numero').removeClass('validate-cc-number');
-		jQuery('#credito_numero').removeClass('validate-cc-type');
-		
-	}
-
-}
-if(Validation) {
-	if($H != 'HI'){
-		Validation.creditCartTypes = $H({
-		    'VI': [new RegExp('^4[0-9]{12}([0-9]{3})?$'), new RegExp('^[0-9]{3}$'), true],
-		    'MC': [new RegExp('^5[1-5][0-9]{14}$'), new RegExp('^[0-9]{3}$'), true],
-		    'AE': [new RegExp('^3[47][0-9]{13}$'), new RegExp('^[0-9]{4}$'), true],
-		    'HI': [new RegExp('/^(606282\d{10}(\d{3})?)|(3841\d{15})$/'), new  RegExp('^[0-9]{3}$'), true],
-		    'DI': [false, new RegExp('^[0-9]+'), true]
-		});
-	}
-}
-function countChar(val) {
-	var cvv = val.value.length;
-	if (cvv > 2) {
-		jQuery(".dados-titular").slideDown("slow");
-		jQuery("#formcli").slideDown("slow");
-		
-		jQuery('.dados-titular').css({
-			display: "block"
-		});
-		jQuery("#formcli").css({
-			display: "block"
-		});
-		document.getElementById('credito_portador_nome').value = document.getElementById('billing:firstname').value + ' ' + document.getElementById('billing:lastname').value;
-		document.getElementById('credito_portador_telefone').value = document.getElementById('billing:telephone').value;
-		document.getElementById('credito_portador_cpf').value = document.getElementById('billing:taxvat').value;
-		if (document.getElementById('billing:year').value) {
-			document.getElementById('credito_portador_nascimento').value = document.getElementById('billing:day').value + '/' + document.getElementById('billing:month').value + '/' + document.getElementById('billing:year').value
-		}
-	}
-};
 jQuery(document).ready(function() {
-	 var creditcards = { 
-        list:[
-            {
-                brand:          'American Express',
-                value_brand:    'Amex-moip',
-                verification:   '^3[47][0-9]',
-                separation:     '^([0-9]{4})([0-9]{6})?(?:([0-9]{6})([0-9]{5}))?$',
-                hidden:         '**** ****** *[0-9][0-9][0-9][0-9]',
-                accepted:       true,
-                length:         15
-            },
-            {
-                brand:          'MasterCard',
-                value_brand:    'Mastercard-moip',
-                verification:   '^5[1-5][0-9]',
-                separation:     '^([0-9]{4})([0-9]{4})?([0-9]{4})?([0-9]{4})?$',
-                hidden:         '**** **** **** [0-9][0-9][0-9][0-9]',
-                accepted:       true,
-                length:         16
-            },
-            {
-                brand:          'Visa',
-                value_brand:    'Visa-moip',
-                verification:   '^4[0-9]',
-                separation:     '^([0-9]{4})([0-9]{4})?([0-9]{4})?([0-9]{4})?$',
-                hidden:         '**** **** **** [0-9][0-9][0-9][0-9]',
-                accepted:       true,
-                length:         16
-            },
-            {
-                brand:          'Hipercard',
-                value_brand:    'Hipercard-moip',
-                verification:   '^606282|3841(?:0[0-9])[0-9]',
-                separation:     '^([0-9]{19})?$',
-                hidden:         '*****************',
-                accepted:       true,
-                length:         19
-            },
-            {
-                brand:          'Diners Club',
-                value_brand:    'Dinners-moip',
-                verification:   '^3(?:0[0-5]|[68][0-9])[0-9]',
-                separation:     '^([0-9]{4})([0-9]{4})?([0-9]{4})?(?:([0-9]{4})([0-9]{4})([0-9]{2}))?$',
-                hidden:         '**** **** **[0-9][0-9] [0-9][0-9]',
-                accepted:       true,
-                length:         14
-            }
-            
-        ], 
-        active:null 
-    };
-  jQuery('#credito_numero').keydown(function(e){
-    var card = jQuery(this).val().replace(/[^0-9]/g,''),
-        trim = jQuery.trim( jQuery(this).val().slice(0,-1) );
-    for( var i=0; i<creditcards.list.length; i++ ){
-      if(card.match( new RegExp(creditcards.list[i].verification) )){
-        creditcards.active = i;
-        if( jQuery(this).next('img').length == 0 ){
-          jQuery(this).next('small').remove();
-          jQuery("."+creditcards.list[i].value_brand).trigger('click');
-        }
-        if( !creditcards.list[i].accepted && jQuery(this).nextAll('small').length == 0 ){
-         
-        }
-        break;
-      }
-    }
-    if( creditcards.active == null && card.length > 4 && jQuery(this).nextAll('small').length == 0 ){
-      jQuery(this).after('<small style="margin-left:5px; color:#F00;">'+'Cartão Inválido'+'</small>');
-      jQuery('.input-brand-bandeira > li').find('img').show();
-    }
-    key = creditcards.active !== null? creditcards.active : 1 ;
-    if( e.keyCode == 8 && trim != jQuery(this).val().slice(0,-1) ){
-      jQuery(this).val( trim );
-      e.preventDefault();
-      return;
-    }
-    if( card.length >= creditcards.list[ key ].length && jQuery.inArray(e.keyCode, [37, 38, 39, 40, 46, 8, 9, 27, 13, 110, 190]) === -1 && !e.metaKey && !e.ctrlKey ){
-      e.preventDefault();
-      return;
-    }
-    if( new RegExp(creditcards.list[ key ].separation).exec( card ) && e.keyCode >= 48 && e.keyCode <= 57 ){
-      jQuery(this).val( jQuery(this).val() + ' ' );
-    }
-    return;
-  });
-  jQuery('#credito_numero').keyup(function(e){
-    var card = jQuery(this).val().replace(/[^0-9]/,'');
-    if( creditcards.active !== null && !card.match( new RegExp(creditcards.list[ creditcards.active ].verification) ) ){
-        jQuery(this).nextAll('small').remove();
-        jQuery(this).next('img').remove();
-        creditcards.active = null;
-    }else
-    if( card.length < 4 ){
-      jQuery(this).next('small').remove();
-    }
-  });
-	jQuery('#credito_numero').on('paste',function(e){
-	var el    = this;
-    setTimeout(function(){
-      var card = jQuery(el).val().replace(/[^0-9]/g,'');
-      jQuery(el).val( card );
-      var e = jQuery.Event('keydown',{
-        which:    37,
-        keyCode:  37
-      });
-      jQuery(el).trigger(e).promise().done(function(e){
-        key = creditcards.active !== null? creditcards.active : 1 ;
-        card.substr( 0 , creditcards.list[ key ].length );
-        var separation  = new RegExp(creditcards.list[ key ].separation).exec( card ),
-            storage     = '';
-        while( !separation && card.length > 1 ){
-          storage     = card.charAt( card.length - 1 );
-          card        = card.slice(0,-1);
-          separation  = new RegExp(creditcards.list[ key ].separation).exec( card );
-        }
-        if( separation ){
-          var separated = [];
-          for( var i=0; i<separation.length; i++){
-            if( typeof separation[i] != 'undefined' ) separated.push( separation[i] );
-          }
-          var string = separated.slice(1).join(' ') + (storage!=''? ' '+storage : '' )
-          jQuery(el).val( string )
-        }        
-      });
-    },0);
-  });
-
-
-	jQuery('#credito_portador_telefone').mask("(00)0000-0000Z", {placeholder: "(__)____-_____",translation: {'Z': {pattern: /[0-9]/, optional: true}}});
-	jQuery('#credito_portador_cpf').mask("000.000.000-00", {placeholder: "___.___.___-__"});
-  	jQuery('#credito_portador_nascimento').mask("99/99/9999", {placeholder: "__/__/____"}); 
-  	jQuery('#credito_codigo_seguranca').mask("999Z", {placeholder: "999",translation: {'Z': {pattern: /[0-9]/, optional: true}}}); 
-  	
-	jQuery('.input-brand-bandeira > li').bind({
-		click: function() {
-			jQuery(this).parent().find('input[type="radio"]').attr('checked', false);
-			jQuery(this).parent().find('img').hide();
-			jQuery(this).find('img').show();
-			jQuery(this).fadeTo(0, 1);
-			jQuery(this).find('input[type="radio"]').attr('checked', true);
-		}
-	});
-  	
-	jQuery('.input-switcher > li').bind({
-		click: function() {
-			jQuery(this).parent().children('li').fadeTo(300, 0.4);
-			jQuery(this).parent().find('input[type="radio"]').attr('checked', false);
-			jQuery('#checkout-payment-bandeira').hide();
-			jQuery('#checkout-payment-banco').hide();
-			jQuery(this).fadeTo(0, 1);
-			jQuery(this).find('input[type="radio"]').attr('checked', true);
-		}
-	});
-	jQuery('.transparente-payment-methods > li').bind({
-		click: function() {
-			jQuery('.transparente-payment-method-content').not('#' + jQuery(this).attr('data-target')).slideUp();
-			jQuery('#' + jQuery(this).attr('data-target')).slideDown();
-		}
-	});
-	
-	jQuery("input.radio.payment_method_handle:checked").live({
-		click: function() {
-			if (jQuery(this).val() == 'moip_transparente_standard') {
-				showBlocks();
-			} else {
-				hideBlocks();
-			}
-		}
-	});
-	
+		showBlocks(<?php echo $cofre; ?>); 
 	<?php if(Mage::getStoreConfig('moipall/config/enable_carrinho')): ?>
-	if(jQuery("input.radio.payment_method_handle:checked").val() == "moip_transparente_standard"){
-		setTimeout(function(){showBlocks()}, 100);
-	} else {
-		hideBlocks();
-	}
-	if(jQuery("input[name=payment\\[method\\]]:checked").val() == "moip_transparente_standard" && jQuery("input[name=payment\\[forma_pagamento\\]]:checked").val() != ""){
-			jQuery("#cartao_radio").trigger("click");
-			jQuery("#transparente-cartao").css({'display':'block'})
-	} else {
-			jQuery("input[name=payment\\[forma_pagamento\\]]:checked").val();
-			jQuery("#transparente-cartao").css({'display':'none'});
-	}
+		forceselectMoip();
+	<?php endif ?>
+	<?php if($cofre !="false"): ?>
+		forcecofre();
 	<?php endif ?>
 });
-
-function showBlocks(){
-	jQuery('ul.transparente-payment-methods li').first().click();
-	jQuery('ul.transparente-payment-methods').css({'display':'block'});
-	jQuery('#transparente-cartao, #transparente-boleto, #transparente-transferencia').children().show();
-}
-
-function hideBlocks(){
-	jQuery('.transparente-payment-method-content').css({'display':'none'});
-	jQuery('ul.transparente-payment-methods').css({'display':'none'});
-	jQuery('#transparente-cartao, #transparente-boleto, #transparente-transferencia').children().hide();
-}
 //]]>
 </script>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('MOIP/transparente/css/horizontal_form.css'); ?>"media="all">
+<div id="payment_form_<?php echo $this->getMethodCode() ?>" style="display:none">
+	<ul class="inline transparente-payment-methods input-switcher">
+		<?php if($this->mostraCartao()): ?>
+		<li data-target="transparente-cartao">
+			<img alt="Cartão de Crédito" src="<?php echo $this->getCartaoIcon(); ?>">
+			<input id="cartao_radio" type="radio" name="payment[forma_pagamento]" title="Cartão de Crédito" value="CartaoCredito" class="forma_pg validate-one-required-by-name">
+		</li>
+		<?php endif; ?>
+		<?php if($this->mostraBoleto()): ?>
+		<li data-target="transparente-boleto">
+			<img alt="Boleto Bancário" src="<?php echo $this->getBoletoIcon(); ?>">
+			<input type="radio" name="payment[forma_pagamento]" title="Boleto" <?php if(!$this->boletoDisponivel('valid')): ?>value="BoletoBancario" <?php endif; ?>class="forma_pg<?php if(!$this->boletoDisponivel('valid')): ?> invalid-boleto<?php endif; ?> validate-one-required-by-name" id="boleto_radio">
+		</li>
+		<?php endif; ?>
+		<?php if($this->mostraTransferencia()): ?>
+		<li data-target="transparente-transferencia">
+			<img alt="Transferência Bancária" id="imageboleto" src="<?php echo $this->getTransferenciaIcon(); ?>">
+			<input type="radio" class="forma_pg  validate-one-required-by-name" name="payment[forma_pagamento]" value="DebitoBancario" id="trans_radio" >
+		</li>
+		<?php endif; ?>
+	</ul>
 
-<link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('MOIP/transparente/css/formulario.css'); ?>"media="all">
-	<div id="payment_form_<?php echo $this->getMethodCode() ?>" style="display:none">
-		<ul class="inline transparente-payment-methods input-switcher">
-			<?php if($this->mostraCartao()): ?>
-			<li data-target="transparente-cartao">
-				<img alt="Cartão de Crédito" src="<?php echo $this->getCartaoIcon(); ?>">
-				<input id="cartao_radio" type="radio" name="payment[forma_pagamento]" title="Cartão de Crédito" value="CartaoCredito" class="forma_pg validate-one-required-by-name">
-			</li>
-			<?php endif; ?>
-			<?php if($this->mostraBoleto()): ?>
-			<li data-target="transparente-boleto">
-				<img alt="Boleto Bancário" src="<?php echo $this->getBoletoIcon(); ?>">
-				<input type="radio" name="payment[forma_pagamento]" title="Boleto" <?php if(!$this->boletoDisponivel('valid')): ?>value="BoletoBancario" <?php endif; ?>class="forma_pg<?php if(!$this->boletoDisponivel('valid')): ?> invalid-boleto<?php endif; ?> validate-one-required-by-name">
-			</li>
-			<?php endif; ?>
-			<?php if($this->mostraTransferencia()): ?>
-			<li data-target="transparente-transferencia">
-				<img alt="Transferência Bancária" id="imageboleto" src="<?php echo $this->getTransferenciaIcon(); ?>">
-				<input type="radio" class="forma_pg validate-one-required-by-name" name="payment[forma_pagamento]" value="DebitoBancario" >
-			</li>
-			<?php endif; ?>
-		</ul>
+	<div class="transparente-payment-method-content row-fluid" id="transparente-cartao" style="display:block" >
+		<h3>Cartão de Crédito</h3>	
+		<?php if($cofre !="false"): ?>
+		
+			
+			<?php $cofre = Mage::helper('core')->jsonDecode($cofre); ?>
+			<ul class="form-list-cofre">
+				<input type="hidden" id="use_cofre" name="payment[use_cofre]" value="1" >
+				<input type="hidden" id="brand_cofre" name="payment[cofre_brand]" value="" >
+				<input type="hidden" id="cofre_numero" name="payment[cofre_numero]" value="" >
+				<?php foreach ($cofre  as $key => $value): ?>
+					<?php $cardBrand = $value['brand_transparente'] ?>
+					<?php $cardNunber = $value['cofre'] ?>
+					<li class="cofre">
+						<label>
+							<div class="radio_cofre">
 
-		<div class="transparente-payment-method-content row-fluid" id="transparente-cartao" style="display:none">
-			<h3>Cartão de Crédito</h3>
-			
-			
-			<ul class="form-list">
+								<input id="cartao_salvo" class="validate-one-required-by-name" type="radio" name="cofre_select" title="Cartão de Crédito Salvo" onclick="javascript:Cofre('<?php echo $cardBrand ?>','<?php echo $cardNunber ?>');">
+							</div>
+							<div class="image_cofre">
+								<img src="<?php echo $this->imageCofre($value['brand_transparente']); ?>" alt="<?php echo $value['brand_transparente']; ?>" border="0">
+							</div>
+							<div class="cofre_number">
+								<h4 class="brand_title"><?php echo $value['brand_transparente']; ?> </h4>
+								<?php echo $value['first6'] ?> ** **** <?php echo $value['last4'] ?>
+							</div>
+						</label>
+					</li>
+				<?php endforeach; ?>
 				<li class="wide cc-cvv">
 					<div class="cc">
-						<label class="required" for="credito_numero">Número<em>*</em></label>
+						<label class="required" for="credito_parcela">Parcelas<em>*</em></label>
 						<div class="input-box">
-							<input type="text" name="payment[credito_numero]" id="credito_numero"  class="input-text required-entry validate-cc-number  validate-cc-type">
+							
+											              
+							<select name="payment[cofre_parcelamento]" id="credito_parcelamento" class="validate-select" title="Número de Parcelas" >
+								<option value="" select>Selecione as parcelas</option>
+									<?php $parcelas = $this->getParcelamento('parcelas'); ?>
+					               <?php foreach ( $parcelas as $key => $value) { ?>
+					               		<?php echo $parcelas[$key]; ?>
+					               <?php } ?>
+					        </select>
+					        <?php echo $this->getTextoParcelas() ?>
 						</div>
 					</div>
-					<div class="cvv tooltip-transparente-handler">
-						<label class="required" for="cvv">CVV&nbsp;<i class="icon-question-sign"></i><em>*</em></label>
-						<div class="input-box">
-							<input type="text" name="payment[credito_codigo_seguranca]" onkeyup="countChar(this)"  class="input-text required-entry ccv validate-cc-cvn" minlength="3" maxlength="4" id="credito_codigo_seguranca" >
-							<span class="tooltip-transparente">
-								<span class="custom help" style=" width:260px;"><em>Código de segurança:</em></br>Veja no verso do seu cartão.<img src="<?php echo $this->getSkinUrl('MOIP/transparente/imagem/codigo-seguranca.png'); ?>" id="imageseguratransparente" border="0"></span>
-							</span>
-						</div>
-					</div>
-				</li>
-				<input type="hidden" name="transparente_cc_type" id="transparente_cc_type" value=""/>
-				<ul class="inline banderias-cartao input-brand-bandeira input-switcher-5">
-					<li>
-						<img src="<?php echo $this->getVisaImage(); ?>" alt="Visa" border="0" onclick="setCcType('VI');">
-						<input type="radio" id="bandeiratransparente" name="payment[credito_instituicao]" value="Visa" onclick="setCcType('VI');" class="Visa-moip validate-one-required-by-name" style="display:none;" >
-					</li>
-					<li>
-						<img src="<?php echo $this->getMastercardImage(); ?>" alt="Mastercard" border="0" onclick="setCcType('MC');">
-						<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]"  value="Mastercard" onclick="setCcType('MC');" class="Mastercard-moip validate-one-required-by-name" style="display:none;" >
-					</li>
-					<li>
-						<img src="<?php echo $this->getAmericanExpressImage(); ?>" alt="AmericanExpress" border="0" onclick="setCcType('AE');">
-						<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]" value="AmericanExpress" onclick="setCcType('AE');" class="Amex-moip validate-one-required-by-name" style="display:none;" >
-					</li>
-					<li>
-						<img src="<?php echo $this->getDinersImage(); ?>" alt="Diners" border="0" onclick="setCcType('DI');">
-						<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]"  value="Diners" onclick="setCcType('DI');" class="Dinners-moip validate-one-required-by-name" style="display:none;" >
-					</li>
-					<li>
-						<img src="<?php echo $this->getHipercardImage(); ?>" alt="Hipercard" border="0"  onclick="setCcType('HI');">
-						<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]"  value="Hipercard" onclick="setCcType('HI');" class="Hipercard-moip validate-one-required-by-name" style="display:none;" >
-					</li>
-				</ul>
 
-				<li class="wide cc-validade">
-					<label class="required" for="Validade">Validade<em>*</em></label>
-					<div class="input-box">
-						<select name="payment[credito_expiracao_mes]" id="credito_expiracao_mes" class="input-text required-entry" >
-							<option value="">Mês</option>
-							<option value="01">01</option>
-							<option value="02">02</option>
-							<option value="03">03</option>
-							<option value="04">04</option>
-							<option value="05">05</option>
-							<option value="06">06</option>
-							<option value="07">07</option>
-							<option value="08">08</option>
-							<option value="09">09</option>
-							<option value="10">10</option>
-							<option value="11">11</option>
-							<option value="12">12</option>
-						</select>
-						<select name="payment[credito_expiracao_ano]" id="credito_expiracao_ano" class="input-text required-entry" >
-							<option value="">Ano</option>
-							<option value="14">14</option>
-							<option value="15">15</option>
-							<option value="16">16</option>
-							<option value="17">17</option>
-							<option value="18">18</option>
-							<option value="19">19</option>
-							<option value="20">20</option>
-							<option value="21">21</option>
-							<option value="22">22</option>
-							<option value="23">23</option>
-							<option value="24">24</option>
-							<option value="25">25</option>
-							<option value="26">26</option>
-						</select>
+					<div class="cvv">
+							<label class="required" for="cvv">Código de Segurança<i class="icon-question-sign"></i><em>*</em></label>
+							<div class="input-box">
+								<input type="text" name="payment[cofre_cvv]" minlength="3" maxlength="4" id="cofre_cvv" class="input-text required-entry" title="Código de Segurança do Cartão" >
+							</div>
 					</div>
 				</li>
 				<li class="wide">
-					<label class="required" for="credito_parcela">Opções de pagamento<em>*</em></label>
-					<div class="input-box">
-						
-										              
-						<select name="payment[credito_parcelamento]" id="credito_parcelamento" class="input-text required-entry" >
-							<option value="" select>Selecione as parcelas</option>
-								<?php $parcelas = $this->getParcelamento('parcelas'); ?>
-				               <?php foreach ( $parcelas as $key => $value) { ?>
-				               		<?php echo $parcelas[$key]; ?>
-				               <?php } ?>
-				        </select>
-				        <?php echo $this->getTextoParcelas() ?>
-					</div>
+					<label>
+					<input type="checkbox" name="payment[new_card]"  title="Salvar Cartão para compras futuras?" id="new_card" class="checkbox" onclick="javascript:Novo()"> Comprar com um novo cartão</label>
 				</li>
 			</ul>
-			<div id="formcli" style="display:none;">
-			<ul class="form-list dados-titular">
-			<h3>Dados do Titular</h3>
-				<li class="wide tooltip-transparente-handler">
-					<label class="required" for="credito_parcela"><em>*</em>Nome no Cartão</label>
+
+			<?php endif; ?>
+
+		
+		<ul class="form-list cartao">
+								
+			<li class="wide cc-cvv">
+				<div class="cc">
+					<label class="required" for="credito_numero">Número<em>*</em></label>
 					<div class="input-box">
-						<input type="text" name="payment[credito_portador_nome]" value="<?php echo $nome; ?>" class="input-text required-entry" id="credito_portador_nome" >
-						<span class="tooltip-transparente">
-							<span class="custom help"><em>Nome do titular</em><br>deverá ser exatamente como está no cartão.</span>
+						<input type="text" name="payment[credito_numero]" id="credito_numero" title="Número do seu Cartão de Crédito"  class="input-text required-entry validate-cc-number  validate-cc-type validate-number">
+					</div>
+				</div>
+				<div class="cvv tooltip-transparente-handler">
+					<label class="required" for="cvv">CVV <i class="icon-question-sign"></i><em>*</em></label>
+					<div class="input-box">
+						<input type="text" name="payment[credito_codigo_seguranca]" onkeyup="countChar(this)" title="Código de Seguranção do Seu Cartão" class="input-text required-entry ccv validate-cc-cvn validate-number" id="credito_codigo_seguranca" >
+						<span class="tooltip-transparente cvv_tooltip">
+							<span class="custom help" style=" width:260px;"><em>Código de segurança: </em> Veja no verso do seu cartão.<img src="<?php echo $this->getSkinUrl('MOIP/transparente/imagem/codigo-seguranca.png'); ?>" id="imageseguratransparente" border="0"></span>
 						</span>
 					</div>
+				</div>
+			</li>
+			<input type="hidden" name="transparente_cc_type" id="transparente_cc_type" value=""/>
+			<ul class="inline banderias-cartao input-brand-bandeira input-switcher-5">
+				<li>
+					<img src="<?php echo $this->getVisaImage(); ?>" alt="Visa" border="0" onclick="setCcType('VI');">
+					<input type="radio" id="bandeiratransparente" name="payment[credito_instituicao]" value="Visa" onclick="setCcType('VI');" title="Bandeira do seu cartão" class="Visa-moip validate-one-required-by-name" style="display:none;" >
 				</li>
-				<li class="wide">
-					<label class="required" for="credito_parcela"><em>*</em>CPF</label>
-					<div class="input-box">
-						<input type="text" name="payment[credito_portador_cpf]" class="input-text required-entry validar_cpf"  id="credito_portador_cpf" value="<?php echo $cpf; ?>" >
-					</div>
+				<li>
+					<img src="<?php echo $this->getMastercardImage(); ?>" alt="Mastercard" border="0" onclick="setCcType('MC');">
+					<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]"  value="Mastercard" onclick="setCcType('MC');" title="Bandeira do seu cartão" class="Mastercard-moip validate-one-required-by-name" style="display:none;" >
 				</li>
-				<li class="wide tooltip-transparente-handler">
-					<label class="required" for="credito_parcela"><em>*</em>Telefone</label>
-					<div class="input-box">
-						<input type="text" name="payment[credito_portador_telefone]" id="credito_portador_telefone" value="<?php echo $telefone; ?>" class="input-text required-entry">
-						<span class="tooltip-transparente">
-							<span class="custom help"><em>Telefone de contato</em><br>Muitas vezes é necessária a confirmação manual de seus dados por nossa equipe de crédito, por favor informe um telefone em que seja fácil te localizar.</span>
-						</span>
-					</div>
+				<li>
+					<img src="<?php echo $this->getAmericanExpressImage(); ?>" alt="AmericanExpress" border="0" onclick="setCcType('AE');">
+					<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]" value="AmericanExpress" onclick="setCcType('AE');" title="Bandeira do seu cartão" class="Amex-moip validate-one-required-by-name" style="display:none;" >
 				</li>
-				<li class="wide">
-					<label class="required" for="credito_parcela"><em>*</em>Data nascimento</label>
-					<div class="input-box">
-						<input type="text" name="payment[credito_portador_nascimento]" id="credito_portador_nascimento" value="<?php if ($dn !='') { echo $dn; } ?>"  class="input-text required-entry" >
-					</div>
+				<li>
+					<img src="<?php echo $this->getDinersImage(); ?>" alt="Diners" border="0" onclick="setCcType('DI');">
+					<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]"  value="Diners" onclick="setCcType('DI');" title="Bandeira do seu cartão" class="Dinners-moip validate-one-required-by-name" style="display:none;" >
+				</li>
+				<li>
+					<img src="<?php echo $this->getHipercardImage(); ?>" alt="Hipercard" border="0"  onclick="setCcType('HI');">
+					<input id="bandeiratransparente" type="radio"  name="payment[credito_instituicao]"  value="Hipercard" onclick="setCcType('HI');" title="Bandeira do seu cartão" class="Hipercard-moip validate-one-required-by-name" style="display:none;" >
 				</li>
 			</ul>
-			</div>
-			<div class="clearer"></div>
-		</div>
-		<div class="transparente-payment-method-content row-fluid" id="transparente-boleto" style="display:none">
-			<div class="span3 method-image">
-				<img alt="Boleto Bancário" id="imageboleto" src="<?php echo $this->getBoletoImage(); ?>">
-			</div>
-			<div class="span9">
-				<h3>Boleto</h3>
-				<p class="desc"><?php echo $this->getTextoBoleto("texto") ?></p>
-				<p class="method-price"><?php if(!$this->boletoDisponivel('valid')){echo $this->getBoletoPrice();}else{echo $this->boletoDisponivel('text');} ?></p>
-			</div>
-		</div>
-		<div class="transparente-payment-method-content row-fluid" id="transparente-transferencia" style="display:none">
-			<h3>Transferência Online</h3>
-			<div id="pagdebito">
-				Após finalizar o pedido você será redirecionado ao site do seu banco...</br>
-				<?php echo $this->getTextoTranferencia("texto"); ?>
-				<p class="method-price"><?php echo $this->getBoletoPrice(); ?></p>
-			</div>
-			<ul class="inline input-switcher input-switcher-4">
-				<li>
-					<img  src="<?php echo $this->getBBImage(); ?>"  alt="Banco do Brasil" id="debbb" >
-					<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="BancoDoBrasil" class="validate-one-required-by-name">
-				</li>
-				<li>
-					<img  src="<?php echo $this->getBradescoImage(); ?>" id="debbradesco" alt="Bradesco">
-					<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="Bradesco" class="validate-one-required-by-name">
-				</li>
-				<li>
-					<img src="<?php echo $this->getItauImage(); ?>" id="debitau" alt="Itaú"  >
-					<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="Itau" class="validate-one-required-by-name">
-				</li>
-				<li>
-					<img src="<?php echo $this->getBanrisulImage(); ?>" id="Banrisul" alt="Banrisul"  >
-					<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="Banrisul" class="validate-one-required-by-name">
-				</li>
-			</ul>
+
+			<li class="wide cc-validade">
+				<label class="required" for="Validade">Validade<em>*</em></label>
+				<div class="input-box">
+					<select name="payment[credito_expiracao_mes]" id="credito_expiracao_mes" class="validate-select" title="Mês de Vencimento do seu Cartão">
+						<option value="">Mês</option>
+						<option value="01">01</option>
+						<option value="02">02</option>
+						<option value="03">03</option>
+						<option value="04">04</option>
+						<option value="05">05</option>
+						<option value="06">06</option>
+						<option value="07">07</option>
+						<option value="08">08</option>
+						<option value="09">09</option>
+						<option value="10">10</option>
+						<option value="11">11</option>
+						<option value="12">12</option>
+					</select>
+					<select name="payment[credito_expiracao_ano]" id="credito_expiracao_ano" class="validate-select" title="Ano de Vencimento do seu Cartão">
+						<option value="">Ano</option>
+						<option value="14">14</option>
+						<option value="15">15</option>
+						<option value="16">16</option>
+						<option value="17">17</option>
+						<option value="18">18</option>
+						<option value="19">19</option>
+						<option value="20">20</option>
+						<option value="21">21</option>
+						<option value="22">22</option>
+						<option value="23">23</option>
+						<option value="24">24</option>
+						<option value="25">25</option>
+						<option value="26">26</option>
+					</select>
+				</div>
+			</li>
+			<div class="alerta_data"></div>
 			
-		</div>		
+			<li class="wide">
+				<label class="required" for="credito_parcela">Opções de pagamento<em>*</em></label>
+				<div class="input-box">
+					
+									              
+					<select name="payment[credito_parcelamento]" id="credito_parcelamento" class="validate-select" title="Número de Parcelas de sua Compra" >
+						<option value="" select>Selecione as parcelas</option>
+							<?php $parcelas = $this->getParcelamento('parcelas'); ?>
+			               <?php foreach ( $parcelas as $key => $value) { ?>
+			               		<?php echo $parcelas[$key]; ?>
+			               <?php } ?>
+			        </select>
+			        <?php echo $this->getTextoParcelas() ?>
+				</div>
+			</li>
+			
+			<li class="wide">
+				<label><input type="checkbox" name="payment[save_cart]"  title="Salvar Cartão para compras futuras?" id="save_cart" class="checkbox"> Salvar cartão para compras futuras?</label>
+			</li>
+			
+		</ul>
+		
+		<div id="formcli" style="display:none;">
+		<ul class="form-list dados-titular">
+		<h3>Dados do Titular</h3>
+			<li class="wide tooltip-transparente-handler">
+				<label class="required" for="credito_parcela"><em>*</em>Nome no Cartão</label>
+				<div class="input-box">
+					<input type="text" name="payment[credito_portador_nome]" value="<?php echo $nome; ?>" class="input-text required-entry" title="Nome Impresso em seu Cartão" id="credito_portador_nome" >
+					<span class="tooltip-transparente nome_tooltip">
+						<span class="custom help"><em>Nome do titular</em><br>deverá ser exatamente como está no cartão.</span>
+					</span>
+				</div>
+			</li>
+			<li class="wide">
+				<label class="required" for="credito_parcela"><em>*</em>CPF</label>
+				<div class="input-box">
+					<input type="text" name="payment[credito_portador_cpf]" class="input-text required-entry validar_cpf" title="CPF do Titular de seu Cartão" id="credito_portador_cpf" value="<?php echo $cpf; ?>" >
+				</div>
+			</li>
+			<li class="wide">
+				<label class="required" for="credito_parcela"><em>*</em>Telefone</label>
+				<div class="input-box">
+					<input type="text" name="payment[credito_portador_telefone]" id="credito_portador_telefone" title="Telefone do Titular do Cartão" value="<?php echo $telefone; ?>" class="input-text required-entry">
+				</div>
+			</li>
+			<li class="wide">
+				<label class="required" for="credito_parcela"><em>*</em>Data nascimento</label>
+				<div class="input-box">
+					<input type="text" name="payment[credito_portador_nascimento]" id="credito_portador_nascimento" title="Data de Nascimento do Titular do Cartão" value="<?php if ($dn !='') { echo $dn; } ?>"  class="input-text required-entry" >
+				</div>
+			</li>
+		</ul>
+		</div>
+		
+		<div class="clearer"></div>
 	</div>
-
+	<div class="transparente-payment-method-content row-fluid" id="transparente-boleto" style="display:none">
+		<div class="span3 method-image">
+			<img alt="Boleto Bancário" id="imageboleto" src="<?php echo $this->getBoletoImage(); ?>">
+		</div>
+		<div class="span9">
+			<h3>Boleto</h3>
+			<p class="desc"><?php echo $this->getTextoBoleto("texto") ?></p>
+			<p class="method-price"><?php if(!$this->boletoDisponivel('valid')){echo $this->getBoletoPrice();}else{echo $this->boletoDisponivel('text');} ?></p>
+		</div>
+	</div>
+	<div class="transparente-payment-method-content row-fluid" id="transparente-transferencia" style="display:none">
+		<h3>Transferência Online</h3>
+		<div id="pagdebito">
+			Após finalizar o pedido você será redirecionado ao site do seu banco...</br>
+			<?php echo $this->getTextoTranferencia("texto"); ?>
+			<p class="method-price"><?php echo $this->getBoletoPrice(); ?></p>
+		</div>
+		<ul class="inline input-switcher input-switcher-4">
+			<li>
+				<img  src="<?php echo $this->getBBImage(); ?>"  alt="Banco do Brasil" id="debbb" >
+				<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="BancoDoBrasil" title="Banco Para a Transferência" class="validate-one-required-by-name">
+			</li>
+			<li>
+				<img  src="<?php echo $this->getBradescoImage(); ?>" id="debbradesco" alt="Bradesco">
+				<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="Bradesco"  title="Banco Para a Transferência" class="validate-one-required-by-name">
+			</li>
+			<li>
+				<img src="<?php echo $this->getItauImage(); ?>" id="debitau" alt="Itaú"  >
+				<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="Itau"  title="Banco Para a Transferência" class="validate-one-required-by-name">
+			</li>
+			<li>
+				<img src="<?php echo $this->getBanrisulImage(); ?>" id="Banrisul" alt="Banrisul"  >
+				<input type="radio" id="debito_instituicao" name="payment[debito_instituicao]" value="Banrisul"  title="Banco Para a Transferência" class="validate-one-required-by-name">
+			</li>
+		</ul>
+		
+	</div>		
+</div>
+<script type="text/javascript" src="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS); ?>MOIP/transparente/checkout.js"></script>
