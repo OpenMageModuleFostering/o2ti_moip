@@ -1,83 +1,124 @@
-<?php
-require_once 'Mage/Adminhtml/controllers/Sales/OrderController.php';
-class O2TI_Moip_IndexController extends Mage_Adminhtml_Sales_OrderController {
-	protected function _construct() {
-		$this -> setUsedModuleName('O2TI_Moip');
+<?php 
+class O2TI_Moip_IndexController extends Mage_Core_Controller_Front_Action
+{	
+	protected function indexAction() {
+		$this->loadLayout();
+        $this->renderLayout();
+        return true;
 	}
-
-	public function indexAction() {
-		echo "test";
-		$orderIds = $this -> getRequest() -> getPost('order_ids');
-
-		$counter = 0;
-		foreach ($orderIds as $currentOrderId) {
-			$order = Mage::getModel("sales/order") -> load($currentOrderId);
-			$done =false;
-			try {
-				$state = Mage_Sales_Model_Order::STATE_PROCESSING;
-				$status = 'authorized';
-				$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
-				$comment = "Pedido Autorizado via Admin".$comment ." Pagamento realizado por: ". $this->getNomePagamento($Formadepagamento);
-				$comment = $comment ."\n Via instuição: ". $bandeira;
-				$comment =  $comment. "\n ID MOIP" .$data['cod_moip']. "\n Pagamento direto no MoiP https://www.moip.com.br/Instrucao.do?token=" .$LastRealOrderId;
-				$order->setState($state, $status, $comment, $notified = true, $includeComment = true);
-				$order->save();
-				$order->load(Mage::getSingleton('checkout/session')->getLastOrderId());
-				Mage::dispatchEvent('moip_order_authorize', array("order" => $order));
-				$done = true;
-				$counter++;
-			} catch (Exception $e) {
-				$order -> addStatusHistoryComment('Exception occurred during automaticallyInvoiceShipCompleteOrder action. Exception message: ' . $e -> getMessage(), false);
-				$order -> save();
-				$this->_getSession()->addError($this->__('Não foi possivel autorizados o pedido %s ', $currentOrderId));
+	public function NovaformaAction() {
+		if($this->getRequest()->getParams()){
+			$model = Mage::getModel('moip/write');
+			$api = Mage::getModel('moip/api');
+			$post = $this->getRequest()->getPost();
+        	$model->load($post['order_id'], 'realorder_id');
+        	$model->getDate();
+			$pgtoArray = array();
+			$pgtoArray['forma_pagamento'] = $post['forma_de_pagamento'];
+			$pgtoArray['credito_instituicao'] = $post['bandeira'];
+	        $pgtoArray['credito_numero'] = $post['Numero'];
+	        $pgtoArray['credito_expiracao_mes'] = $post['Expiracao_mes'];
+	        $pgtoArray['credito_expiracao_ano'] = $post['Expiracao_ano'];
+	        $pgtoArray['credito_codigo_seguranca'] = $post['CodigoSeguranca'];
+	        $pgtoArray['credito_parcelamento'] = $post['parcelas'];
+	        $pgtoArray['credito_portador_nome'] = $post['Portador'];
+	        $pgtoArray["vcmentoboleto"] = "3";
+	        $cpf = $post['CPF'];
+	        $pgtoArray['credito_portador_cpf'] = preg_replace("/[^0-9]/", "", $cpf);
+	        $pgtoArray['credito_portador_DDD'] = $this->getNumberOrDDD($post['Telefone'], true);
+	        $pgtoArray['credito_portador_telefone'] = $this->getNumberOrDDD($post['Telefone']);
+	        $pgtoArray['credito_portador_nascimento'] =  date('Y-m-d', strtotime($post['DataNascimento']));
+			$model->setMeio_pg($post['forma_de_pagamento']);
+			if($post['forma_de_pagamento'] == "BoletoBancario"){
+				$model->setbrand_moip('Bradesco');				
 			}
-		}
-		if($done){
-			$this->_getSession()->addSuccess($this->__('%s pedidos autorizados com sucesso', $counter));
-		}
-		$this -> _redirect('adminhtml/sales_order/', array());
-	}
-	private function getNomePagamento($param) {
-		$nome = "";
-		switch ($param) {
-		case "BoletoBancario":
-			$nome = "Boleto Bancário";
-			break;
-		case "DebitoBancario":
-			$nome = "Debito Bancário";
-			break;
-		case "CartaoCredito":
-			$nome = "Cartão de Crédito";
-			break;
-		}
-		return $nome;
-	}
-	private function getStatusPagamentoMoip($param) {
-		$status = "";
-		switch ($param) {
-		case 1:
-			$status = "Autorizado";
-			break;
-		case 2:
-			$status = "Iniciado";
-			break;
-		case 3:
-			$status = "Boleto Impresso";
-			break;
-		case 4:
-			$status = "Concluido";
-			break;
-		case 5:
-			$status = "Cancelado";
-			break;
-		case 6:
-			$status = "Em análise";
-			break;
-		case 7:
-			$status = "Estornado";
-			break;
-		}
-		return $status;
-	}
+			if ($post['forma_de_pagamento'] == "CartaoCredito") {
+				$model->setCreditcard_parc($post['parcelas']);
+				$model->setbrand_moip($post['bandeira']);
+				$model->setfirst6(substr($post['Numero'], 0, 6));
+				$model->setLast4(substr($post['Numero'], -4));			
+			}
+			if($post['forma_de_pagamento'] == "DebitoBancario")
+			{				
+				$model->setbrand_moip((string)$post['instituicao']);
+		       	
+		    }
+			
+			$model->save();
+			if($post['forma_de_pagamento'] == "BoletoBancario"){
+					$json = array(
+						'Forma' => 'BoletoBancario',
+					 );
+				} elseif ($post['forma_de_pagamento'] == "DebitoBancario") {
+					$json = array(
+						'Forma' => 'DebitoBancario',
+						'Instituicao' => $post['instituicao'],
+					 );
 
+				} else {
+
+			$json = array(
+						'Forma' => $post['forma_de_pagamento'],
+						'Instituicao' =>  $post['bandeira'],
+						'Parcelas' => $post['parcelas'],
+						'CartaoCredito' => array(
+										'Numero' => $post['Numero'],
+										'Expiracao' => $post['Expiracao_mes']."/".$post['Expiracao_ano'],
+										'CodigoSeguranca' => $post['CodigoSeguranca'],
+										'Portador' => array(
+											'Nome' => $post['Portador'],
+											'DataNascimento' =>  date('Y-m-d', strtotime($post['DataNascimento'])),
+											'Telefone' => $this->getNumberOrDDD($post['Telefone'], true).$this->getNumberOrDDD($post['Telefone']),
+											'Identidade' =>  $cpf,
+											),
+										),
+					);
+			}
+			echo json_encode($json);
+		}
+	}
+	public function RepagAction() {
+		if($this->getRequest()->getParams()){
+			$post = $this->getRequest()->getPost();
+	        $cpf = preg_replace("/[^0-9]/", "", $post['CPF']);
+			$api = Mage::getModel('moip/api');
+			$json = array(
+						'Forma' => "CartaoCredito",
+						'Instituicao' =>  $post['bandeira'],
+						'Parcelas' => $post['parcelas'],
+						'CartaoCredito' => array(
+										'Numero' => $post['Numero'],
+										'Expiracao' => $post['Expiracao_mes']."/".$post['Expiracao_ano'],
+										'CodigoSeguranca' => $post['CodigoSeguranca'],
+										'Portador' => array(
+											'Nome' => $post['Portador'],
+											'DataNascimento' =>  date('Y-m-d', strtotime($post['DataNascimento'])),
+											'Telefone' => $this->getNumberOrDDD($post['Telefone'], true).$this->getNumberOrDDD($post['Telefone']),
+											'Identidade' =>  $cpf,
+											),
+										),
+					);
+		}
+		echo json_encode($json);
+		var_dump($json);
+		return true;
+	}
+    function getNumberOrDDD($param_telefone, $param_ddd = false) {
+
+        $cust_ddd = '00';
+        $cust_telephone = preg_replace("/[^0-9]/", "", $param_telefone);
+        $st = strlen($cust_telephone) - 8;
+        if ($st > 0) { //No caso essa seqüência é mais de 8 caracteres
+            $cust_ddd = substr($cust_telephone, 0, 2);
+            $cust_telephone = substr($cust_telephone, $st, 8);
+        }
+
+        if ($param_ddd === false) {
+            $retorno = $cust_telephone;
+        } else {
+            $retorno = $cust_ddd;
+        }
+
+        return $retorno;
+    }
 }

@@ -1,3 +1,4 @@
+
 <?php
 	$nome = "";
 	$cpf = "";
@@ -42,6 +43,7 @@ function countChar(val) {
 	}
 };
 jQuery(document).ready(function() {
+	jQuery("#cartao_radio").trigger("click");
 	jQuery('.input-switcher > li').bind({
 		click: function() {
 			jQuery(this).parent().children('li').fadeTo(300, 0.4);
@@ -84,7 +86,7 @@ jQuery(document).ready(function() {
 			<?php endif; ?>
 		</ul>
 
-		<div class="moip-payment-method-content row-fluid" id="moip-cartao" style="display:none">
+		<div class="moip-payment-method-content row-fluid" id="moip-cartao" style="display:block">
 			<h3>Cartão de Crédito</h3>
 			<label class="required" for="credito_bandeira" >Selecione a Bandeira:<em>*</em></label>
 			<ul class="inline banderias-cartao input-switcher input-switcher-5">

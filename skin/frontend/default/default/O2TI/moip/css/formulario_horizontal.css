@@ -9,7 +9,7 @@ ul.form-list .wide.cc-validade > div > select#credito_expiracao_mes{margin: 0 !i
 ul.form-list.dados-titular > li > label{clear: none !important; width: 105px;float: left !important;padding-top: 5px;}
 ul.form-list.dados-titular > li > div{ width: 50% !important;clear: none !important; float: left;}
 
-ul.inline{display: block;clear:both;}
+ul.inline{display: block;clear:both;max-width: 300px;}
 ul.inline li{float: left;width: 100%;margin-right: 2%; text-align: center;}
 ul.inline li img{width: 25%; height: auto;float: left; display: block; margin-bottom: 5px;}
 ul.inline li.moip-payment-method-line img{margin-left: 10px;}
@@ -25,7 +25,7 @@ ul.inline.input-switcher-5 > li img{width: 100%;float: none;}
 .tooltip-moip{display: none;position: absolute; right: 0px;top: 100%;background: #cccccc;padding: 20px;border-radius: 10px;min-width:  245px;box-shadow: 0 0 10px #000;z-index:999;}
 .tooltip-moip-handler:hover .tooltip-moip{display: block;}
 .span3.method-image > img {float: right;width: 100%;}
-#checkouto2ti > div {margin-right: 10px;}
+#checkouto2ti > div {margin-right: 10px;clear: both;}
 .chamada {float: left; font-weight: bold;}
 .method-price-title {float: right;}
 .resume {float: left;}

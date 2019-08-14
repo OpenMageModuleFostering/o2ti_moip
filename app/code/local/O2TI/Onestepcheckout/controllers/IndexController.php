@@ -691,13 +691,15 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 				$data_save_billing = $this->getRequest()->getPost('billing', array());
 			if ($this->isCustomerLoggedIn()) {
 				$this->saveAddress('billing', $data_save_billing);
-
 			}
-			$customerAddressId = $this->getRequest()->getPost('billing_address_id', false);
-			if ($this->getRequest()->getPost('billing_address_id') != "" && $data_save_billing['save_in_address_book'] == 0) {
-				$customerAddressId  = "";
-			}
-
+			$request_data = Mage::app()->getRequest()->getPost();
+			
+			
+			
+				
+					$customerAddressId  = "";
+				
+			
 			if (isset($data_save_billing['email'])) {
 				$data_save_billing['email'] = trim($data_save_billing['email']);
 			}
@@ -1050,9 +1052,10 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		$this->loadLayout()->renderLayout();
 	}
 	public function saveAddress($type, $data) {
+		if(isset($data['save_in_address_book']))
 		$save_in_address_book = $data['save_in_address_book'];
 		$addressId = $this->getRequest()->getPost($type.'_address_id');
-		if ($save_in_address_book && $addressId != "") {
+		if (isset($data['save_in_address_book']) && $addressId != "") {
 			$customer = Mage::getSingleton('customer/session')->getCustomer();
 			$address  = Mage::getModel('customer/address');
 

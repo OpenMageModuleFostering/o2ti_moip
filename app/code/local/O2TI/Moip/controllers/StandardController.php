@@ -10,45 +10,82 @@
  * @license    Autorizado o uso por tempo indeterminado
  */
 class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
-	public function getOrder() {
-		if ($this->_order == null) {}
-		return $this->_order;
-	}
 	public function getStandard() {
 		return Mage::getSingleton('moip/standard');
 	}
+
 	protected function _expireAjax() {
 		if (!Mage::getSingleton('checkout/session')->getQuote()->hasItems()) {
 			$this->getResponse()->setHeader('HTTP/1.1', '403 Session Expired');
 			exit;
 		}
 	}
+	
+	public function generateToken($xml) {
+		$session = Mage::getSingleton('checkout/session');
+		
+		$documento = 'Content-Type: application/xml; charset=utf-8';
+		 if (Mage::getSingleton('moip/standard')->getConfigData('ambiente') == "teste") { 
+	          $url = "https://desenvolvedor.moip.com.br/sandbox/ws/alpha/EnviarInstrucao/Unica";
+	        $header = "Authorization: Basic " . base64_encode(O2TI_Moip_Model_Api::TOKEN_TEST . ":" . O2TI_Moip_Model_Api::KEY_TEST);
+	      }
+	          else {
+	              $url = "https://www.moip.com.br/ws/alpha/EnviarInstrucao/Unica";
+	        $header = "Authorization: Basic " . base64_encode(O2TI_Moip_Model_Api::TOKEN_PROD . ":" . O2TI_Moip_Model_Api::KEY_PROD);
+	      }
+	      $result = array();
+	      $ch = curl_init(); 
+			curl_setopt($ch, CURLOPT_URL,$url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array($header, $documento));
+			$res = curl_exec($ch);
+		 	curl_close($ch); 
+
+		 	 $res = simplexml_load_string($res);
+		 	 if($res->Resposta->Status == "Sucesso"){
+		 	 	$result['status'] = $res->Resposta->Status->__toString();
+		 	 	$result['token'] = $res->Resposta->Token->__toString();
+		 	 	$session->setResult_decode($result);
+		 	 	return $result;
+		 	 	}
+		 	 else {
+		 	 	$result['status'] = $res->Resposta->Status->__toString();
+		 	 	$result['erro'] = $res->Resposta->Erro->__toString();
+		 	 	return $result;
+		 	 } 
+		    
+    }
 	public function redirectAction() {
 		$session = Mage::getSingleton('checkout/session');
+		$getSaltes = Mage::getModel('sales/order');
 		$standard = $this->getStandard();
 		$fields = $session->getMoIPFields();
 		$fields['id_transacao'] = Mage::getSingleton('checkout/session')->getLastRealOrderId();
 		$pgtoArray = $session->getPgtoArray();
 		$api = Mage::getModel('moip/api');
 		$api->setAmbiente($standard->getConfigData('ambiente'));
-		$xml = $api->generateXML($fields, $pgtoArray);
-		Mage::register('xml', $xml);
-		$formapgto = $api->generateforma($fields, $pgtoArray);
-		Mage::register('formapgto', $formapgto);
-		$formapg = $api->generateformapg($fields, $pgtoArray);
-		Mage::register('formapg', $formapg);
-		$token = $api->getToken($xml);
-		$session->setMoipStandardQuoteId($session->getQuoteId());
-		Mage::register('token', $token['token']);
-		Mage::register('erro', $token['erro']);
-		Mage::register('StatusPgdireto', $token['pgdireto_status']);
-		Mage::register('current_order', Mage::getModel('sales/order')->load(Mage::getSingleton('checkout/session')->getLastOrderId()));
+		$pedido_send = $api->generatePedido($fields, $pgtoArray);
+		$gettoken = $this->generateToken($pedido_send);
+		$session->setCurrent_order($getSaltes->load($session->getLastOrderId()));
+		$session->setPgtoarry($pgtoArray);
+		$session->setClient_array($fields);
 		$this->loadLayout();
 		$this->getLayout()->getBlock('content')->append($this->getLayout()->createBlock('O2TI_Moip_Block_Standard_Redirect'));
+		if($pgtoArray['forma_pagamento'] == "BoletoBancario"){
+			$this->getLayout()->getBlock('content')->append('moip.boleto');
+		}
+		elseif ($pgtoArray['forma_pagamento'] == "DebitoBancario") {
+			$this->getLayout()->getBlock('content')->append('moip.transferencia');
+		}
+		elseif ($pgtoArray['forma_pagamento'] == "CartaoCredito") {
+			$this->getLayout()->getBlock('content')->append('moip.cartao');
+		}
 		$this->renderLayout();
-
-		$session->unsQuoteId();
 	}
+	
 
 	public function cancelAction() {
 		$session = Mage::getSingleton('checkout/session');
@@ -65,135 +102,106 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 
 	public function successAction() {
 		$standard = $this->getStandard();
-		$order = Mage::getModel('sales/order');
-		$session = Mage::getSingleton('checkout/session');
-		if (!$this->getRequest()->isPost()) {
-			$session->setQuoteId($session->getMoipStandardQuoteId(true));
-			Mage::getSingleton('checkout/session')->getQuote()->setIsActive(false)->save();
-			$order->load(Mage::getSingleton('checkout/session')->getLastOrderId());
-			if ($order->getId()) {
-			}
-			$this->_redirect('Moip/standard/redirect/', array('_secure' => true));
-		} else {
-			$data_validacao = Mage::app()->getRequest()->getParam('validacao');
-			$data = $this->getRequest()->getPost();	
-			$login = $standard->getConfigData('conta_moip');
-			$order->loadByIncrementId(str_replace($login, "", $data['id_transacao']));
-			$LastRealOrderId = str_replace($login, "", $data['id_transacao']);
-			$conn = Mage::getSingleton('core/resource')->getConnection('core_read');
-			$sql = "SELECT * FROM moip WHERE sale_id IN (".$LastRealOrderId.") AND status ='Sucesso'";
-			$_venda = $conn->fetchAll($sql);
-			foreach ($_venda as $venda) {
-				$tokenpagamento = $venda['xml_return'];
-				$Formadepagamento = $venda['formapg'];
-				$bandeira = $venda['bandeira'];
-			}
-			$connRW = Mage::getSingleton('core/resource')->getConnection('core_write');
-			$results = $connRW->query("UPDATE `moip` SET num_parcelas='".$data['parcelas']."', ult_dig='".$data['cartao_final']."' WHERE sale_id IN (".$LastRealOrderId.");");
-			if ($order->isCanceled() && $data['status_pagamento'] != 5) {
-				if (Mage::helper('sales/reorder')->canReorder($order)) {
-					$orderId = $order['entity_id'];
-
-					$order2 = Mage::getModel('sales/order')->load($orderId);
-					$order2->setState(
-					    Mage_Sales_Model_Order::STATE_HOLDED,
-					    Mage_Sales_Model_Order::STATE_HOLDED
-					);
-					$order2->save();
-					foreach ($order2->getAllItems() as $item) {
-					    $item->setQtyCanceled(0);
-					    $item->save();
+		$naexecuta = "";
+		$validacao = $this->getRequest()->getParams();
+		if($validacao['validacao'] == "elisei13"){
+				$data = $this->getRequest()->getPost();
+				$login = $standard->getConfigData('conta_moip');
+				$data_moip = trim($data['id_transacao']);
+				$order_magento = str_replace($login, "", $data_moip);
+				$model = Mage::getModel('moip/write');
+				$model->load($order_magento, 'key_payment');
+				$order = Mage::getModel('sales/order')->load($order_magento, 'increment_id');
+				$id_order = $order->getId();
+				$states_atual = $order->getStatus();
+				if ($order->isCanceled() && $data['status_pagamento'] != "5") {
+					if (Mage::helper('sales/reorder')->canReorder($order)) {
+						$order->setState(Mage_Sales_Model_Order::STATE_NEW);
+						$produtos = array();
+						foreach ($order->getAllItems() as $item) {
+							$item->setQtyCanceled(1);
+							$item->save();
+							$stockItem = Mage::getModel('cataloginventory/stock_item')->loadByProduct($item->getProductId());
+							$stockItem->subtractQty($item->getQtyOrdered());
+							$stockItem->setIsInStock(true)->setStockStatusChangedAutomaticallyFlag(true);
+							$stockItem->save();
+							$produtos = $item->getProductId();
+							$product = Mage::getModel('catalog/product')->loadByAttribute('sku', $produtos);
+							$qty = $item->getQtyOrdered();
+							$rowTotal = $item->getPrice();
+							$orderItem = Mage::getModel('sales/order_item')
+									->setStoreId($order->getStore()->getStoreId())
+									->setQuoteItemId(NULL)
+									->setQuoteParentItemId(NULL)
+									->setProductId($item->getId())
+									->setProductType($item->getTypeId())
+									->setQtyBackordered(NULL)
+									->setTotalQtyOrdered($qty)
+									->setQtyOrdered($qty)
+									->setName($item->getName())
+									->setSku($item->getSku())
+									->setPrice($item->getPrice())
+									->setBasePrice($item->getPrice())
+									->setOriginalPrice($item->getPrice())
+									->setRowTotal($rowTotal)
+									->setBaseRowTotal($rowTotal)
+									->setOrder($order);
+							$orderItem->save();
+						}
+						$order->save();
 					}
-					$order2 = Mage::getModel('sales/order')->load($orderId);
-					$order2->getState() == Mage_Sales_Model_Order::STATE_HOLDED;
 				}
-			}elseif($order->isCanceled() && $data['status_pagamento'] == 5){
-				return false;
-			}
-			switch ($data['status_pagamento']) {
-			case 1:
-				if ($data_validacao == $standard->getConfigData('validador_retorno')) {
-					if($order->getStatus() != "Autorizado"){
-										$state = Mage_Sales_Model_Order::STATE_PROCESSING;
-					$status = 'authorized';
-					$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
-					$comment = $comment ." Pagamento realizado por: ". $this->getNomePagamento($Formadepagamento);
-					$comment = $comment ."\n Via instuição: ". $bandeira;
-					$comment =  $comment; "\n ID MOIP" .$data['cod_moip'];
-					$invoice = $order->prepareInvoice();
-                                if ($this->getStandard()->canCapture())
-                                        {
-                                                $invoice->register()->capture();
-                                        }
-                                Mage::getModel('core/resource_transaction')
-                                ->addObject($invoice)
-                                ->addObject($invoice->getOrder())
-                                ->save();
-                                $invoice->sendEmail();
-                                $invoice->setEmailSent(true);
-                                $invoice->save();
-
-					$order->setState($state, $status, '', $notified = true, $includeComment = false);
+				switch ($data['status_pagamento']) {
+					case "1":
+							if($states_atual != 'processing'){
+								$state = Mage_Sales_Model_Order::STATE_PROCESSING;
+								$status = 'processing';
+								$comment = $this->getStatusPagamentoMoip($status);
+								$invoice = $order->prepareInvoice();
+								if ($this->getStandard()->canCapture())
+								{
+										$invoice->register()->capture();
+								}
+								Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
+								$invoice->sendEmail();
+								$invoice->setEmailSent(true);
+								$invoice->save();
+							} else {
+								$naexecuta = 1;
+							}
+					break;
+					case "2":
+						$state = Mage_Sales_Model_Order::STATE_HOLDED;
+						$status = 'holded';
+						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
+					break;
+					case "3":
+							if($states_atual != 'processing' && $states_atual != 'holded'){
+								$state = Mage_Sales_Model_Order::STATE_HOLDED;
+								$status = 'holded';
+								$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
+							} else {
+								$naexecuta = 1;
+							}
+					break;
+					case "4":
+						$state = Mage_Sales_Model_Order::STATE_HOLDED;
+						$status = 'boleto_impresso';
+						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
+					break;
+					case "5":
+						$state = Mage_Sales_Model_Order::STATE_CANCELED;
+						$status = 'canceled';
+						$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
+						$order->cancel();
+					break;
+				}
+				if($naexecuta != 1){
+					$order->setState($state, $status, $comment, $notified = true, $includeComment = true);
 					$order->save();
-					}
+					echo 'Processo de retorno concluido para o pedido #'.$id_order.' Status '.$status;
+					Mage::log("Cliente do pedido ".$id_order. " - Status - " .$status, null, 'O2TI_Moip.log', true);
 				}
-				else {
-					$state = Mage_Sales_Model_Order::STATE_CANCELED;
-					$status = 'canceled';
-					$comment = "Tentativa de Fraude no retorno Moip";
-
-					$order->cancel();
-				}
-				break;
-			case 2:
-				$state = Mage_Sales_Model_Order::STATE_HOLDED;
-				$status = 'iniciado';
-				$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
-				$comment = $comment ." Pagamento realizado por: ". $this->getNomePagamento($Formadepagamento);
-				$comment = $comment ."\n Via instuição: ". $bandeira;
-
-				Mage::dispatchEvent('moip_order_canceled_fraud', array("order" => $order));
-				break;
-			case 3:
-				$state = Mage_Sales_Model_Order::STATE_HOLDED;
-				$status = 'boleto_impresso';
-				$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
-				$comment = $comment. "\n ID MOIP " .$data['cod_moip'];
-				Mage::dispatchEvent('moip_order_hold_printed', array("order" => $order));
-				break;
-			case 4:
-				return false;
-				break;
-			case 5:
-				$state = Mage_Sales_Model_Order::STATE_CANCELED;
-				$status = 'canceled';
-				$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
-				$comment = $comment ." Pagamento realizado por: ". $this->getNomePagamento($Formadepagamento);
-				$comment = $comment ."\n Via instuição: ". $bandeira;
-				$comment = $comment . "\n ID MOIP " .$data['cod_moip']. "\n Motivo: ".utf8_encode($data['classificacao']);
-				Mage::dispatchEvent('moip_order_canceled', array("order" => $order));
-				$this->_sendStatusMail($order, $tokenpagamento);
-				$order->cancel();
-				break;
-			case 6:
-				$state = Mage_Sales_Model_Order::STATE_HOLDED;
-				$status = 'payment_review';
-				$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
-				$comment = $comment ." Pagamento realizado por: ". $this->getNomePagamento($Formadepagamento);
-				$comment = $comment ."\n Via instuição: ". $bandeira;
-				$comment = $comment. "\n ID MOIP " .$data['cod_moip'];
-				Mage::dispatchEvent('moip_order_holded_review', array("order" => $order));
-				break;
-			}
-			$order->setState($state, $status, $comment, $notified = true, $includeComment = true);
-			$order->save();
-			$order->load(Mage::getSingleton('checkout/session')->getLastOrderId());
-			if ($order->getId()) {}
-
-			if($status == 'authorized'){
-				Mage::dispatchEvent('moip_order_authorize', array("order" => $order));
-			}
-			echo 'Processo de retorno concluido para o pedido #'.$data['id_transacao'].$data_validacao;
 		}
 	}
 
@@ -209,39 +217,48 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 		case "CartaoCredito":
 			$nome = "Cartão de Crédito";
 			break;
+		default:
+			$nome ="meio";
+			break;
 		}
 		return $nome;
 	}
+
 	private function getStatusPagamentoMoip($param) {
-		$status = "";
 		switch ($param) {
-		case 1:
-			$status = "Autorizado";
-			break;
-		case 2:
-			$status = "Iniciado";
-			break;
-		case 3:
-			$status = "Boleto Impresso";
-			break;
-		case 4:
-			$status = "Concluido";
-			break;
-		case 5:
-			$status = "Cancelado";
-			break;
-		case 6:
-			$status = "Em análise";
-			break;
-		case 7:
-			$status = "Estornado";
-			break;
+			case "1":
+				$param = "Pagamento Autorizado";
+				break;
+			case "2":
+				$param = "Pagamento Iniciado";
+				break;
+			case "3":
+				$param = "Boleto Impresso";
+				break;
+			case "4":
+				$param = "Pagamento Concluido";
+				break;
+			case "5":
+				$param = "Pagamento Cancelado";
+				break;
+			case "6":
+				$param = "Pagamento em análise";
+				break;
+			case "7":
+				$param = "Pagamento Reembolsado";
+				break;
+			case "8":
+				$param = "Pagamento Revertido pela Operadora";
+				break;
+			default:
+				$param = "nao criado";
+				break;
 		}
-		return $status;
+		return $param;
 	}
 
 	private  function _sendStatusMail($order, $tokenpagamento)
-    	{
+	{
 		$emailTemplate  = Mage::getModel('core/email_template');
 		$emailTemplate->loadDefault('o2ti_ordem_tpl');
 		$emailTemplate->setTemplateSubject('Pedido Cancelado');
@@ -255,17 +272,19 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 		$emailTemplateVariables['store_name'] = $order->getStoreName();
 		$emailTemplateVariables['store_url'] = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
 		$emailTemplate->send($order->getCustomerEmail(), $order->getStoreName(), $emailTemplateVariables);
-    	}
-	public function email_erro_pgtoAction() {
-		if ($_GET['erro'] != "true"):
-		$erro = $_GET['erro'];
-		$pedido = $_GET['pedido'];
-		$navegador = $_GET['navegador'];
-		Mage::log("Cliente do pedido ".$pedido. " - Erro - " .$erro. " navegador ". $navegador, null, 'O2TI_Moip.log', true);
-		endif;
-
 	}
+
+	public function email_erro_pgtoAction() {
+		if ($_GET['erro'] != "true"){
+			$erro = $_GET['erro'];
+			$pedido = $_GET['pedido'];
+			$navegador = $_GET['navegador'];
+			Mage::log("Cliente do pedido ".$pedido. " - Erro - " .$erro. " navegador ". $navegador, null, 'O2TI_Moip.log', true);
+		}
+	}
+
 	public function buscaCepAction() {
+
 		if ($_GET['meio'] == "buscaend") {
 			function simple_curl($url, $post=array(), $get=array()) {
 				$url = explode('?', $url, 2);
@@ -296,6 +315,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 			$html = $html;
 			echo $html;
 		}
+
 		if ($_GET['meio'] == "cep") {
 			function simple_curl($url, $post=array(), $get=array()) {
 				$url = explode('?', $url, 2);
@@ -313,151 +333,99 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				Mage::log(curl_exec($ch));
 				return curl_exec($ch);
-
 			}
 			$cep = $_GET['cep'];
-			$dados['tipo_logradouro'] = "";
-			$html = simple_curl('http://www.buscacep.correios.com.br/servicos/dnec/consultaLogradouroAction.do', array(
-					'relaxation'=>$cep,
-					'TipoConsulta'=>'relaxation',
-					'StartRow'=>'1',
-					'EndRow'=>'10',
-					'Metodo'=>'listaLogradouro',
-					'TipoCep' => 'ALL',
-					'semelhante' => 'N',
-					'cfm' => '1'
-				));
-			$start = strpos($html, '<table border="0" cellspacing="1" cellpadding="5" bgcolor="gray">');
-			$end = strpos($html, '</table>');
-			$tabela = substr($html, $start);
-			$startTable = strpos($tabela,'<table');
-			$endTable = strpos($tabela,'</table>');
-			$table = substr($tabela,$startTable,$endTable - $startTable)."</table>";
-			$dom = new Zend_Dom_Query($tabela);
-			$results = $dom->query('td');
-			$counter = 0;
-			foreach ($results as $result) {
-				switch ($counter) {
-				case 0:
-					$logradouro = trim(($result->textContent));
-					$logradouro = explode("-", $logradouro);
-					$logradouro = trim($logradouro[0]);
+			$cep = $_GET['cep'];
+			$cep = substr(preg_replace("/[^0-9]/", "", $cep) . '00000000', 0, 8);
+			$url_end = "http://endereco.ecorreios.com.br/getAddress.php?cep={$cep}";
+			$config = array('adapter' => 'Zend_Http_Client_Adapter_Socket');
+			$client = new Zend_Http_Client($url_end, $config);
+			$response = $client->request();
+			$endereco =  Zend_Json::decode($response->getBody());
+			switch ($endereco['uf']) {
+				case "AC":
+					$endereco['ufid'] = 485;
 					break;
-				case 1:
-					$bairro = trim(($result->textContent));
+				case "AL":
+					$endereco['ufid'] = 486;
 					break;
-				case 2:
-					$cidade = trim(($result->textContent));
+				case "AP":
+					$endereco['ufid'] = 487;
 					break;
-				case 3:
-					$estado = trim(($result->textContent));
+				case "AM":
+					$endereco['ufid'] = 488;
 					break;
-				}
-				$counter++;
+				case "BA":
+					$endereco['ufid'] = 489;
+					break;
+				case "CE":
+					$endereco['ufid'] = 490;
+					break;
+				case "DF":
+					$endereco['ufid'] = 491;
+					break;
+				case "ES":
+					$endereco['ufid'] = 492;
+					break;
+				case "GO":
+					$endereco['ufid'] = 493;
+					break;
+				case "MA":
+					$endereco['ufid'] = 494;
+					break;
+				case "MT":
+					$endereco['ufid'] = 495;
+					break;
+				case "MS":
+					$endereco['ufid'] = 496;
+					break;
+				case "MG":
+					$endereco['ufid'] = 497;
+					break;
+				case "PA":
+					$endereco['ufid'] = 498;
+					break;
+				case "PB":
+					$endereco['ufid'] = 499;
+					break;
+				case "PR":
+					$endereco['ufid'] = 500;
+					break;
+				case "PE":
+					$endereco['ufid'] = 501;
+					break;
+				case "PI":
+					$endereco['ufid'] = 502;
+					break;
+				case "RJ":
+					$endereco['ufid'] = 503;
+					break;
+				case "RN":
+					$endereco['ufid'] = 504;
+					break;
+				case "RS":
+					$endereco['ufid'] = 505;
+					break;
+				case "RO":
+					$endereco['ufid'] = 506;
+					break;
+				case "RR":
+					$endereco['ufid'] = 507;
+					break;
+				case "SC":
+					$endereco['ufid'] = 508;
+					break;
+				case "SP":
+					$endereco['ufid'] = 509;
+					break;
+				case "SE":
+					$endereco['ufid'] = 510;
+					break;
+				case "TO":
+					$endereco['ufid'] = 511;
+					break;
 			}
-			$dados =
-				array(
-				"logradouro"=> $logradouro,
-				"bairro"=> $bairro,
-				"cidade" => $cidade,
-				"uf"=> $estado,
-				"cep"=> $cep
-			);
-
-			switch ($dados['uf']) {
-			case "AC":
-				$estado = "485";
-				break;
-			case "AL":
-				$estado = "486";
-				break;
-			case "AP":
-				$estado = "487";
-				break;
-			case "AM":
-				$estado = "488";
-				break;
-			case "BA":
-				$estado = "489";
-				break;
-			case "CE":
-				$estado = "490";
-				break;
-			case "DF":
-				$estado = "491";
-				break;
-			case "ES":
-				$estado = "492";
-				break;
-			case "GO":
-				$estado = "493";
-				break;
-			case "MA":
-				$estado = "494";
-				break;
-			case "MT":
-				$estado = "495";
-				break;
-			case "MS":
-				$estado = "496";
-				break;
-			case "MG":
-				$estado = "497";
-				break;
-			case "PA":
-				$estado = "498";
-				break;
-			case "PB":
-				$estado = "499";
-				break;
-			case "PR":
-				$estado = "500";
-				break;
-			case "PE":
-				$estado = "501";
-				break;
-			case "PI":
-				$estado = "502";
-				break;
-			case "RJ":
-				$estado = "503";
-				break;
-			case "RN":
-				$estado = "504";
-				break;
-			case "RS":
-				$estado = "505";
-				break;
-			case "RO":
-				$estado = "506";
-				break;
-			case "RR":
-				$estado = "507";
-				break;
-			case "SC":
-				$estado = "508";
-				break;
-			case "SP":
-				$estado = "509";
-				break;
-			case "SE":
-				$estado = "510";
-				break;
-			case "TO":;
-				$estado = "511";
-				break;
-			}
-			$dados['valor_uf'] = $estado;
-			/*if ($estado != "") {
-				$separa_end = explode('- ', $dados['logradouro']);
-				if ($dados['uf'] != ""):
-					$texto = array('logradouro'=>$logradouro, 'bairro'=>$bairro, 'estado' => $cidade, 'estado'=>$estado);
-					//$texto = utf8_decode($separa_end[0]).":".utf8_decode($dados['bairro']).":".utf8_decode($dados['cidade']).":".$estado.";";
-				else:
-					$texto = $dados['tipo_d']." :".$dados['d'].":".utf8_decode($dados['logradouro']).":".$estado.";";
-				endif;
-			}*/
-			echo json_encode($dados);
+			$this->getResponse()->setBody(Zend_Json::encode($endereco));
 		}
 	}
 }

@@ -2,14 +2,23 @@
 <config>
 	<modules>
 		<O2TI_Moip>
-			<version>0.2.3</version>
+			<version>0.2.4</version>
 		</O2TI_Moip>
 	</modules>
 	<global>
 		<models>
 			<moip>
-				<class>O2TI_Moip_Model</class>
-			</moip>
+                <class>O2TI_Moip_Model</class>
+                <resourceModel>moip_mysql4</resourceModel>
+            </moip>
+            <moip_mysql4>
+                <class>O2TI_Moip_Model_Mysql4</class>
+                <entities>
+                    <write>
+                        <table>o2ti_moip</table>
+                    </write>
+                </entities>
+            </moip_mysql4>
 		</models>
 		<resources>
 			<moip_setup>
@@ -27,8 +36,8 @@
 			</moip_write>
 			<moip_read>
 				<connection>
-					<use>core_read</use>
-				</connection>
+                    <use>core_read</use>
+                </connection>
 			</moip_read>
 		</resources>
 		<blocks>
@@ -50,16 +59,7 @@
 				</o2ti_ordem_tpl>
 			</email>
 		</template>
-		<events>
-			<moip_order_authorize>
-				<observers>
-					<moip_order_create_invoice>
-						<class>moip/observer</class>
-	    				<method>generateInvoice</method>
-					</moip_order_create_invoice>
-				</observers>
-			</moip_order_authorize>
-		</events>
+		
 	</global>
 	<frontend>
 		<routers>
@@ -116,6 +116,7 @@
 		</moip>
 	</updates>
 	</layout>
+		
 	</adminhtml>
 	<crontab>
 		<jobs>
@@ -145,7 +146,7 @@
 				<tipoderecebimento>1</tipoderecebimento>
 				<pagamento_direto>1</pagamento_direto>
 				<parcelamento>1</parcelamento>
-				<parcelamento_de1>2</parcelamento_de1>
+				<parcelamento_de1>1</parcelamento_de1>
 				<parcelamento_ate1>12</parcelamento_ate1>
 				<parcelamento_juros1>1.99</parcelamento_juros1>
 				<nummaxparcelamax>12</nummaxparcelamax>

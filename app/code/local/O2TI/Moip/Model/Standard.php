@@ -63,13 +63,13 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
         }
         return $this;
     }
+
     public function prepare() {
         $info = $this->getInfoInstance();
-		
         $pgtoArray = array();
         $pgtoArray['forma_pagamento'] = $info->getFormaPagamento();
         $pgtoArray['debito_instituicao'] = $info->getDebitoInstituicao();
-        $pgtoArray['pagamento_direto'] = $this->getConfigData('pagamento_direto');
+        $pgtoArray['vcmentoboleto'] = $this->getConfigData('vcmentoboleto');
         $pgtoArray['tipoderecebimento'] = $this->getConfigData('tipoderecebimento');
         $pgtoArray['parcelamento'] = $this->getConfigData('parcelamento');
         $pgtoArray['nummaxparcelamax'] = $this->getConfigData('nummaxparcelamax');                
@@ -86,9 +86,11 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
         $pgtoArray['credito_codigo_seguranca'] = $info->getCreditoCodigoSeguranca();
         $pgtoArray['credito_parcelamento'] = $info->getCreditoParcelamento();
         $pgtoArray['credito_portador_nome'] = $info->getCreditoPortadorNome();
-        $pgtoArray['credito_portador_cpf'] = $info->getCreditoPortadorCpf();
-        $pgtoArray['credito_portador_telefone'] = $info->getCreditoPortadorTelefone();
-        $pgtoArray['credito_portador_nascimento'] = $info->getCreditoPortadorNascimento();
+        $cpf = $info->getCreditoPortadorCpf();
+        $pgtoArray['credito_portador_cpf'] = preg_replace("/[^0-9]/", "", $cpf);
+        $pgtoArray['credito_portador_DDD'] = $this->getNumberOrDDD($info->getCreditoPortadorTelefone(), true);
+        $pgtoArray['credito_portador_telefone'] = $this->getNumberOrDDD($info->getCreditoPortadorTelefone());
+        $pgtoArray['credito_portador_nascimento'] =  date('Y-m-d', strtotime($info->getCreditoPortadorNascimento()));
         $api = Mage::getModel('moip/api');
         $api->setAmbiente($this->getConfigData('ambiente'));
         $session = Mage::getSingleton('checkout/session');
@@ -99,11 +101,7 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
         $this->prepare();
         return Mage::getUrl('moip/standard/redirect', array('_secure' => true));
     }
-    public function getFormasPagamento() {
-        $formas = $this->getConfigData('formas_pagamento');
-        $formas = explode(",", $formas);
-        return $formas;
-    }
+   
     public function getStandardCheckoutFormFields() {
         if ($this->getQuote()->getIsVirtual()) {
             $a = $this->getQuote()->getBillingAddress();
@@ -123,9 +121,11 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
         $totalArr = $a->getTotals();
         $cep = substr(preg_replace("/[^0-9]/", "", $a->getPostcode()) . '00000000', 0, 8);
         $amount = $a->getGrandTotal();
+        $shipping = $a->getShippingAmount();
         $valor = $amount;
-        $dob = Mage::app()->getLocale()->date($this->getQuote()->getCustomerDob(), null, null, false)->toString('ddMMyyyy');
+        $dob = Mage::app()->getLocale()->date($this->getQuote()->getCustomerDob(), null, null, false)->toString('Y-MM-dd');
         $taxvat = $this->getQuote()->getCustomerTaxvat();
+        $taxvat = preg_replace("/[^0-9]/", "", $taxvat);
         $website_id = Mage::app()->getWebsite()->getId();
         $website_name = Mage::app()->getWebsite()->getName();
         $store_name = Mage::app()->getStore()->getName();
@@ -134,12 +134,13 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
             'valor' => $valor,
             'nome' => 'Pagamento a ' . $website_name,
             'descricao' => $this->getListaProdutos(),
-            'id_transacao' => $this->getCheckout()->getLastRealOrderId(),
+            'shipping' => $shipping,
             'peso_compra' => $this->getPesoProdutosPedido(),
             'pagador_nome' => $a->getFirstname() . ' ' . $a->getLastname(),
             //'pagador_email' => Mage::getSingleton('customer/session')->getCustomer()->getEmail(),// this is original code of Moip
-			'pagador_email' => strtolower($email),
-            'pagador_telefone' => $this->getNumberOrDDD($a->getTelephone(), true) . '' . $this->getNumberOrDDD($a->getTelephone()),
+			'pagador_email' => $a->getEmail(),
+            'pagador_ddd' => $this->getNumberOrDDD($a->getTelephone(), true),
+            'pagador_telefone' => $this->getNumberOrDDD($a->getTelephone()),
             'pagador_logradouro' => $a->getStreet(1),
             'pagador_numero' => $this->getNumEndereco($a->getStreet(1)),
             'pagador_complemento' => $a->getStreet(2),
@@ -175,6 +176,28 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
         if ($config['ate3'] > $max)
             $config['ate3'] = $max;
         return $config;
+    }
+    function getListaProdutos() {
+        $lastOrderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        $orderId = Mage::getModel('sales/order')
+               ->loadByIncrementId($lastOrderId)
+               ->getEntityId();
+        $_order = Mage::getModel('sales/order')->load($orderId);
+        $items = $_order->getAllItems();
+                        $itemcount=count($items);
+                        $produtos=array();
+                        
+                        foreach ($items as $itemId => $item)
+                        {
+                           $produtos[] = array (
+                            'product' => $item->getName(),
+                            'quantity' =>$item->getQtyToInvoice(),
+                            'detail' => $item->getSku(),
+                            'price' => number_format($item->getPrice(),2,'','')
+                            );
+                        }
+        
+        return $produtos;
     }
     private function getNumEndereco($endereco) {
         $numEndereco = '';
@@ -219,30 +242,7 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
 
         return $retorno;
     }
-    function getListaProdutos() {
-        $items = $this->getQuote()->getAllVisibleItems();
-        $lista = array();
-
-        foreach ($items as $item) {
-            $valor_item = ($item->getBaseCalculationPrice() - $item->getBaseDiscountAmount());
-            $valor_item = Mage::helper('core')->currency($valor_item, true, false);
-
-            $lista[] = $item->getName() . ' - ' . (int) $item->getQty() . ' - ' . $valor_item;
-        }
-        if ($this->getQuote()->getIsVirtual()) {
-            $a = $this->getQuote()->getBillingAddress();
-            $b = $this->getQuote()->getShippingAddress();
-        } else {
-            $a = $this->getQuote()->getShippingAddress();
-            $b = $this->getQuote()->getBillingAddress();
-        }
-        $totalArr = $a->getTotals();
-        if ($totalArr['shipping']) {
-            $valor_frete = $totalArr['shipping']->getValue();
-            $lista[] = 'Frete: R$ ' . number_format($valor_frete, 2, ",", ".");
-        }
-        return $lista;
-    }
+    
     function getPesoProdutosPedido() {
         $items = $this->getQuote()->getAllVisibleItems();
         if ($items) {
