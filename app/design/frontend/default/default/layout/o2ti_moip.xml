@@ -3,6 +3,15 @@
 	<sales>
 		<block type="Moip/Standard_Info" name="moip.info" template="O2TI/moip/info.phtml"></block>
 	</sales>
+	<onepagecheckout_index_index>
+		<reference name="head">
+				<action method="addJs"><script>O2TI/jquery.js</script></action>
+	   	 		<action method="addJs"><script>O2TI/jquery_noconflict.js</script></action>
+	   	 		<action method="addJs"><script>O2TI/novamascara.js</script></action>
+	   	 		<action method="addJs"><script>O2TI/validacao.js</script></action>
+	   	 		<action method="addJs"><script>O2TI/moip/checkout.js</script></action>
+		</reference>
+	</onepagecheckout_index_index>
 	 <checkout_onepage_index>
 		<reference name="head">
 				<action method="addJs"><script>O2TI/jquery.js</script></action>

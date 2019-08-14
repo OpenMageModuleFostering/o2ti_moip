@@ -27,7 +27,7 @@
 							</li>
 						</ul>
 					</div>
-					<div id="dados_incorretos" style="display:none; height:20px;">
+					<div id="dados_incorretos" style="display:none; height:90px;position: relative">
 						<ul class="messages"> <li class="error-msg">Dados incorretos, por favor tente novamente.<li><ul>
 					</div>
 					
@@ -79,8 +79,6 @@ jQuery('.buttons-set .button').css('display','none');
 			jQuery('.buttons-set .button').css('display','block');
 			jQuery('#login-please-wait').css('display','none');
 			jQuery('#dados_incorretos').css('display','block');
-			jQuery('.col1-set').css('height','300px');
-			jQuery('#inline1').css('height','300px');
 			jQuery('#errorlogin').css('display','block');
 			jQuery('#login-email').addClass('validation-failed');
 			jQuery('#login-password').addClass('validation-failed');

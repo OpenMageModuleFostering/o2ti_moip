@@ -20,7 +20,7 @@ function update_shippingmethods(){return 1;}
 function zip_load(){return 1;}
 function region_load(){return 0;}
 function country_load(){return 1;}
-function payment_load(){return 0;}
+function payment_load(){return 1;}
 function shipping_load(){return 1;}
 function has_default_billing()
 {
@@ -93,7 +93,7 @@ function buscarEndereco(whatform) {
 			jQuery(campos.street_1).val(addressData.logradouro);
 			jQuery(campos.street_4).val(addressData.bairro);
 			jQuery(campos.city).val(addressData.cidade);
-			jQuery(campos.region).val(addressData.valor_uf);
+			jQuery(campos.region).val(addressData.ufid);
 		},
 		error: function(){
 			jQuery(campos.street_1).val("");
@@ -125,7 +125,7 @@ function updateShippingMethod() {
 function updateShippingType(str_value){
 	jQuery('#message-box').html('');
 	jQuery('#checkout-shipping-method-load').html('<div class="update_shipping">Calculando Frete.<img class="Loading" alt="Loading..." src="<?php echo $this->getSkinUrl("O2TI/onestepcheckout/images/ajax-loader-tr.gif")?>"></div>');
-	jQuery('.btn-checkout').attr('disabled','disabled');
+	
 	<?php if(!Mage::helper('onestepcheckout')->onlyProductDownloadable()):?>
 		 if(update_shippingmethods()){
 			jQuery.ajax({
@@ -134,8 +134,7 @@ function updateShippingType(str_value){
 			data:jQuery("#onestep_form").serialize(),
 			success: function(msg){
 					jQuery('#checkout-shipping-method-load').html(msg);
-					updateShippingMethod();
-					updatePaymentAssociated();
+					
 				}
 			});
 		 }else{
@@ -152,7 +151,7 @@ function updatePaymentAssociated() {
 		if (jQuery('input[name=payment\\[method\\]]:checked').val() && payment_load()) {
 			updatePaymentMethod(jQuery('input[name=payment\\[method\\]]:checked').val());
 		} else {
-			jQuery('.btn-checkout').removeAttr('disabled');
+			
 		}
 	} else {
 		jQuery.ajax({
@@ -164,7 +163,7 @@ function updatePaymentAssociated() {
 				if (jQuery('input[name=payment\\[method\\]]:checked').val() && payment_load()) {
 					updatePaymentMethod(jQuery('input[name=payment\\[method\\]]:checked').val());
 				} else {
-					jQuery('.btn-checkout').removeAttr('disabled');
+					
 				}
 			}
 		});
@@ -372,7 +371,7 @@ $taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
 	<?php } ?>
 	var completeajax=1;
 	if (jQuery('input[name=shipping_method]:checked').val() && shipping_load()) {
-		jQuery('.btn-checkout').attr('disabled', 'disabled');
+		
 		jQuery.ajax({
 			type: "POST",
 			url: updateshippingmethodurl,
@@ -384,7 +383,7 @@ $taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
 		});
 	}
 	if (jQuery('input[name=payment\\[method\\]]:checked').val() && payment_load()) {
-		jQuery('.btn-checkout').attr('disabled', 'disabled');
+		
 		value = jQuery('input[name=payment\\[method\\]]:checked').val();
 		jQuery.ajax({
 			type: "POST",
@@ -397,7 +396,7 @@ $taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
 			}
 		});
 	}
-	jQuery('.btn-checkout').removeAttr('disabled');
+	
 	jQuery('.btn-checkout').bind("click",function(e){
 
 			var logic= true;
@@ -454,7 +453,7 @@ $taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
 				if(logic){
 					jQuery('#onestep_form').submit();
 					jQuery('#loading-mask').show();
-					jQuery('.btn-checkout').attr("disabled","disabled");
+					
 				}else {
 					return false;
 				}

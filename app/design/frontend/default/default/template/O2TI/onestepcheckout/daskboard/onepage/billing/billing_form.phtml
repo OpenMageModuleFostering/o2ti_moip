@@ -60,17 +60,21 @@ if (Mage::getSingleton('customer/session')->isLoggedIn()) {
 		<li class="wide">A senha é utilizada para você ter acesso futuro e acompanhar o seu pedido.</li>
 		<?php endif; ?>
 		<?php if(Mage::getStoreConfig('onestepcheckout/config/enable_pj')):?>
+
 		<li class="wide pj-pf">
-			<label class="required"><h3><em>*</em>Comprar como?</h3></label>
-			<div class="clearer clear"></div>
+			<label class="required"><h3>Comprar como?</h3></label>
+		</li>
+		<li class="wide pj-pf">
 			<div class="field">
+				<label class="required">Pessoa Física:</label>
 				<div class="input-box">
-					Pessoa Física:&nbsp;<input type="radio" name="billing[tipopessoa]" value="1" onclick="getval(this);" checked>
+					<input type="radio" name="billing[tipopessoa]" value="1" onclick="getval(this);" checked>
 				</div>
 			</div>
 			<div class="field">
+				<label class="required">Pessoa Jurídica:</label>
 				<div class="input-box">
-					Pessoa Jurídica:&nbsp;<input type="radio" name="billing[tipopessoa]" value="2" onclick="getval(this);">
+					<input type="radio" name="billing[tipopessoa]" value="2" onclick="getval(this);">
 				</div>
 			</div>
 		</li>
@@ -186,12 +190,13 @@ if (Mage::getSingleton('customer/session')->isLoggedIn()) {
 				<input type="text" maxlength="2" id="billing:region" name="billing[region]"  value="<?php echo $this->escapeHtml($region_select) ?>"  title="Estado" class="input-text" style="" autocomplete="off">
 			</div>
 		</li>
-		<li class="field" style="display:none;">
+		<li class="wide" style="display:none;">
 			<label for="billing:country_id" class="required"><em></em>País</label>
 			<div class="input-box">
 				 <?php echo $this->getCountryHtmlSelect('billing') ?>
 			</div>
 		</li>
+		<div style="clear:both"></div>
 <script type="text/javascript">
 	jQuery(function(){jQuery("#billing-new-address-form").show();});
 	var billing = new Billing("co-billing-form","<?php echo $this->getUrl('checkout/onepage/getAddress/address/') ?>", "<?php echo $this->getUrl('checkout/onepage/saveBilling/') ?>");

@@ -23,6 +23,7 @@
 			</dd>
 		<?php endif; ?>
 	<?php endif;?>
+	<div style="clear:both !important"></div>
 <?php endforeach; ?>
 </dl>
 <script type="text/javascript">
@@ -33,12 +34,12 @@ payment.init();
 </script>
 <script type="text/javascript">
 	var payment_method_changed = -1;
-	if(payment_load()){
-		jQuery(".payment_method_handle").click(function(){
+	
+		
 				if(this.value != payment_method_changed){
 					updatePaymentMethod(this.value);	
 					payment_method_changed = this.value;
 				}
-		});
-	}
+		
+	
 </script>
