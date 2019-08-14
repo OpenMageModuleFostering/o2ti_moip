@@ -358,6 +358,18 @@ function reDrawOnepage(versao)
 			$islogin=1;
 		}
 	?>
+	<?php if($islogin){ 
+$Email_customer = Mage::getSingleton('customer/session')->getCustomer()->getEmail();
+$first_name = Mage::getSingleton('customer/session')->getCustomer()->getFirstname();
+$Last_name = Mage::getSingleton('customer/session')->getCustomer()->getLastname();
+$taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
+
+	?>
+	jQuery("#billing\\:email").val("<?php echo $Email_customer; ?>");
+	jQuery("#billing\\:firstname").val("<?php echo $first_name; ?>");
+	jQuery("#billing\\:lastname").val("<?php echo $Last_name; ?>");
+	jQuery("#billing\\:taxvat").val("<?php echo $taxvat; ?>");
+	<?php } ?>
 	var completeajax=1;
 	if (jQuery('input[name=shipping_method]:checked').val() && shipping_load()) {
 		jQuery('.btn-checkout').attr('disabled', 'disabled');
