@@ -194,7 +194,7 @@ if (Mage::getSingleton('customer/session')->isLoggedIn()) {
 		</li>
 <script type="text/javascript">
 	jQuery(function(){jQuery("#billing-new-address-form").show();});
-	var billing = new Billing("co-billing-form","http://o2ti.com/loja-demo/checkout/onepage/getAddress/address/", "http://o2ti.com/loja-demo/checkout/onepage/saveBilling/");
+	var billing = new Billing("co-billing-form","<?php echo $this->getUrl('checkout/onepage/getAddress/address/') ?>", "<?php echo $this->getUrl('checkout/onepage/saveBilling/') ?>");
  	var billingForm = new VarienForm("co-billing-form");
 	var billingRegionUpdater = new RegionUpdater("billing:country_id", "billing:region", "billing:region_id", countryRegions, undefined, "billing:postcode");
 </script>
