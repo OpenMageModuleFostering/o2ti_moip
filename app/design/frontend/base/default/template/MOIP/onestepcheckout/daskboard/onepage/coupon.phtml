@@ -1,30 +1,28 @@
 <div class="discount-form">
-    <h2 style="margin-top:3px"> <?php echo $this->__('Discount Codes') ?></h2>
-    <span class="cupom_tem" style="cursor:pointer"><?php echo $this->__('Você tem um cupom de desconto? Clique aqui para utiliza-lo.') ?></span>
+    <?php if(!$this->getCouponCode()): ?>
+  
 
-        <div class="cupom_tem_codigo" style="<?php if(!$this->getCouponCode()) { ?>display:none; <?php } ?>">
-        <input type="hidden" name="remove" id="remove-coupone" value="0" />
-        <div class="input-box">
-            <input class="input-text" title="cupom de desconto" id="coupon_code" name="coupon_code" value="<?php echo $this->htmlEscape($this->getCouponCode()) ?>" style="max-width: 180px;" />
+        <div>
+            <input type="hidden" name="remove" id="remove-coupone" value="0" />
+            <ul class="form-list">
+                <li class="wide">
+                    <label>Cupom de desconto:</label>
+                    <div class="input-box">
+                        <input class="input-text" title="cupom de desconto" id="coupon_code" name="coupon_code" value="<?php echo $this->htmlEscape($this->getCouponCode()) ?>"/>
+                    </div>        
+                </li>
+                
+            </ul>
+
+            <p class="small">O cupom é opcional. Você deverá informar apenas se tiver um, caso não tenha deixe o campo em branco.</p>
+            <div class="buttons-set" style="padding-bottom: 20px;">
+                <button type="button" title="<?php echo $this->__('Apply Coupon') ?>" class="button" onclick="if(!jQuery('#coupon_code').val()){alert('Por Favor, insira um cupom.')}else{updateCoupon();}" value="<?php echo $this->__('Apply Coupon') ?>"><span><span><?php echo $this->__('Apply Coupon') ?></span></span></button>
+               
+            </div>
         </div>
-        <div class="buttons-set" style="padding-bottom: 20px;">
-            <button type="button" title="<?php echo $this->__('Apply Coupon') ?>" class="button" onclick="if(!jQuery('#coupon_code').val()){alert('Por Favor, insira um cupom.')}else{updateCoupon();}" value="<?php echo $this->__('Apply Coupon') ?>"><span><span><?php echo $this->__('Apply Coupon') ?></span></span></button>
-            <?php if(strlen($this->getCouponCode())): ?>
-                &nbsp; <button type="button" title="<?php echo $this->__('Cancel Coupon') ?>" class="button" onclick="jQuery('#remove-coupone').val(1);updateCoupon()" value="<?php echo $this->__('Cancel Coupon') ?>"><span><span><?php echo $this->__('Cancel Coupon') ?></span></span></button>
-            <?php endif;?>
-        </div>
-    </div>
-            <p id="loading_mask_loader" class="loader" style="display:none"><img alt="Loading..." src="<?php echo $this->getSkinUrl('MOIP/onestepcheckout/images/ajax-loader-tr.gif')?>"><br>Atualizando dados, por favor aguarde...</p>
+        <p id="loading_mask_loader" class="loader" style="display:none"><img alt="Loading..." src="<?php echo $this->getSkinUrl('MOIP/onestepcheckout/images/ajax-loader-tr.gif')?>"><br>Atualizando dados, por favor aguarde...</p>
+    <?php else: ?>
+            O "<?php echo $this->getCouponCode() ?>" foi aplicado.
+    <?php endif; ?>
 </div>
 <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
-<script type="text/javascript">
-//<![CDATA[
- jQuery(document).ready(function(){
-    jQuery('.cupom_tem').bind({
-        click: function(){
-            jQuery('.cupom_tem_codigo').slideToggle();
-        }
-    });
-});
- //]]>
-</script>

@@ -12,4 +12,5 @@
 	        <action method="setCanLoadTinyMce"><load>1</load></action>
 	    </reference>
 	</adminhtml_system_config_edit>
+	
 </layout>

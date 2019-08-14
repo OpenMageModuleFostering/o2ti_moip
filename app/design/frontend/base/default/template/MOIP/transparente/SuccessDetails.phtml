@@ -1,19 +1,47 @@
 <?php  $_order = $this->getOrder() ?>
+<div class="container">
+	<div class="row"> 
 
-<div class="col2-set">
-	<div class="col-1">
+	<div class="col-sm-12 col-lg-5 grid12-5">
 		<div class="box">
-
 			<div class="box-title">
 		                <h3>Número do Pedido</h3>
 		            </div>
 		            <div class="box-content">
 		            		<div class="order-id">#<?php echo  $_order->getIncrementId() ?></div>
 		            	</div>
-
         		</div>
+        		<?php if($_order->getShippingDescription()): ?>
+	        		<div class="box">
+
+			            <div class="box-title">
+			                <h3><?php echo $this->__('Endereço de Entrega') ?></h3>
+			            </div>
+			            <div class="box-content">
+			                <address>
+
+					<?php echo $_order->getShippingAddress()->format('html'); ?>
+
+			                 </address>
+			            </div>
+			</div>
+			<div class="box">
+
+			            <div class="box-title">
+			                <h3><?php echo $this->__('Dados de Entrega') ?></h3>
+			            </div>
+			            <div class="box-content">
+			                <p>
+			                	Seu pedido será enviado por:
+			                	<div> <?php  echo $_order->getShippingDescription(); ?></div>
+			                 </p>
+			            </div>
+
+
+			</div>
+		<?php endif; ?>
 	</div>
-	<div class="col-2">
+	<div class="col-sm-12 col-lg-7 grid12-7">
 		<div class="box">
 
 			<div class="box-title">
@@ -25,12 +53,9 @@
 				    <col width="25%" />
 				    <col width="1" />
 				    <col width="1" />
-				    <col width="1" />
 				    <thead>
 				        <tr>
 				            <th><?php echo $this->__('Product Name') ?></th>
-				            <th><?php echo $this->__('SKU') ?></th>
-				            <th class="a-right"><?php echo $this->__('Price') ?></th>
 				            <th class="a-center"><?php echo $this->__('Qty') ?></th>
 				            <th class="a-right"><?php echo $this->__('Subtotal') ?></th>
 				        </tr>
@@ -55,46 +80,12 @@
         		</div>
 	</div>
  </div>
-<?php if($_order->getShippingDescription()): ?>
- <div class="col2-set">
-	<div class="col-1">
-		<div class="box">
-
-		            <div class="box-title">
-		                <h3>Endereço de Entrega</h3>
-		            </div>
-		            <div class="box-content">
-		                <p>
-
-				<?php echo $_order->getShippingAddress()->format('html'); ?>
-
-		                 </p>
-		            </div>
+	
+</div>
 
 
-		</div>
-	</div>
-	<div class="col-2">
-		<div class="box">
-
-		            <div class="box-title">
-		                <h3>Dados de Entrega</h3>
-		            </div>
-		            <div class="box-content">
-		                <p>
-		                	Seu pedido será enviado por:
-		                	<div> <?php  echo $_order->getShippingDescription(); ?></div>
-		                 </p>
-		            </div>
-
-
-		</div>
-	</div>
- </div>
-  <?php endif; ?>
 
 
 <div class="goto-home">
-		<a href="<?php echo Mage::helper('core/url')->getHomeUrl(); ?>" class="button btn-checkout">Voltar para a home</a>
+		<?php echo Mage::getStoreConfig("moipall/google/outros_funil"); ?>
 </div>
-<?php echo Mage::getStoreConfig("moipall/google/outros_funil"); ?>

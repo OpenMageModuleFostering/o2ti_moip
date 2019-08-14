@@ -24,18 +24,14 @@
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-class MOIP_Onestepcheckout_Model_System_Config_Source_Payment_Allowedmethods
-   // extends Mage_Adminhtml_Model_System_Config_Source_Payment_Allmethods
+class MOIP_Onestepcheckout_Model_System_Config_Source_Payment_Allowedmethods extends Mage_Adminhtml_Model_System_Config_Source_Payment_Allmethods
 {
     protected function _getPaymentMethods()
     {
-    	//var_dump(Mage::getSingleton('payment/config')->getActiveMethods());die();
+    	
         return Mage::getSingleton('payment/config')->getActiveMethods();
     }
-	public function getPaymentMe(){
-		
-		//var_dump($this-> _getPaymentMethods());
-	}
+	
     public function toOptionArray()
     {
         $methods = array(array('value'=>'', 'label'=>''));

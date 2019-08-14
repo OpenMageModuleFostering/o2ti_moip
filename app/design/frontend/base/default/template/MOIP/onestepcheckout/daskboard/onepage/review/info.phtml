@@ -27,16 +27,19 @@
 <?php echo $this->getChildHtml('items_before'); ?>
 <div id="checkout-review-table-wrapper">
     <table class="data-table cart-table-items" id="checkout-review-table">
-        <?php  echo $this->getChildHtml('totals'); ?>
+      
         <thead>
             <tr>
-                <th><?php echo $this->__('Product Name') ?></th>
+                <th class="a-left" width="50%"><?php echo $this->__('Name') ?></th>
+                <th class="a-center"><?php echo $this->__('Qtd.') ?></th>
                 <th class="a-right"><?php echo $this->__('Subtotal') ?></th>
             </tr>
         </thead>
         <?php foreach($this->getItems() as $_item): ?>
             <?php echo $this->getItemHtml($_item)?>
         <?php endforeach ?>
+
+          <?php  echo $this->getChildHtml('totals'); ?>
     </table>
 </div>
 <?php echo $this->getChildHtml('items_after'); ?>

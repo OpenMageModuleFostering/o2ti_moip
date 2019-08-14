@@ -1,342 +1,621 @@
 <?php
-class MOIP_Transparente_Model_Api {
-
-    const TOKEN_TEST = "3UNGHOJCLVXZVOYF85JGILKALZSROU2O";
-    const KEY_TEST = "VX2MOP4AEXFQYHBYIWT0GINNVXFZO9TJCKJ6AWDR";
-    const TOKEN_PROD = "FEE5P78NA6RZAHBNH3GLMWZFWRE7IU3D";
-    const KEY_PROD = "Y8DIATTADUNVOSXKDN0JVDAQ1KU7UPJHEGPM7SBA";
-
-    private $conta_transparente = null;
-
-    public function getContaTransparente() {
-        return $this->conta_transparente;
+class MOIP_Transparente_Model_Api
+{
+    const TOKEN_TEST = "8OKLQFT5XQZXU7CKXX43GPJOMIJPMSMF";
+    const KEY_TEST = "NT0UKOXS4ALNSVOXJVNXVKRLEOQCITHI5HDKW3LI";
+    const ENDPOINT_TEST = "https://sandbox.moip.com.br/v2/";
+    const TOKEN_PROD = "EVCHBAUMKM0U4EE4YXIA8VMC0KBEPKN2";
+    const KEY_PROD = "4NECP62EKI8HRSMN3FGYOZNVYZOMBDY0EQHK9MHO";
+    const ENDPOINT_PROD = "https://api.moip.com.br/v2/";
+  
+   
+    public function getPayment()
+    {
+        return $this->getQuote()->getPayment();
     }
-
-    public function setContaTransparente($conta_transparente) {
-        $this->conta_transparente = $conta_transparente;
+    public function getSession()
+    {
+        return Mage::getSingleton('transparente/session');
     }
-
-    public function getAmbiente() {
-        return $this->ambiente;
+    public function getCheckout()
+    {
+        return Mage::getSingleton('checkout/session');
     }
-
-    public function setAmbiente($ambiente) {
-        $this->ambiente = $ambiente;
+    public function getQuote()
+    {
+        return $this->getCheckout()->getQuote();
     }
-
-    public function getListaComissoesAvancadas($order, $meio) {
-       $valor_comissao = 20/100;
-
-       foreach ($order->getAllVisibleItems() as $key => $item)
-        {
-               $product = Mage::getModel('catalog/product')->load($item->getProductId());
-               $comissao_valor= $item->getPrice()-($item->getPrice()*$valor_comissao);
-                $comissoes[] = array (
-                                                        'Razao' => 'Produto '.$item->getName().' x '.$item->getQtyToInvoice().' sku: '. $item->getSku(),
-                                                        'LoginMoIP' => $product->getAttributeText('loginmoip'),
-                                                        'ValorFixo' => $comissao_valor
-                                                    );
+    public function getListaComissoesAvancadas($order, $meio)
+    {
+        $valor_comissao = 20 / 100;
+        foreach ($order->getAllVisibleItems() as $key => $item) {
+            $product        = Mage::getModel('catalog/product')->load($item->getProductId());
+            $comissao_valor = $item->getPrice() - ($item->getPrice() * $valor_comissao);
+            $comissoes[]    = array(
+                'Razao' => 'Produto ' . $item->getName() . ' x ' . $item->getQtyToInvoice() . ' sku: ' . $item->getSku(),
+                #'LoginMoIP' => $product->getAttributeText('loginmoip'),
+                'ValorFixo' => $comissao_valor
+            );
         }
-
         return $comissoes;
     }
-
-    public function generatePedido($data, $pgto) {
-        if($pgto['credito_parcelamento'] == ""){
-            $pgto['credito_parcelamento'] = 2;
-        }
-        $standard = Mage::getSingleton('transparente/standard');
-        $parcelamento = $standard->getInfoParcelamento();
-        $meio = $pgto["forma_pagamento"];
-        $vcmentoboleto = $pgto["vcmentoboleto"];
-        $forma_pgto = "";
-        $validacao_nasp = $standard->getConfigData('validador_retorno');
-        $url_retorno =  Mage::getBaseUrl()."Transparente/standard/success/validacao/".$validacao_nasp."/";
-        $order = Mage::getModel('sales/order')->loadByIncrementId($data['id_transacao']);
-        $increment = $data['id_transacao'];
-        $data['id_transacao'] = $order->getID();
-        $amout = $order->getGrandTotal();
-        $valorcompra = $amout;
-        $vcmentoboleto = $standard->getConfigData('vcmentoboleto');
-        $vcmento = date('c', strtotime("+" . $vcmentoboleto . " days"));
-
-        if($pgto['tipoderecebimento'] =="0"):
-          $tipoderecebimento = "Parcelado";
-        else:
-           $tipoderecebimento = "Avista";
-        endif;
-
-        $tipo_parcelamento = Mage::getSingleton('transparente/standard')->getConfigData('jurostipo');
-
-        $comissionamento = Mage::getStoreConfig('moipall/mktplace/comissionamento');
-
-
-
-
-
-        $rand = rand(1000,9999999999);
-
-        $id_proprio = $rand.$pgto['conta_transparente'].'_'.$data['id_transacao'];
-
-    #    $xml = $this->generateXml($json);
-        $xml = new SimpleXMLElement('<?xml version = "1.0" encoding = "UTF-8"?><EnviarInstrucao/>');
-        $InstrucaoUnica = $xml->addChild('InstrucaoUnica');
-        $InstrucaoUnica->addAttribute('TipoValidacao', 'Transparente');
-        $InstrucaoUnica->addChild('Razao', 'Pagamento do Pedido #'.$increment);
-        $Valores = $InstrucaoUnica->addChild('Valores');
-        $Valor = $Valores->addChild('Valor',  number_format($valorcompra, 2, '.', ''));
-        $Valor->addAttribute('moeda', 'BRL');
-        $Recebedor = $InstrucaoUnica->addChild('Recebedor');
-        $Recebedor->addChild('LoginMoIP', $pgto['conta_transparente']);
-        $Recebedor->addChild('Apelido', $pgto['apelido']);
-
-
-        if($comissionamento){
-            $Comissoes = $InstrucaoUnica->addChild('Comissoes');
-                $Comissionamento = $Comissoes->addChild('Comissionamento');
-                    $Comissionamento->addChild('Razao',  'Pagamento do Pedido #'.$data['id_transacao'].' da Loja '.$pgto['apelido']);
-                    $Comissionado = $Comissionamento->addChild('Comissionado');
-                        $Comissionado->addChild('LoginMoIP', Mage::getStoreConfig('moipall/mktplace/logincomissionamento'));
-                    $Comissionamento->addChild('ValorPercentual', Mage::getStoreConfig('moipall/mktplace/porc_comissionamento'));
-                 if(Mage::getStoreConfig('moipall/mktplace/pagadordataxa')){
-                    $PagadorTaxa = $Comissoes->addChild('PagadorTaxa');
-                    $PagadorTaxa->addChild('LoginMoIP',Mage::getStoreConfig('moipall/mktplace/logincomissionamento'));
-                 }
-        }
-         /* suprimido para comissionamento simples
-          $comissioes_avancadas = $this->getListaComissoesAvancadas($order, $pgto['forma_pagamento']);
-        $Comissoes = $InstrucaoUnica->addChild('Comissoes');
-         foreach ($comissioes_avancadas as $key => $value) {
-                $Comissionamento = $Comissoes->addChild('Comissionamento');
-                $Comissionamento->addChild('Razao',  $value['Razao']);
-                $Comissionado =     $Comissionamento->addChild('Comissionado');
-                                                 $Comissionado->addChild('LoginMoIP', $value['LoginMoIP']);
-                $Comissionamento->addChild('ValorFixo', $value['ValorFixo']);
-        }
-         */
-        $InstrucaoUnica->addChild('IdProprio', $id_proprio);
-        $Pagador = $InstrucaoUnica->addChild('Pagador');
-        $Pagador->addChild('Nome',$data['pagador_nome']);
-        $Pagador->addChild('Email',$data['pagador_email']);
-        $Pagador->addChild('IdPagador',$data['pagador_email']);
-        $EnderecoCobranca = $Pagador->addChild('EnderecoCobranca');
-        $EnderecoCobranca->addChild('Logradouro', $data['pagador_logradouro']);
-        $EnderecoCobranca->addChild('Numero', 'n '.$data['pagador_numero']);
-        $EnderecoCobranca->addChild('Complemento', $data['pagador_complemento']);
-        $EnderecoCobranca->addChild('Bairro', $data['pagador_bairro']);
-        $EnderecoCobranca->addChild('Cidade', $data['pagador_cidade']);
-        $EnderecoCobranca->addChild('Estado', $data['pagador_estado']);
-        $EnderecoCobranca->addChild('Pais', 'BRA');
-        $EnderecoCobranca->addChild('CEP', $data['pagador_cep']);
-        $EnderecoCobranca->addChild('TelefoneFixo', $data['pagador_ddd'] . $data['pagador_telefone']);
-        $Parcelamentos = $InstrucaoUnica->addChild('Parcelamentos');
-        if($tipo_parcelamento == 1){
-                $max_parcelas = $parcelamento['c_ate1'];
-                $min_parcelas = $parcelamento['c_de1'];
-                $juros = $parcelamento['c_juros1'];
-                if($max_parcelas == 12){
-                  $Parcelamento = $Parcelamentos->addChild('Parcelamento');
-                  $Parcelamento->addChild('MinimoParcelas',$min_parcelas);
-                  $Parcelamento->addChild('MaximoParcelas',$max_parcelas);
-                  $Parcelamento->addChild('Recebimento',$tipoderecebimento);
-                  $Parcelamento->addChild('Juros',$juros);
-                } else{
-                       $Parcelamento = $Parcelamentos->addChild('Parcelamento');
-                       $Parcelamento->addChild('MinimoParcelas',$min_parcelas);
-                       $Parcelamento->addChild('MaximoParcelas',$max_parcelas);
-                       $Parcelamento->addChild('Recebimento',$tipoderecebimento);
-                       $Parcelamento->addChild('Juros',$juros);
-
-                       $Parcelamento = $Parcelamentos->addChild('Parcelamento');
-                       $Parcelamento->addChild('MinimoParcelas',$max_parcelas+1);
-                       $Parcelamento->addChild('MaximoParcelas',12);
-                       $Parcelamento->addChild('Recebimento',$tipoderecebimento);
-                       $Parcelamento->addChild('Juros',1.99);
-                }
+    public function generatePayment($json, $IdMoip)
+    {
+        $documento = 'Content-Type: application/json; charset=utf-8';
+        if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") {
+            $url    = self::ENDPOINT_TEST."orders/{$IdMoip}/payments";
+            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_dev');
+            $header = "Authorization: OAuth " . $oauth;
         } else {
-            for ($i=2; $i <= 12; $i++) {
-                $Parcelamento = $Parcelamentos->addChild('Parcelamento');
-                $juros_parcela = 's_juros'.$i;
-                $Parcelamento->addChild('MinimoParcelas',$i);
-                $Parcelamento->addChild('MaximoParcelas',$i);
-                $Parcelamento->addChild('Recebimento',$tipoderecebimento);
-                $Parcelamento->addChild('Juros',$parcelamento[$juros_parcela]);
-                $Parcelamento->addChild('Repassar','true');
-             }
+            $url    = self::ENDPOINT_PROD."orders/{$IdMoip}/payments";
+            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_prod');
+            $header = "Authorization: OAuth " . $oauth;
         }
-        $FormasPagamento = $InstrucaoUnica->addChild('FormasPagamento');
-        $FormasPagamento->addChild('FormaPagamento', 'CartaoCredito' );
-        $FormasPagamento->addChild('FormaPagamento', 'CartaoDebito' );
-        $FormasPagamento->addChild('FormaPagamento', 'DebitoBancario' );
-        $FormasPagamento->addChild('FormaPagamento', 'BoletoBancario' );
-        $FormasPagamento->addChild('FormaPagamento', 'FinanciamentoBancario');
-        if ($meio == "BoletoBancario"){
-            $Boleto_xml = $InstrucaoUnica->addChild('Boleto');
-            $Boleto_xml->addChild('Instrucao1', 'Pagamento do Pedido #'.$increment);
-            $Boleto_xml->addChild('Instrucao2', 'NÃO RECEBER APÓS O VENCIMENTO');
-            $Boleto_xml->addChild('Instrucao3', '+ Info em: '.Mage::getBaseUrl());
-            $Boleto_xml->addChild('DataVencimento');
-        }
-        $InstrucaoUnica->addChild('URLNotificacao', $url_retorno);
-        $request = $xml->asXML();
-        $request = utf8_decode($request);
-        $request = utf8_encode($request);
-        #var_dump($request); die();
-        return $request;
+        $result = array();
+        $ch     = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            $header,
+            $documento
+        ));
+        curl_setopt($ch, CURLOPT_USERAGENT, 'MoipMagento/2.0.0');
+        $responseBody = curl_exec($ch);
+        $info_curl = curl_getinfo($ch);
+        curl_close($ch);
+        $this->generateLog("------ Geração do Pagamento ------", 'MOIP_Order.log');
+        $this->generateLog("------ Json Enviado do Pagamento ------", 'MOIP_Order.log');
+        $this->generateLog($json, 'MOIP_Order.log');
+        $this->generateLog($oauth, 'MOIP_Order.log');
+        $this->generateLog("------ Resposta do Pagamento ------", 'MOIP_Order.log');
+        $this->generateLog($responseBody, 'MOIP_Order.log');
+        $this->generateLog("------ CurlInfo do Pagamento ------", 'MOIP_Order.log');
+        $this->generateLog(json_encode($info_curl), 'MOIP_Order.log');
+        
+        $decode = json_decode($responseBody);
+        return $decode;
     }
-    public function generateUrl($token) {
-        if ($this->getAmbiente() == "teste")
-            $url = $token;
+    public function getListaProdutos($quote)
+    {
+        $items     = $quote->getallvisibleitems();
+        $itemcount = count($items);
+        $produtos  = array();
+        foreach ($items as $itemId => $item) {
+            if ($item->getPrice() > 0) {
+                $produtos[] = array(
+                    'product' => $item->getName(),
+                    'quantity' => $item->getQty(),
+                    'detail' => $item->getSku(),
+                    'price' => number_format($item->getPrice(), 2, '', '')
+                );
+            }
+        }
+        return $produtos;
+    }
+    public function getAuditOrder($quote, $shipping)
+    {
+        $grandTotalProd = null;
+        foreach ($quote->getAllItems() as $item) {
+            $grandTotalProd += $item->getPriceInclTax() * $item->getQty();
+        }
+        $totals     = $quote->getTotals();
+        $grandTotal = $totals['grand_total']->getValue();
+        $total_cal  = $grandTotalProd + $shipping;
+        if ($total_cal != $grandTotal) {
+            if ($total_cal > $grandTotal) {
+                $diff          = $total_cal - $grandTotal;
+                $return_values = array(
+                    "shipping" => number_format($shipping, 2, '', ''),
+                    "discount" => number_format($diff, 2, '', ''),
+                    "addition" => 0
+                );
+            } else {
+                $diff          = $grandTotal - $total_cal;
+                $return_values = array(
+                    "shipping" => number_format($shipping, 2, '', ''),
+                    "discount" => 0,
+                    "addition" => number_format($diff, 2, '', '')
+                );
+            }
+        } else {
+            $return_values = array(
+                "shipping" => number_format($shipping, 2, '', ''),
+                "discount" => 0,
+                "addition" => 0
+            );
+        }
+        return $return_values;
+    }
+    public function getDados($quote)
+    {
+        $id_proprio = $quote->getReservedOrderId();
+      
+        
+        if ($quote->getShippingAddress()) {
+            $a = $quote->getShippingAddress();
+            $b = $quote->getBillingAddress();
+            $this->generateLog($b->Debug(), 'MOIP_OrderDebug.log');
+            
+        } else {
+            $a = $quote->getShippingAddress();
+            $b = $quote->getBillingAddress();
+            $this->generateLog($b->Debug(), 'MOIP_OrderDebug.log');
+        }
+        $email         = Mage::getSingleton('customer/session')->getCustomer()->getEmail();
+        $currency_code = Mage::app()->getStore()->getCurrentCurrencyCode();
+        $cep           = substr(preg_replace("/[^0-9]/", "", $b->getPostcode()) . '00000000', 0, 8);
+        $billing_cep   = substr(preg_replace("/[^0-9]/", "", $a->getPostcode()) . '00000000', 0, 8);
+        $dob           = Mage::app()->getLocale()->date($quote->getCustomerDob(), null, null, false)->toString('Y-MM-dd');
+        $dob           = explode('-',$dob);
+        $dob_day = $dob[2];
+        if(is_null($dob_day)){
+            $dob_day = 01;
+        }
+        $dob_month = $dob[1];
+        if(is_null($dob_month)){
+            $dob_month = 01;
+        }
+        $dob_year = $dob[0];
+        if($dob_year < 1900){
+            $dob_year += 1900; 
+        }
+        $dob = $dob_year."-".$dob_month."-".$dob_day;
+
+        $taxvat        = $quote->getCustomerTaxvat();
+        $taxvat        = preg_replace("/[^0-9]/", "", $taxvat);
+        $website_id    = Mage::app()->getWebsite()->getId();
+        $website_name  = Mage::app()->getWebsite()->getName();
+        $store_name    = Mage::app()->getStore()->getName();
+        $data          = array(
+            'id_transacao' => $quote->getId(),
+            'nome' => 'Pagamento a ' . $website_name,
+            'nome' => $b->getFirstname() . ' ' . $b->getLastname(),
+            'email' => strtolower($email),
+            'ddd' => $this->getNumberOrDDD($b->getTelephone(), true),
+            'telefone' => $this->getNumberOrDDD($b->getTelephone()),
+            'mobile' => $this->getNumberOrDDD($b->getFax()),
+            'mobile_ddd' => $this->getNumberOrDDD($b->getFax(), true),
+            'shipping_logradouro' => $b->getStreet(1),
+            'shipping_numero' => $this->getNumEndereco($b->getStreet(2), $b->getStreet(1)),
+            'shipping_complemento' => $b->getStreet(3),
+            'shipping_bairro' => $b->getStreet(4),
+            'shipping_cep' => $cep,
+            'shipping_cidade' => $b->getCity(),
+            'shipping_estado' => strtoupper($b->getRegionCode()),
+            'shipping_pais' => $b->getCountry(),
+            'billing_logradouro' => $a->getStreet(1),
+            'billing_numero' => $this->getNumEndereco($a->getStreet(2), $a->getStreet(1)),
+            'billing_complemento' => $a->getStreet(3),
+            'billing_bairro' => $a->getStreet(4),
+            'billing_cep' => $billing_cep,
+            'billing_cidade' => $a->getCity(),
+            'billing_estado' => strtoupper($a->getRegionCode()),
+            'billing_pais' => $a->getCountry(),
+            'cpf' => $taxvat,
+            'celular' => $this->getNumberOrDDD($b->getFax(), true) . '' . $this->getNumberOrDDD($b->getFax()),
+            'sexo' => '',
+            'data_nascimento' => $dob,
+            'frete' => number_format($b->getShippingAmount(), 2, '', '')
+        );
+        $autida_values = $this->getAuditOrder($quote, $b->getShippingAmount());
+        $json_order    = array(
+            "ownId" => $id_proprio,
+            "amount" => array(
+                "currency" => "BRL",
+                "subtotals" => $autida_values
+            ),
+            "items" => $this->getListaProdutos($quote),
+            "customer" => array(
+                "ownId" => $data['email'],
+                "fullname" => $data['nome'],
+                "email" => $data['email'],
+                "birthDate" => $data['data_nascimento'],
+                "taxDocument" => array(
+                    "type" => "CPF",
+                    "number" => $data['cpf']
+                ),
+                "phone" => array(
+                    "countryCode" => "55",
+                    "areaCode" => $data['ddd'],
+                    "number" => $data['telefone']
+                ),
+                "mobile" => array(
+                    "countryCode" => "55",
+                    "areaCode" => $data['mobile_ddd'],
+                    "number" => $data['mobile']
+                    ),
+                "shippingAddress" => array(
+                    "street" => $data['shipping_logradouro'],
+                    "streetNumber" => $data['shipping_numero'],
+                    "complement" => $data['shipping_complemento'],
+                    "district" => $data['shipping_bairro'],
+                    "city" => $data['shipping_cidade'],
+                    "state" => $data['shipping_estado'],
+                    "country" => "BRA",
+                    "zipCode" => $data['shipping_cep']
+                ),
+                "billingAddress" => array(
+                    "street" => $data['billing_logradouro'],
+                    "streetNumber" => $data['billing_numero'],
+                    "complement" => $data['billing_complemento'],
+                    "district" => $data['billing_bairro'],
+                    "city" => $data['billing_cidade'],
+                    "state" => $data['billing_estado'],
+                    "country" => "BRA",
+                    "zipCode" => $data['billing_cep']
+                )
+            )
+        );
+        $json_order    = Mage::helper('core')->jsonEncode((object) $json_order);
+        $this->generateLog("------ Geração da order #{$id_proprio} ------", 'MOIP_Order.log');
+        $this->generateLog("------ Json Enviado da order ------", 'MOIP_Order.log');
+        $this->generateLog($json_order, 'MOIP_Order.log');
+        return $json_order;
+    }
+    public function getOrderIdMoip($json_order)
+    {
+        $session   = $this->getCheckout();
+        $documento = 'Content-Type: application/json; charset=utf-8';
+        if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") {
+            $url    = self::ENDPOINT_TEST."orders/";
+            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_dev');
+            $header = "Authorization: OAuth " . $oauth;
+        } else {
+            $url    = self::ENDPOINT_PROD."orders/";
+            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_prod');
+            $header = "Authorization: OAuth " . $oauth;
+        }
+        $result = array();
+        $ch     = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json_order);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            $header,
+            $documento
+        ));
+        curl_setopt($ch, CURLOPT_USERAGENT, 'MoipMagento/2.0.0');
+        $responseBody = curl_exec($ch);
+        $info_curl = curl_getinfo($ch);
+        curl_close($ch);
+        $decode = json_decode($responseBody);
+        $this->generateLog($header, 'MOIP_Order.log');
+        $this->generateLog("------ Resposta da Order ------", 'MOIP_Order.log');
+        $this->generateLog($responseBody, 'MOIP_Order.log');
+        $this->generateLog("------ CurlInfo da Order ------", 'MOIP_Order.log');
+        $this->generateLog(json_encode($info_curl), 'MOIP_Order.log');
+        return $decode->id;
+    }
+    public function getNumEndereco($endereco, $enderecob)
+    {
+        $numEnderecoDefault = '0';
+        if (!$endereco)
+            $endereco = $enderecob;
         else
-            $url = $token;
-        return $url;
+            $endereco = $endereco;
+        $numEndereco = trim(preg_replace("/[^0-9]/", "", $endereco));
+        if ($numEndereco)
+            return ($numEndereco);
+        else
+            return ($numEnderecoDefault);
     }
+    public function getPosSeparador($endereco)
+    {
+        $posSeparador = strpos($endereco, ',');
+        if ($posSeparador === false)
+            $posSeparador = strpos($endereco, '-');
+        return ($posSeparador);
+    }
+    public function getNumberOrDDD($param_telefone, $param_ddd = false)
+    {
+        $cust_ddd       = '11';
+        $cust_telephone = preg_replace("/[^0-9]/", "", $param_telefone);
+        $st             = strlen($cust_telephone) - 8;
+        if ($st > 0) {
+            $cust_ddd       = substr($cust_telephone, 0, 2);
+            $cust_telephone = substr($cust_telephone, $st, 8);
+        }
+        if ($param_ddd === false) {
+            $retorno = $cust_telephone;
+        } else {
+            $retorno = $cust_ddd;
+        }
+        return $retorno;
+    }
+    public function getPaymentJsonCc($info, $quote)
+    {
+        $additionaldata = unserialize($info->getAdditionalData());
 
-    public function getParcelamentoComposto($valor) {
-        $standard = Mage::getSingleton('transparente/standard');
-        $parcelamento = $standard->getInfoParcelamento();
-        $parcelas = array();
+        $dob           = Mage::app()->getLocale()->date($quote->getCustomerDob(), null, null, false)->toString('Y-MM-dd');
+        $dob           = explode('-',$dob);
+        $dob_day = $dob[2];
+        if(is_null($dob_day)){
+            $dob_day = 01;
+        }
+        $dob_month = $dob[1];
+        if(is_null($dob_month)){
+            $dob_month = 01;
+        }
+        $dob_year = $dob[0];
+        if($dob_year < 1900){
+            $dob_year += 1900; 
+        }
+        
+        $b = $quote->getBillingAddress();        
+        $dob = $dob_year."-".$dob_month."-".$dob_day;
+        $ddd  = $this->getNumberOrDDD($b->getTelephone(), true);
+        $telefone = $this->getNumberOrDDD($b->getTelephone());
+        if ($additionaldata['use_cofre'] == 0) {
+            $json = array(
+                "installmentCount" => $additionaldata['installmentcount_moip'],
+                "fundingInstrument" => array(
+                    "method" => "CREDIT_CARD",
+                    "creditCard" => array(
+                        "hash" => $additionaldata['hash_moip'],
+                        "holder" => array(
+                            "fullname" => $additionaldata['fullname_moip'],
+                            "birthdate" => $dob,
+                            "taxDocument" => array(
+                                "type" => "CPF",
+                                "number" => $additionaldata['taxdocument_moip']
+                            ),
+                            "phone" => array(
+                                "countryCode" => "55",
+                                "areaCode" => $ddd,
+                                "number" => $telefone
+                            )
+                        )
+                    )
+                )
+            );
+        } elseif ($additionaldata['use_cofre'] == 1) {
+            $json = array(
+                "installmentCount" => $additionaldata['installmentcountcofre_moip'],
+                "fundingInstrument" => array(
+                    "method" => "CREDIT_CARD",
+                    "creditCard" => array(
+                        "id" => $additionaldata['credit_card_cofre_nb'],
+                        "cvc" => $additionaldata['credit_card_ccv']
+                    )
+                )
+            );
+        }
+        $json = Mage::helper('core')->jsonEncode((object) $json);
+        return $json;
+    }
+    public function getPaymentJsonBoleto($info, $quote)
+    {
+        $additionaldata = unserialize($info->getAdditionalData());
+        $json           = array(
+            "fundingInstrument" => array(
+                "method" => "BOLETO",
+                "boleto" => array(
+                    "expirationDate" => $this->getDataVencimento(Mage::getStoreConfig('payment/moip_boleto/vcmentoboleto')),
+                    "instructionLines" => array(
+                        "first" => "Pagamento do pedido na loja: " . Mage::getStoreConfig('payment/moip_transparente_standard/apelido'),
+                        "second" => "Não Receber após o Vencimento",
+                        "third" => "+ Info em: " . Mage::getBaseUrl()
+                    )
+                )
+            )
+        );
+        $json           = Mage::helper('core')->jsonEncode((object) $json);
+        return $json;
+    }
+    public function getPaymentJsonTef($info, $quote)
+    {
+        $additionaldata = unserialize($info->getAdditionalData());
+        $json           = array(
+            "fundingInstrument" => array(
+                "method" => "ONLINE_BANK_DEBIT",
+                "onlineBankDebit" => array(
+                    "bankNumber" => $additionaldata['banknumber_moip'],
+                    "expirationDate" => $this->getDataVencimento(Mage::getStoreConfig('payment/tef_boleto/vcmentotef')),
+                    "returnUri" => Mage::getBaseUrl()
+                )
+            )
+        );
+        $json           = Mage::helper('core')->jsonEncode((object) $json);
+        return $json;
+    }
+    public function getDataVencimento($NDias)
+    {
+        $DataAct = date("Ymd");
+        $d       = new DateTime($DataAct);
+        $t       = $d->getTimestamp();
+        for ($i = 0; $i < $NDias; $i++) {
+            $addDay  = 86400;
+            $nextDay = date('w', ($t + $addDay));
+            if ($nextDay == 0 || $nextDay == 6) {
+                $i--;
+            }
+            $t = $t + $addDay;
+        }
+        $d->setTimestamp($t);
+        return $d->format('Y-m-d');
+    }
+    
+    public function getParcelamento(){
+        $valor = $this->getQuote()->getGrandTotal();
+        $config_parcelas_juros = $this->getInfoParcelamentoJuros();
+        $config_parcelas_minimo = $this->getInfoParcelamentoMinimo();
+        $config_parcelas_maximo = Mage::getStoreConfig('payment/moip_cc/nummaxparcelamax');
         $json_parcelas = array();
-        $juros = array();
-        $primeiro = 1;
-        $max_div = $valor/(int)Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela');
-        $valor_juros= Mage::getSingleton('transparente/standard')->getConfigData('parcelamento_c_juros1');
+        $count = 0;
+        $json_parcelas[0] = array(
+                                    'parcela' => Mage::helper('core')->currency($valor, true, false),
+                                    'total_parcelado' =>  Mage::helper('core')->currency($valor, true, false),
+                                    'total_juros' =>  0,
+                                    'juros' => 0
+                                );
+        $json_parcelas[1] = array(
+                                    'parcela' => Mage::helper('core')->currency($valor, true, false),
+                                    'total_parcelado' =>  Mage::helper('core')->currency($valor, true, false),
+                                    'total_juros' =>  0,
+                                    'juros' => 0
+                                );
 
-        if($valor <= Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela')){
-            $json_parcelas[1] = array(
-                                        'parcela' => Mage::helper('core')->currency($valor, true, false),
-                                        'total_parcelado' => Mage::helper('core')->currency($valor, true, false),
-                                        'juros' => 0
-                                        );
-            $json_parcelas = Mage::helper('core')->jsonEncode((object)$json_parcelas);
-            return $json_parcelas;
+        
+        $max_div = (int)$valor/$config_parcelas_minimo;
+        if($max_div > $config_parcelas_maximo) {
+            $max_div = $config_parcelas_maximo;
+        } elseif ($max_div > 12) {
+            $max_div = 12;
         }
 
-        if($parcelamento['c_ate1'] < $max_div){
-            $max_div = $parcelamento['c_ate1'];
-        }
-
-            for ($i=1; $i <= $max_div; $i++) {
-                if($i > 1){
-                    $total_parcelado[$i] = $this->getJurosComposto($valor, $valor_juros, $i)*$i;
-                    $parcelas[$i] = $this->getJurosComposto($valor, $valor_juros, $i);
-                    $juros[$i] =  $valor_juros;
-                }
-                else {
-                    $total_parcelado[$i] =  $valor;
-                    $parcelas[$i] = $valor*$i;
-                    $juros[$i] = 0;
-                }
-                if($i <= Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax')){
-                    $json_parcelas[$i] = array(
-                                                'parcela' => Mage::helper('core')->currency($parcelas[$i], true, false),
-                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false),
-                                                'juros' => $juros[$i]
-                                            );
-                    $primeiro++;
-                }
-             }
-             if($primeiro < 12 && $primeiro < ($valor/(int)Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela')) )
-             {
-                 while ($primeiro <= 12) {
-                    $total_parcelado[$primeiro] = "";
-                    $parcelas[$primeiro] = $this->getJurosComposto($valor, '2.99', $primeiro);
-                    $total_parcelado[$primeiro] =  $parcelas[$primeiro]*$primeiro;
-                    $juros[$primeiro] = '2.99';
-
-                    $json_parcelas[$primeiro] = array(
-                                                'parcela' => Mage::helper('core')->currency($parcelas[$primeiro], true, false),
-                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$primeiro], true, false),
-                                                'juros' => '2.99'
-                                            );
-                    $primeiro++;
-                 }
-             }
-        $json_parcelas = Mage::helper('core')->jsonEncode((object)$json_parcelas);
-        return $json_parcelas;
-
-    }
-
-     public function getParcelamentoSimples($valor) {
-        $standard = Mage::getSingleton('transparente/standard');
-        $parcelamento = $standard->getInfoParcelamento();
-        $parcelas = array();
-        $juros = array();
-        $primeiro = 1;
-        $max_div = (int)($valor/Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela'));
-
-        if($valor <= Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela')){
-            $json_parcelas[1] = array(
-                                        'parcela' => Mage::helper('core')->currency($valor, true, false),
-                                        'total_parcelado' => Mage::helper('core')->currency($valor, true, false),
-                                        'juros' => 0
-                                        );
-            $json_parcelas = Mage::helper('core')->jsonEncode((object)$json_parcelas);
-            return $json_parcelas;
-        }
-        if(Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax') > $max_div){
-            $max_div = $max_div;
+        if(Mage::getStoreConfig('payment/moip_cc/parcelas_avancadas') == 1){
+            if($valor > Mage::getStoreConfig('payment/moip_cc/condicional_3_sem_juros') ){
+            $limite = Mage::getStoreConfig('payment/moip_cc/condicional_3_max_parcela');;
+            } elseif ($valor >= Mage::getStoreConfig('payment/moip_cc/condicional_2_sem_juros')) {
+                $limite = Mage::getStoreConfig('payment/moip_cc/condicional_2_max_parcela');
+            } elseif ($valor <= Mage::getStoreConfig('payment/moip_cc/condicional_1_sem_juros')) {
+                $limite = Mage::getStoreConfig('payment/moip_cc/condicional_1_max_parcela');
+            } else {
+                $limite = Mage::getStoreConfig('nummaxparcelamax');
+            }    
         } else {
-            $max_div = Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax');
+            $limite = $max_div;
         }
+        
 
-        for ($i=1; $i <= $max_div; $i++) {
-                $juros_parcela = 's_juros'.$i;
-
-                if($i > 1){
-                    $taxa = $parcelamento[$juros_parcela] / 100;
-                    $valor_add = $valor * $taxa;
-                    $total_parcelado[$i] =  $valor + $valor_add;
-                    $parcelas[$i] =  ($valor  + $valor_add)/$i;
-                    $juros[$i] = $parcelamento[$juros_parcela];
+        foreach ($config_parcelas_juros as $key => $value) {
+            if($count <= $max_div){
+                if($value > 0){
+                    if(Mage::getStoreConfig('payment/moip_cc/tipodejuros') == 1) {
+                        if($limite >= $count && Mage::getStoreConfig('payment/moip_cc/parcelas_avancadas')){
+                                $parcela =  $this->getJurosComposto($valor, 0, $count);
+                            } else {
+                                $parcela =  $this->getJurosComposto($valor, $value, $count);
+                            }
+                    } else {
+                        if($limite >= $count && Mage::getStoreConfig('payment/moip_cc/parcelas_avancadas')){
+                            $parcela =  $this->getJurosSimples($valor, 0, $count);
+                        } else {
+                            $parcela =  $this->getJurosSimples($valor, $value, $count);
+                        }
+                    }
+                    
+                    $total_parcelado = $parcela * $count;
+                    $juros = $value;
+                    if($parcela > 5 && $parcela > $config_parcelas_minimo){
+                        $json_parcelas[$count] = array(
+                            'parcela' => Mage::helper('core')->currency($parcela, true, false),
+                            'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado, true, false),
+                            'total_juros' =>  $total_parcelado - $valor,
+                            'juros' => $juros,
+                        );
+                    }
+                } else {
+                    if($valor > 0 && $count > 0){
+                     $json_parcelas[$count] = array(
+                                        'parcela' => Mage::helper('core')->currency(($valor/$count), true, false),
+                                        'total_parcelado' =>  Mage::helper('core')->currency($valor, true, false),
+                                        'total_juros' =>  0,
+                                        'juros' => 0
+                                    );
+                    }
                 }
-                else {
-                    $total_parcelado[$i] =  $valor;
-                    $parcelas[$i] = $valor*$i;
-                    $juros[$i] = 0;
-                }
-                if($i <= Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax')){
-                    $json_parcelas[$i] = array(
-                                                'parcela' => Mage::helper('core')->currency($parcelas[$i], true, false),
-                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false),
-                                                'juros' => $juros[$i]
-                                            );
-                     }
-             }
-        $json_parcelas = Mage::helper('core')->jsonEncode((object)$json_parcelas);
-        return $json_parcelas;
+            }
 
-    }
-
-    public function getParcelamento($valor) {
-
-        $tipo_parcelamento = Mage::getSingleton('transparente/standard')->getConfigData('jurostipo');
-
-        if($tipo_parcelamento == 1){
-            $tipo = $this->getParcelamentoComposto($valor);
-        } else {
-            $tipo = $this->getParcelamentoSimples($valor);
+            $count++;
         }
-
-        return $tipo;
-
+        foreach ($json_parcelas as $key => $value) {
+            if($key > $limite)
+                unset($json_parcelas[$key]);
+        }
+            
+    return $json_parcelas;
     }
-
-    public function getJurosSimples($valor, $juros, $parcela) {
-
-        return $valParcela;
-    }
-
-    public function getJurosComposto($valor, $juros, $parcela) {
+    public function getJurosComposto($valor, $juros, $parcela)
+    {
         $principal = $valor;
-        if($juros != 0){
-            $taxa =  $juros/100;
-            $valParcela = ($principal * $taxa)/(1 - (pow(1/(1+$taxa), $parcela)));
-        } else {
-            $valParcela = $principal/$parcela;
-        }
-
+        $taxa = $juros/100;
+        $valParcela = ($principal * $taxa) / (1 - (pow(1 / (1 + $taxa), $parcela)));
         return $valParcela;
     }
 
+    public function getJurosSimples($valor, $juros, $parcela)
+    {
+        $principal = $valor;
+        $taxa = $juros/100;
+        $valjuros = $principal * $taxa;
+        $valParcela = ($principal + $valjuros)/$parcela;
+        return $valParcela;
+    }
+
+    public function getInfoParcelamentoJuros() {
+        $juros = array();
+
+        $juros['0'] = 0;
+
+        $juros['1'] = 0;
+
+        $juros['2'] =  Mage::getStoreConfig('payment/moip_cc/parcela2');
+
+        
+        $juros['3'] =  Mage::getStoreConfig('payment/moip_cc/parcela3');
+
+        
+        $juros['4'] =  Mage::getStoreConfig('payment/moip_cc/parcela4');
+
+        
+        $juros['5'] =  Mage::getStoreConfig('payment/moip_cc/parcela5');
+
+
+        $juros['6'] =  Mage::getStoreConfig('payment/moip_cc/parcela6');
+
+
+        $juros['7'] =  Mage::getStoreConfig('payment/moip_cc/parcela7');
+
+
+        $juros['8'] =  Mage::getStoreConfig('payment/moip_cc/parcela8');
+
+
+        $juros['9'] =  Mage::getStoreConfig('payment/moip_cc/parcela9');
+       
+
+        $juros['10'] =  Mage::getStoreConfig('payment/moip_cc/parcela10');
+       
+
+        $juros['11'] =  Mage::getStoreConfig('payment/moip_cc/parcela11');
+       
+
+        $juros['12'] =  Mage::getStoreConfig('payment/moip_cc/parcela12');
+       
+        return $juros;
+    }
+
+     public function getInfoParcelamentoMinimo() {
+       
+        
+        $valor = Mage::getStoreConfig('payment/moip_cc/valor_minimo');
+        
+       
+        return $valor;
+    }
+
+    
+    public function generateLog($variable, $name_log){
+        
+
+        if(Mage::getSingleton('transparente/standard')->getConfigData('log') == 1){
+            $dir_log = Mage::getBaseDir('var').'/log/MOIP/';
+
+            if (!file_exists($dir_log)) {
+                mkdir($dir_log, 0755, true);
+            }
+
+            Mage::log($variable, null, 'MOIP/'.$name_log, true);    
+        } else {
+            
+        }
+        
+
+    }
 }
+

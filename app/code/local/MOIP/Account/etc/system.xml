@@ -1,0 +1,444 @@
+<?xml version="1.0"?>
+<config>
+   <tabs>
+        <moip translate="label" module="account">
+            <label>MOIP.COM.BR</label>
+            <sort_order>100</sort_order>
+        </moip>
+    </tabs>
+    <sections>
+        <account translate="label" module="account">
+            <label><![CDATA[ <div style="height: 33px; "><img src="http://imagem.o2ti.com/transparente_moip.png" style="float:left; "/><div style="padding-top:8px;color:#2f3850">Moip Account<sup style="float: right;">API-V2</sup></div></div>]]></label>
+            <tab>moip</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>10</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <config translate="label">
+                    <label>Configuração de Conta Moip</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                       
+
+                        <check translate="label">
+                            <label>Criar Conta</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>account/adminhtml_system_config_form_button_button</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </check>
+                       
+                        <type_account_moip translate="label">
+                            <label>Tipo de conta</label>
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <frontend_model>account/adminhtml_system_config_form_field_text</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </type_account_moip>
+                         <use_pj translate="label">
+                            <label>Você possuí CNPJ?</label>
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <comment><![CDATA[Não é necessário CNPJ para criar sua conta no moip, essa informação é apenas para validarmos se haverá ou não solicitação de dados empresáriais.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </use_pj>
+                        <heading_persona translate="label">
+                            <label>Dados Pessoais</label>
+                            <frontend_model>account/adminhtml_system_config_form_field_text</frontend_model>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </heading_persona>
+                        <name translate="label">
+                            <label>Nome:</label>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </name>
+                        <email translate="label">
+                            <label>Email:</label>
+                            <validate>required-entry validate-email</validate>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </email>
+                        <phone translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            
+                            <label>Telefone:</label>
+                            <validate>required-entry validate-length minimum-length-10 maximum-length-11</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </phone>
+
+                        <heading_document translate="label">
+                            <label>Documentos Pessoais</label>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+
+                            <frontend_model>account/adminhtml_system_config_form_field_text</frontend_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </heading_document>
+
+                        <cpf translate="label">
+                            <label>CPF:</label>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <validate>required-entry validate-length minimum-length-11 maximum-length-11</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>25</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </cpf>
+                        <rg translate="label">
+                            <label>RG:</label>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <validate>required-entry</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>26</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </rg>
+                        <birthDate translate="label">
+                            <label>Data de Nascimento:</label>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <validate>required-entry validate-length minimum-length-10 maximum-length-10</validate>
+                            <frontend_model>account/adminhtml_system_config_form_field_date</frontend_model>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>27</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </birthDate>
+                
+                        <heading_endereco translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+
+                            </depends>
+                            <label>Endereço Residencial</label>
+                            <frontend_model>account/adminhtml_system_config_form_field_text</frontend_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </heading_endereco>
+                        <end_rua translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <label>Rua:</label>
+                            <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>42</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </end_rua>
+                        <end_numero translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <label>Número:</label>
+                             <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>43</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </end_numero>
+                        <end_complemento translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <label>Complemento:</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>44</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </end_complemento>
+                        <end_bairro translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <label>Bairro:</label>
+                             <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>45</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </end_bairro>
+                        <end_cidade translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <label>Cidade:</label>
+                             <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>46</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </end_cidade>
+                        <region_id translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <label>Estado</label>
+                            <validate>required-entry validate-alpha validate-length minimum-length-2 maximum-length-2</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>47</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </region_id>
+                        <end_zipcode translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                            </depends>
+                            <label>CEP</label>
+                            <validate>required-entry validate-length minimum-length-8 maximum-length-8</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>47</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </end_zipcode>
+
+
+
+
+                        <heading_pj translate="label">
+                           
+                            <label>Pessoa Jurídica</label>
+                            <frontend_model>account/adminhtml_system_config_form_field_text</frontend_model>
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </heading_pj>
+                        <pj_name translate="label">
+                            <label>Nome Fantasia</label>
+                            
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>51</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pj_name>
+                         <pj_fone translate="label">
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <validate>required-entry validate-length minimum-length-10 maximum-length-11</validate>
+                            <label>Telefone</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>52</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pj_fone>
+
+                         <pj_razao translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <label>Razão Social</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>52</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pj_razao>
+                         <pj_cnpj translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <validate>required-entry validate-length minimum-length-14 maximum-length-14</validate>
+                            <label>CNPJ</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pj_cnpj>
+
+                        <heading_pj_endereco translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <label>Endereço Empresarial</label>
+                            <frontend_model>account/adminhtml_system_config_form_field_text</frontend_model>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </heading_pj_endereco>
+
+                        
+
+                        <pj_end_rua translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <label>Rua:</label>
+                            <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>72</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </pj_end_rua>
+                        <pj_end_numero translate="label">
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <label>Número:</label>
+                            <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>73</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </pj_end_numero>
+                        <pj_end_complemento translate="label">
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+
+                            <label>Complemento:</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>74</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </pj_end_complemento>
+                        <pj_end_bairro translate="label">
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <label>Bairro:</label>
+                            <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>75</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </pj_end_bairro>
+                        <pj_end_cidade translate="label">
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <label>Cidade:</label>
+                            <validate>required-entry validate-alphanum-with-spaces</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>76</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </pj_end_cidade>
+                        <pj_region_id translate="label">
+                             <depends>
+                                <conta_configurada>0</conta_configurada>
+                                <use_pj>1</use_pj>
+                            </depends>
+                            <label>Estado</label>
+                            <validate>required-entry validate-alpha validate-length minimum-length-2 maximum-length-2</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>77</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pj_region_id>
+                         <pj_end_zipcode translate="label">
+                            <depends>
+                                <conta_configurada>0</conta_configurada>
+                                 <use_pj>1</use_pj>
+                            </depends>
+                            <label>CEP</label>
+                            <validate>required-entry validate-length minimum-length-8 maximum-length-8</validate>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>78</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </pj_end_zipcode>
+                       
+                    </fields>
+                </config>
+            </groups>
+        </account>
+    </sections>
+</config>
+
+
+

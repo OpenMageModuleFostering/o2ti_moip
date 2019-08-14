@@ -47,7 +47,7 @@
 						   </div>
 					   </li>
 						<?php echo $this->getChildHtml('shipping_form');?>
-						<ul class="form-list">
+						<ul class="form-list" style="float:none;clear:both">
 							<?php if ($this->isCustomerLoggedIn() && $this->customerHasAddresses() && Mage::helper('onestepcheckout')->showAddressBook()):?>
 								<li class="control">
 									<input type="checkbox" style="_float:left;" name="shipping[save_in_address_book]" value="1" title="<?php echo $this->__('Save in address book') ?>" id="shipping:save_in_address_book" onchange="shipping.setSameAsBilling(false);"<?php if ($this->getAddress()->getSaveInAddressBook()):?> checked="checked"<?php endif;?> class="checkbox" /><label for="shipping:save_in_address_book" style="_width:150px;"><?php echo $this->__('Save in address book') ?></label>
@@ -62,7 +62,10 @@
 								</li>
 							<?php endif;?>
 							<li class="control">
-								<input type="checkbox" name="shipping[same_as_billing]" id="shipping:same_as_billing" value="1"<?php if($this->getAddress()->getSameAsBilling()): ?> checked="checked"<?php endif; ?> title="<?php echo $this->__('Use Billing Address') ?>" onclick="shipping.setSameAsBilling(this.checked);" class="checkbox" /><label for="shipping:same_as_billing" style="float:none;"><?php echo $this->__('Use Billing Address') ?></label>
+								<div class="btn button" onclick="SendShippingForBilling()"><span><span><?php echo $this->__('Enviar para endereço de cobrança') ?></span></span></div>
+                                <input type="hidden" name="shipping[same_as_billing]"  value="1"  title="<?php echo $this->__('Use Billing Address') ?>" id="ship_to_same_address" >
+
+								
 							</li>
 						</ul>
 			</ul>

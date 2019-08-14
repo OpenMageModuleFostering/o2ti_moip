@@ -8,7 +8,7 @@
     <admin>
         <routers>
 			<moipall>
-				<use>admin</use>
+				 <moipall after="Mage_Adminhtml">All_Adminhtml</moipall>
 				<args>
 					<module>MOIP_All</module>
 					<frontName>moipall</frontName>

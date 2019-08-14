@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <MOIP_Account>
+            <version>0.1.0</version>
+        </MOIP_Account>
+    </modules>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <moipaccount after="Mage_Adminhtml">MOIP_Account</moipaccount>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+    <adminhtml>
+        <acl>
+            <resources>
+                <all>
+                    <title>Allow Everything</title>
+                </all>
+                <admin>
+                    <children>
+                        <MOIP_Account>
+                            <title>MOIP_Account</title>
+                            <sort_order>20</sort_order>
+                        </MOIP_Account>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <account translate="title" module="account">
+                                            <title>Account Moip</title>
+                                        </account>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
+    <global>
+        <helpers>
+            <account>
+                <class>MOIP_Account_Helper</class>
+            </account>
+        </helpers>
+        <events>
+                <!--sales_order_invoice_save_after>
+                    <observers>
+                        <account>
+                            <type>singleton</type>
+                            <class>O2TI_account_Model_Observer</class>
+                            <method>sales_order_invoice_save_after</method>
+                        </account>
+                    </observers>
+                </sales_order_invoice_save_after -->
+                
+        </events>
+        <models>
+            <account>
+                <class>MOIP_Account_Model</class>
+            </account>
+        </models>
+        <blocks>
+                <account>
+                    <class>MOIP_Account_Block</class>
+                </account>
+                
+        </blocks>
+    </global>
+    <default>
+        <account>
+            <config>
+                <conta_configurada>0</conta_configurada>
+            </config>
+        </account>
+    </default>
+</config>

@@ -37,6 +37,6 @@ class MOIP_Onestepcheckout_Block_Checkout_Onepage_Shipping extends Mage_Checkout
 
             return $select->getHtml();
         }
-        return '';
+        return ;
     }
 }

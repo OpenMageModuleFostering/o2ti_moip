@@ -40,15 +40,15 @@ class MOIP_Transparente_Block_Standard_CartSave extends Mage_Checkout_Block_Onep
 		}
 	}
 	public function imageCofre($brand){
-		if($brand == "Visa"){
+		if($brand == "VISA"){
 			$image_brand = $this->getVisaImage();
-		} elseif ($brand == "Mastercard") {
+		} elseif ($brand == "MASTERCARD") {
 			$image_brand = $this->getMastercardImage();
-		} elseif ($brand == "AmericanExpress") {
+		} elseif ($brand == "AMERICANEXPRESS") {
 			$image_brand = $this->getAmericanExpressImage();
-		} elseif ($brand == "Diners") {
+		} elseif ($brand == "DINERS") {
 			$image_brand = $this->getDinersImage();
-		} elseif ($brand == "Hipercard") {
+		} elseif ($brand == "HIPERCARD") {
 			$image_brand = $this->getHipercardImage();
 		} else {
 			$image_brand = "";
@@ -60,15 +60,19 @@ class MOIP_Transparente_Block_Standard_CartSave extends Mage_Checkout_Block_Onep
 			$data_array = array();
 			$customerData = Mage::getSingleton('customer/session')->getCustomer();
 			$resource = Mage::getSingleton('core/resource');
+
 			$readConnection = $resource->getConnection('core_read');
-			$table = (string) Mage::getConfig()->getTablePrefix().'moip_transparente';
-			$query = 'SELECT * FROM ' . $table .' WHERE customer_id='.$customerData->getID().' AND cofre IS NOT NULL';
+			$table = (string) Mage::getConfig()->getTablePrefix().'moip_transparentev2';
+
+			$query = 'SELECT * FROM ' . $table .' WHERE customer_id='.$customerData->getID().' AND moip_card_id IS NOT NULL';
 			$results = $readConnection->fetchAll($query);
+
 			if($results){
 				return Mage::helper('core')->jsonEncode((object)$results);
 			} else {
-				return 'false';	
+				return 'false';
 			}
+
 		} else {
 			return 'false';
 		}

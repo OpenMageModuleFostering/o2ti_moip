@@ -3,9 +3,9 @@
 <config>
     <modules>
         <MOIP_Transparente>
-            <active>true</active><!-- this is an active module -->
-            <codePool>local</codePool><!-- this module will be located in app/code/local code pool -->
-            <depends><!-- specify dependencies for correct module loading order -->
+            <active>true</active>
+            <codePool>local</codePool>
+            <depends>
                 <Mage_Payment />
             </depends>
         </MOIP_Transparente>

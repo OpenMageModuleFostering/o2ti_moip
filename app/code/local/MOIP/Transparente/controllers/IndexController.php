@@ -1,46 +1,9 @@
-<?php 
-class MOIP_Transparente_IndexController extends Mage_Core_Controller_Front_Action
-{	
-	protected function indexAction() {
-		$this->loadLayout();
-        $this->renderLayout();
-        return true;
-	}
-	public function ParcelamentoAction() {
-		$api = Mage::getModel('transparente/api');
-		if($this->getRequest()->getParams()){
-			$data = $this->getRequest()->getPost();
-
-			
-			
-			if($data['itens_total'] > 1){
-				$item_count = $data['itens_total']." itens";
-			}
-			else {
-				$item_count = $data['itens_total']." item";	
-			}
-			echo ' <div class="total_itens">
-				        Você compra: 
-				        <span class="soma_related_itens">'.$item_count.'</span>
-				    </div>';
-			
-			$parcelamento = $api->getParcelamento($data['valor']);
-			$parcela_decode = json_decode($parcelamento,true);
-                            foreach ($parcela_decode as $key => $value):
-                                    if ($key <= Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax')):
-                                        $juros = $parcela_decode[$key]['juros'];
-                                        $parcelas_result = $parcela_decode[$key]['parcela'];
-                                        $total_parcelado = $parcela_decode[$key]['total_parcelado'];
-                                        if($juros > 0)
-                                            $asterisco = '';
-                                        else 
-                                            $asterisco = ' sem juros';
-                                        $parcelas[]= '<div class="parcela_add_prod_related">em <span class="parcelas_em">'.$key.'x de '.$parcelas_result.'</span>'.$asterisco.'</div><div>ou <span class="parcelas_em_total">'.Mage::helper('core')->currency($data['valor'], true, false).' à vista</span> com desconto</div>';
-                                    endif;
-                                endforeach;
-            echo end($parcelas);
-		}
-	}
+<?php
+require_once 'Mage/Checkout/controllers/CartController.php';
+class MOIP_Transparente_IndexController extends Mage_Checkout_CartController
+{
+	
+	
 	public function CartoesAction() {
 		$this->loadLayout();
         $this->renderLayout();
@@ -49,126 +12,298 @@ class MOIP_Transparente_IndexController extends Mage_Core_Controller_Front_Actio
 		if($this->getRequest()->getParams()){
 			$data = $this->getRequest()->getParams();
 			$model = Mage::getModel('transparente/write');
-			$model->load($data['cofre_remove'], 'cofre');
-			$model->setAceitaCofre(0);			
-			$model->setCofre();
+			$model->load($data['cofre_remove'], 'moip_card_id');
+			$model->setMoipCardId();
 			$model->save();
 			return true;
 		}
 	}
-	public function NovaformaAction() {
-		if($this->getRequest()->getParams()){
-			$model = Mage::getModel('transparente/write');
-			$api = Mage::getModel('transparente/api');
-			$post = $this->getRequest()->getPost();
-        	$model->load($post['order_id']);
-        	$model->getDate();
-			$pgtoArray = array();
-			$pgtoArray['forma_pagamento'] = $post['forma_de_pagamento'];
-			$pgtoArray['credito_instituicao'] = $post['bandeira'];
-	        $pgtoArray['credito_numero'] = $post['Numero'];
-	        $pgtoArray['credito_expiracao_mes'] = $post['Expiracao_mes'];
-	        $pgtoArray['credito_expiracao_ano'] = $post['Expiracao_ano'];
-	        $pgtoArray['credito_codigo_seguranca'] = $post['CodigoSeguranca'];
-	        $pgtoArray['credito_parcelamento'] = $post['parcelas'];
-	        $pgtoArray['credito_portador_nome'] = $post['Portador'];
-	        $pgtoArray["vcmentoboleto"] = "3";
-	        $cpf = $post['CPF'];
-	        $pgtoArray['credito_portador_cpf'] = preg_replace("/[^0-9]/", "", $cpf);
-	        $pgtoArray['credito_portador_DDD'] = $this->getNumberOrDDD($post['Telefone'], true);
-	        $pgtoArray['credito_portador_telefone'] = $this->getNumberOrDDD($post['Telefone']);
-	        $pgtoArray['credito_portador_nascimento'] =  date('Y-m-d', strtotime($post['DataNascimento']));
-			$model->setMeio_pg($post['forma_de_pagamento']);
-			if($post['forma_de_pagamento'] == "BoletoBancario"){
-				$model->setbrand_transparente('Bradesco');				
-			}
-			if ($post['forma_de_pagamento'] == "CartaoCredito") {
-				$model->setCreditcard_parc($post['parcelas']);
-				$model->setbrand_transparente($post['bandeira']);
-				$model->setfirst6(substr($post['Numero'], 0, 6));
-				$model->setLast4(substr($post['Numero'], -4));			
-			}
-			if($post['forma_de_pagamento'] == "DebitoBancario")
-			{				
-				$model->setbrand_transparente((string)$post['instituicao']);
-		       	
-		    }
-			
-			$model->save();
-			if($post['forma_de_pagamento'] == "BoletoBancario"){
-					$json = array(
-						'Forma' => 'BoletoBancario',
-					 );
-				} elseif ($post['forma_de_pagamento'] == "DebitoBancario") {
-					$json = array(
-						'Forma' => 'DebitoBancario',
-						'Instituicao' => $post['instituicao'],
-					 );
-					
+	
+
+	public function getCheckout() {
+		return Mage::getSingleton('checkout/session');
+	}
+	public function getQuote() {
+		return Mage::getSingleton('checkout/session')->getQuote();
+	}
+	public function getOnepage() {
+		return Mage::getSingleton('checkout/type_onepage');
+	}
+	protected function _getQuote() {
+		return Mage::getSingleton('checkout/cart')->getQuote();
+	}
+	public function renderLogin() {
+
+		return  $this->getLayout()->getBlock('moip.onclick.login')->toHtml();
+	}
+
+	public function renderPayment() {
+		$this->loadLayout();
+		return  $this->getLayout()->getBlock('moip.onclick.payment')->toHtml();
+	}
+
+	public function addAction()
+	{
+		$cart   = $this->_getCart();
+		$params = $this->getRequest()->getParams();
+		if($params['isAjax'] == 1){
+			$response = array();
+			try {
+				if (isset($params['qty'])) {
+					$filter = new Zend_Filter_LocalizedToNormalized(
+					array('locale' => Mage::app()->getLocale()->getLocaleCode())
+					);
+					$params['qty'] = $filter->filter($params['qty']);
+				}
+
+				$product = $this->_initProduct();
+				$related = $this->getRequest()->getParam('related_product');
+
+				/**
+				 * Check product availability
+				 */
+				if (!$product) {
+					$response['status'] = 'ERROR';
+					$response['message'] = $this->__('<h4 class="modal-title">Desculpe, função desabilitada, use o botão comprar</h4>');
+				}
+
+				$cart->addProduct($product, $params);
+				if (!empty($related)) {
+					$cart->addProductsByIds(explode(',', $related));
+				}
+
+				$cart->save();
+
+				$this->_getSession()->setCartWasUpdated(true);
+
+				/**
+				 * @todo remove wishlist observer processAddToCart
+				 */
+				Mage::dispatchEvent('checkout_cart_add_product_complete',
+				array('product' => $product, 'request' => $this->getRequest(), 'response' => $this->getResponse())
+				);
+
+				if (!$cart->getQuote()->getHasError()){
+					$message = $this->__('<h4 class="modal-title">Produto Adcionado ao Carrinho</h4>');
+					$response['status'] = 'SUCCESS';
+					$response['message'] = $message;
+					$count = Mage::helper('checkout/cart')->getSummaryCount();
+					$response['counttop'] = $count;
+					//New Code Here
+					Mage::register('referrer_url', $this->_getRefererUrl());
+				
+				}
+			} catch (Mage_Core_Exception $e) {
+				$msg = "";
+				if ($this->_getSession()->getUseNotice(true)) {
+					$msg = $e->getMessage();
 				} else {
+					$messages = array_unique(explode("\n", $e->getMessage()));
+					foreach ($messages as $message) {
+						$msg .= $message.'<br/>';
+					}
+				}
 
-			$json = array(
-						'Forma' => $post['forma_de_pagamento'],
-						'Instituicao' =>  $post['bandeira'],
-						'Parcelas' => $post['parcelas'],
-						'CartaoCredito' => array(
-										'Numero' => $post['Numero'],
-										'Expiracao' => $post['Expiracao_mes']."/".$post['Expiracao_ano'],
-										'CodigoSeguranca' => $post['CodigoSeguranca'],
-										'Portador' => array(
-											'Nome' => $post['Portador'],
-											'DataNascimento' =>  date('Y-m-d', strtotime($post['DataNascimento'])),
-											'Telefone' => $this->getNumberOrDDD($post['Telefone'], true).$this->getNumberOrDDD($post['Telefone']),
-											'Identidade' =>  $cpf,
-											),
-										),
-					);
+				$response['status'] = 'ERROR';
+				$response['message'] = $msg;
+			} catch (Exception $e) {
+				$response['status'] = 'ERROR';
+				$response['message'] = $this->__('<h4 class="modal-title">Não foi possível adcionar ao carrinho</h4>');
+				Mage::logException($e);
 			}
-			echo Mage::helper('core')->jsonEncode((object)$json);
+			$this->getResponse()->setBody(Mage::helper('core')->jsonEncode($response));
+			return;
+		}else{
+			return parent::addAction();
 		}
 	}
-	public function RepagAction() {
-		if($this->getRequest()->getParams()){
-			$post = $this->getRequest()->getPost();
-	        $cpf = preg_replace("/[^0-9]/", "", $post['CPF']);
-			$api = Mage::getModel('transparente/api');
-			$json = array(
-						'Forma' => "CartaoCredito",
-						'Instituicao' =>  $post['bandeira'],
-						'Parcelas' => $post['parcelas'],
-						'CartaoCredito' => array(
-										'Numero' => $post['Numero'],
-										'Expiracao' => $post['Expiracao_mes']."/".$post['Expiracao_ano'],
-										'CodigoSeguranca' => $post['CodigoSeguranca'],
-										'Portador' => array(
-											'Nome' => $post['Portador'],
-											'DataNascimento' =>  date('Y-m-d', strtotime($post['DataNascimento'])),
-											'Telefone' => $this->getNumberOrDDD($post['Telefone'], true).$this->getNumberOrDDD($post['Telefone']),
-											'Identidade' =>  $cpf,
-											),
-										),
+	
+
+	public function addOnclickAction()
+	{
+		$cart   = $this->_getCart();
+		$params = $this->getRequest()->getParams();
+		if($params['onclick'] == 1){
+			$response = array();
+			try {
+				if (isset($params['qty'])) {
+					$filter = new Zend_Filter_LocalizedToNormalized(
+					array('locale' => Mage::app()->getLocale()->getLocaleCode())
 					);
+					$params['qty'] = $filter->filter($params['qty']);
+				}
+
+				$product = $this->_initProduct();
+				$related = $this->getRequest()->getParam('related_product');
+
+				
+				if (!$product) {
+					$response['_status'] = 'ERROR';
+					$response['message'] = $this->__('<h4 class="modal-title">Unable to find Product ID</h4>');
+				}
+
+				$cart->addProduct($product, $params);
+				if (!empty($related)) {
+					$cart->addProductsByIds(explode(',', $related));
+				}
+
+				$cart->save();
+
+				$this->_getSession()->setCartWasUpdated(true);
+
+			
+				Mage::dispatchEvent('checkout_cart_add_product_complete',
+				array('product' => $product, 'request' => $this->getRequest(), 'response' => $this->getResponse())
+				);
+
+				if (!$cart->getQuote()->getHasError()){
+					$message = $this->__('%s was added to your shopping cart.', Mage::helper('core')->htmlEscape($product->getName()));
+					
+					if( !Mage::getSingleton( 'customer/session' )->isLoggedIn() )
+					{   
+						$this->loadLayout();
+						$session = Mage::getSingleton( 'customer/session' );
+						$session->setBeforeAuthUrl($this->_getRefererUrl());
+						$response['_status'] = 'SUCCESS';
+					    $login_onclick = $this->renderLogin();
+					    Mage::register('referrer_url', $this->_getRefererUrl());
+					    $response['message'] = $login_onclick;
+
+					} else {
+						$response['_status'] = 'SUCCESS';
+						$this->loadLayout();
+						
+						$_customer = Mage::getSingleton( 'customer/session' )->getCustomer();
+					 	$address_id = Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling();
+					 	$address = Mage::getModel('customer/address')->load($address_id);
+					 	$applyrule=$this->getQuote()->getAppliedRuleIds();
+						$applyaction=Mage::getModel('salesrule/rule')->load($applyrule)->getSimpleAction();
+    					$this->getQuote()->getShippingAddress()
+						->setCountryId($address->getCountryId())
+						->setPostcode($address->getPostcode())
+						->setCollectShippingRates(true);
+						$this->_getQuote()->save();
+
+						$moip_onclick = $this->renderPayment();
+					
+						Mage::register('referrer_url', $this->_getRefererUrl());
+						
+			        	$response['message'] = $moip_onclick;
+					}
+					
+				}
+			} catch (Mage_Core_Exception $e) {
+				$msg = "";
+				if ($this->_getSession()->getUseNotice(true)) {
+					$msg = $e->getMessage();
+				} else {
+					$messages = array_unique(explode("\n", $e->getMessage()));
+					foreach ($messages as $message) {
+						$msg .= $message.'<br/>';
+					}
+				}
+
+				$response['_status'] = 'ERROR';
+				$response['message'] = $msg;
+			} catch (Exception $e) {
+				$response['_status'] = 'ERROR';
+				$response['message'] = $this->__('<h4 class="modal-title">Não foi possível adcionar o produto via onclick.</h4>');
+				Mage::logException($e);
+			}
+			$this->getResponse()->setBody(Mage::helper('core')->jsonEncode($response));
+			return;
+		}else{
+			return parent::addAction();
 		}
-		echo Mage::helper('core')->jsonEncode((object)$json);
-		var_dump($json);
-		return true;
 	}
-    function getNumberOrDDD($param_telefone, $param_ddd = false) {
 
-        $cust_ddd = '00';
-        $cust_telephone = preg_replace("/[^0-9]/", "", $param_telefone);
-        $st = strlen($cust_telephone) - 8;
-        if ($st > 0) { //No caso essa seqüência é mais de 8 caracteres
-            $cust_ddd = substr($cust_telephone, 0, 2);
-            $cust_telephone = substr($cust_telephone, $st, 8);
+	public function MoipOnclickAction() {
+		$datapost = $this->getRequest()->getPost();
+		$address_billing = null; 
+		$_customer = Mage::getSingleton( 'customer/session' )->getCustomer();
+	 	$quote = $this->getQuote(); 
+	 	$address_billing = $this->getQuote()->getBillingAddress();
+
+	 	$customerAddressbilling = $this->getQuote()->getBillingAddress();
+		
+		#$address_billing->importCustomerAddress($customerAddressbilling);
+		
+		$storeId = Mage::app()->getStore()->getId();
+ 
+		$checkout = Mage::getSingleton('checkout/type_onepage');
+		 
+		$checkout->initCheckout();
+		 
+		$checkout->saveCheckoutMethod('register');
+	
+		$checkout->saveShippingMethod($datapost["shipping_method"]);
+		$additionaldata = array(
+		 	'method' => 'moip_cc',
+           	'moip_cc_count_cofre' => $datapost['moip_cc_count_cofre'],
+            'moip_cc_payment_in_cofre' => '0',
+            'moip_cc_use_cofre' => '1',
+            'moip_cc_cofre_nb' => $datapost['moip_cc_cofre_nb'],
+            'moip_cc_cofre_id' => $datapost['moip_cc_cofre_id'],
+        );
+    
+		$this->getQuote()->getPayment()->importData($additionaldata);
+		$checkout->saveOrder();
+		try {
+			
+	
+		    $allQuoteItems = $this->getQuote()->getAllItems();
+		    foreach ($allQuoteItems as $_item) {
+		        $_product = $_item->getProduct();
+			    if ($_product->getIsPreparedToDelete()) {
+			        $quote->removeItem($_item->getId());
+			    }
+		    }
+		   	$this->getQuote()->save();
+			$mensage['_status'] = "SUCCESS";
+			$mensage['url_redirect'] = $quote->getPayment()->getOrderPlaceRedirectUrl();
+			$this->getResponse()->setBody(Mage::helper('core')->jsonEncode($mensage));
+			return;
+		}
+		catch (Exception $ex) {
+			$mensage['_status'] = "ERROR";
+			$mensage['mensage'] = $ex->getMessage();
+			return;
+		}
+	}
+
+	public function LoginOnclickAction() {
+		$datapost = $this->getRequest()->getPost();
+		
+		$email = $datapost['email'];
+		$password = $datapost['password'];
+
+		$session = Mage::getSingleton('customer/session');
+
+        try {
+            $session->login($email, $password);
+            $customer = $session->getCustomer();
+            
+            $session->setCustomerAsLoggedIn($customer);
+            $_customer = Mage::getSingleton( 'customer/session' )->getCustomer();
+		 	$address_id = Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling();
+		 	$address = Mage::getModel('customer/address')->load($address_id);
+		 	$applyrule=$this->getQuote()->getAppliedRuleIds();
+			$applyaction=Mage::getModel('salesrule/rule')->load($applyrule)->getSimpleAction();
+			$this->getQuote()->getShippingAddress()
+			->setCountryId($address->getCountryId())
+			->setPostcode($address->getPostcode())
+			->setCollectShippingRates(true);
+			$this->_getQuote()->save();
+            $response['_status'] = 'SUCCESS';
+			$response['mensage'] = $this->renderPayment();
+
+        } catch(Exception $ex) {
+           	$response['_status'] = 'ERROR';
+			$response['mensage'] =  '<ul class="messages"><li class="error-msg"><ul><li><span>Login não pode ser feito, verifique seu e-mail e senha.</span></li></ul></li></ul>';
         }
+		return $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($response));
 
-        if ($param_ddd === false) {
-            $retorno = $cust_telephone;
-        } else {
-            $retorno = $cust_ddd;
-        }
+	}
 
-        return $retorno;
-    }
+
 }
