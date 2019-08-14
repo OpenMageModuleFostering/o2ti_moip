@@ -14,7 +14,7 @@
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .review .o2ti-osc-column-middle #id_comments{width: 100%;border-radius: 5px;clear: both;margin: 0;}
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .review .o2ti-osc-column-right{width: 100%;clear: both;margin: 0;}
 /* form list */
-.form-list .field{float:left;width:47.5%;}
+.form-list .field{float:left !important;width:47.5% !important;}
 .form-list .field.odd{margin-left:5%;}
 .form-list .wide,.form-list .fields{width:100%;clear:both;}
 .form-list label{float:left;position:relative;clear:both;}
@@ -32,4 +32,6 @@
 #co-payment-form {min-height: 150px !important;}
 #advice-required-entry-id_accept_terms{position:relative !important;}
 .sp-methods .form-list {padding-left: 0px !important;}
-
+#checkout-review-table-wrapper {
+overflow-x: visible !important;
+}

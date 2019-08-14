@@ -4,7 +4,7 @@
     <modules>
         <O2TI_All>
             <active>true</active>
-            <codePool>community</codePool>
+            <codePool>local</codePool>
         </O2TI_All>
     </modules>
 </config>

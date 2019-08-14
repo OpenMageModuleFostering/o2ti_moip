@@ -1,0 +1,86 @@
+
+  <?php
+
+	$standard = Mage::getModel('moip/standard');
+	$validopara_moip = $standard->getConfigData('validopara_moip');
+    $html = '';
+    $order = Mage::getModel('sales/order');
+    $titulo = $this->getMethod()->getTitle();
+	$moip = $this->getMoip();
+	$order = (int) $this->getRequest()->getParam('order_id');
+	$sale_id =  "";
+	if($order == ""):
+	$order =  $this->getInfo()->getOrder()->getquote_id();
+	$sale_id =  Mage::getSingleton('checkout/session')->getLastRealOrderId();
+	endif;
+	if ($sale_id != ""){
+	$connR = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $sql = "SELECT *
+	          FROM moip
+	          WHERE sale_id IN (".$sale_id.") AND status ='Sucesso'";
+	$_venda = $connR->fetchAll($sql);
+ 	foreach($_venda as $venda)
+	{
+		$tokenpagamento = $venda['xml_return'];
+		$bandeira = $venda['bandeira'];
+		$Formadepagamento = $venda['formapg'];
+		$orderid = $venda['sale_id'];
+	}
+	}
+	else
+	{
+	$connR = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $sql = "SELECT *
+	          FROM moip
+	          WHERE realorder_id IN (".$order.") AND status ='Sucesso'";
+	$_venda = $connR->fetchAll($sql);
+ 	foreach($_venda as $venda)
+	{
+		$tokenpagamento = $venda['xml_return'];
+		$bandeira = $venda['bandeira'];
+		$Formadepagamento = $venda['formapg'];
+		$orderid = $venda['sale_id'];
+		$num_parcelas = $venda['num_parcelas'];
+		$ult_dig = $venda['ult_dig'];
+	}
+	}
+	
+	$imagem = $this->getSkinUrl('O2TI/moip/imagem/'.$bandeira.'.png');
+	if($Formadepagamento == "BoletoBancario"){
+		$html = "<b> Pago via </b>". $titulo .", por: </br><b>"  . $formadepagamento  . "</b></br><img src='" . $imagem . "'  style='width:80px;float:left;margin:5px;' border='0'>" . "<div id='repagar'><a href='https://www.moip.com.br/Instrucao.do?token=".$tokenpagamento."' style='background: none repeat scroll 0 0 #337BAA;margin:10px;border-radius:3px;padding:10px 5px;width:140px;float:left; text-align:center;color:#ffffff;font-weight:normal;font-size:13px;display:block;text-decoration:none;font-family:Arial,Helvetica,sans-serif'  target='_blank'>Imprimir Boleto</a></div>";
+	}
+	if($Formadepagamento == "DebitoBancario"){
+		$html = "<b> Pago via </b>". $titulo .", por: </br><b>"  . $formadepagamento  . "</b></br><img src='" . $imagem . "'  style='width:80px;float:left;margin:5px;' border='0'>" . "<div id='repagar'><a href='https://www.moip.com.br/Instrucao.do?token=".$tokenpagamento."' style='background: none repeat scroll 0 0 #337BAA;margin:10px;border-radius:3px;padding:10px 5px;width:140px;float:left; text-align:center;color:#ffffff;font-weight:normal;font-size:13px;display:block;text-decoration:none;font-family:Arial,Helvetica,sans-serif' target='_blank'>Realizar Transferência</a></div>";
+	}
+	if($Formadepagamento == "CartaoCredito"){
+
+
+	$params = array(
+				'token'  => $venda['xml_return'],
+				'orderId' =>  $venda['sale_id'],
+				'realorder' =>  $venda['realorder_id'],
+				);
+	$urldosite = Mage::getBaseUrl('web', true);
+	$url = $urldosite."Moip/standard/redirect/";
+	if ($num_parcelas == "")
+	{
+		$num_parcelas = "Acesse seu cadastro";
+	}
+	if ($ult_dig == "")
+	{
+		$ult_dig = "Acesse seu cadastro";
+	}
+	$html = "<div>
+				<b> Pago via </b>{$titulo}, por: </br>
+				<b>{$formadepagamento}</b></br>
+				<img src='{$imagem}'  style='width:80px;float:left;margin:5px;' border='0'>" . "
+				<div>Bandeira:<b> {$bandeira}</b></div>
+				<div>Pago em: <b>{$num_parcelas}</b> parcela(s)</div>
+				<div>4 últimos dígitos do cartão: <b>{$ult_dig}</b></div>
+			</div>";
+
+}
+
+
+    echo $html;
+?>

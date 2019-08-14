@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS mgn_o2ti_onestepcheckout;
+	CREATE TABLE mgn_o2ti_onestepcheckout (
+	  `o2ti_onestepcheckout_date_id` int(11) unsigned NOT NULL auto_increment,
+	  `sales_order_id` int(11) unsigned NOT NULL,
+	  `o2ti_customercomment_info` varchar(255) default '',
+	  `o2ti_deliverydate_date` varchar(15) default '',
+	  `o2ti_deliverydate_time` varchar(10) default '',
+	  `status` smallint(6) default '0',
+	  `created_time` datetime NULL,
+	  `update_time` datetime NULL,
+	  PRIMARY KEY (`o2ti_onestepcheckout_date_id`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+############# Atualizando o MoIP ################
+vá em core_resource e apague a linha do moip, geralmente ficará na segunda página.
+

@@ -3,7 +3,7 @@
     <modules>
         <O2TI_Onestepcheckout>
             <active>true</active>
-            <codePool>community</codePool>
+            <codePool>local</codePool>
         </O2TI_Onestepcheckout>
     </modules>
 </config>

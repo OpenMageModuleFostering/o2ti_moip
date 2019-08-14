@@ -1,12 +1,12 @@
 {
     "name": "OpenMageModuleFostering/o2ti_moip",
     "type": "magento-module",
-    "license": "Free-to-use-with-MoIp",
+    "license": "Free-to-use-with-MoIP",
     "homepage": "",
     "description": "Transparent Moip  100% homologated and with a OneStepCheckout free to use with Moip",
     "authors": [
     {
-        "name": "O2ti",
+        "name": "O2TI",
         "email": "contato@o2ti.com"
     }
 ],
