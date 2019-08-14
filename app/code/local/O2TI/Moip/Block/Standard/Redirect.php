@@ -72,7 +72,7 @@ class O2TI_Moip_Block_Standard_Redirect extends Mage_Checkout_Block_Onepage_Succ
 					 );
 
 				}
-	$json =  Zend_Json::encode($json);
+	$json =  Mage::helper('core')->jsonEncode((object)$json);
 	return $json;
 		
 	}
@@ -91,7 +91,7 @@ class O2TI_Moip_Block_Standard_Redirect extends Mage_Checkout_Block_Onepage_Succ
 				$dados_ErroCartao['code'] = $value->code;
 				$dados_ErroCartao['description'] = $value->description;
 			}
-			$dados_ErroCartao = json_encode($dados_ErroCartao);
+			$dados_ErroCartao = Mage::helper('core')->jsonEncode((object)$dados_ErroCartao);
 			return $dados_ErroCartao;
 		} else{
 			return false;

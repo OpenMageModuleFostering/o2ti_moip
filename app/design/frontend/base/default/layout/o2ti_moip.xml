@@ -25,6 +25,7 @@
 		
 		<reference name="head">
 			<action method="setTitle"><params><![CDATA[Pagamento via MoIP S/A]]></params></action> 
+			<action method="removeItem"><type>skin_js</type><name>js/lib/jquery-1.10.2.min.js</name></action>
 			<action method="addJs"><script>O2TI/jquery.js</script></action>
    	 		<action method="addJs"><script>O2TI/jquery_noconflict.js</script></action>
    	 		<action method="addJs"><script>O2TI/moip/bootstrap.min.js</script></action>

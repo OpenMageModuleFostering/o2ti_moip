@@ -16,6 +16,7 @@ if(Validation) {
 	    'EL': [false, new RegExp('^([0-9]{3})?$'), true],
 	    'HI': [new RegExp('^(606282|3841)[0-9]'), new RegExp('^([0-9]{3})?$'), true]
 	});
+	
 }
 function countChar(val) {
 	var cvv = val.value.length;

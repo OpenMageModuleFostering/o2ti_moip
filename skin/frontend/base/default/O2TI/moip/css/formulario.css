@@ -3,7 +3,7 @@ ul.form-list .wide > div.input-box > select{width: 100% !important;}
 ul.form-list .wide.cc-cvv > div{display: block;float: left;}
 ul.form-list .wide.cc-cvv > div.cc{width: 60% !important;}
 ul.form-list .wide.cc-cvv > div.cvv{width: 20% !important;margin-left: 10% !important;}
-ul.form-list .wide.cc-validade > div > select{width: 35% !important;margin-left: 5% !important;float: left;}
+ul.form-list .wide.cc-validade > div > select{ margin: 0 !important;width: 35% !important;margin-left: 5% !important;float: left;}
 ul.form-list .wide.cc-validade > div > select#credito_expiracao_mes{margin: 0 !important;}
 
 ul.form-list.dados-titular > li > label{clear: none !important; width: 105px;float: left !important;padding-top: 5px;}

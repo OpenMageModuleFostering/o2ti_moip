@@ -7,7 +7,7 @@
 	$dn = "";
 ?>
 <script type="text/javascript">
-
+//<![CDATA[
 jQuery(document).ready(function() {
 	jQuery('.input-switcher > li').bind({
 		click: function() {
@@ -32,6 +32,7 @@ jQuery(document).ready(function() {
 			jQuery("#moip-cartao").css({'display':'none'});
 	}
 });
+//]]>
 </script>
 
 <link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('O2TI/moip/css/formulario.css'); ?>"media="all">
@@ -90,13 +91,13 @@ jQuery(document).ready(function() {
 					<div class="cc">
 						<label class="required" for="credito_numero">Número<em>*</em></label>
 						<div class="input-box">
-							<input type="text" name="payment[credito_numero]" id="credito_numero" class="input-text required-entry validate-cc-number  validate-cc-type">
+							<input type="text" name="payment[credito_numero]" id="credito_numero" onkeypress="return txtBoxFormat(this, '9', event);"  class="input-text required-entry validate-cc-number  validate-cc-type">
 						</div>
 					</div>
 					<div class="cvv tooltip-moip-handler">
 						<label class="required" for="cvv">CVV&nbsp;<i class="icon-question-sign"></i><em>*</em></label>
 						<div class="input-box">
-							<input type="text" name="payment[credito_codigo_seguranca]" onkeyup="countChar(this)" class="input-text required-entry ccv validate-cc-cvn" minlength="3" maxlength="4" id="credito_codigo_seguranca" >
+							<input type="text" name="payment[credito_codigo_seguranca]" onkeyup="countChar(this)" onkeypress="return txtBoxFormat(this, '9', event);" class="input-text required-entry ccv validate-cc-cvn" minlength="3" maxlength="4" id="credito_codigo_seguranca" >
 							<span class="tooltip-moip">
 								<span class="custom help" style=" width:260px;"><em>Código de segurança:</em></br>Veja no verso do seu cartão.<img src="<?php echo $this->getSkinUrl('O2TI/moip/imagem/codigo-seguranca.png'); ?>" id="imageseguramoip" border="0"></span>
 							</span>

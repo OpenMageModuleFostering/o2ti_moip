@@ -54,36 +54,36 @@ class O2TI_Moip_Model_Api {
 
         if ($meio == "BoletoBancario"):
             if (Mage::getStoreConfig('o2tiall/pagamento_avancado/pagamento_boleto')):
-                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor')):
-                    $valorcompra = $data['valor'];
+                $valorcompra = $data['valor'];
+                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor'))
+                {
                     $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_desc') / 100;
-                endif;
-                if (Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor2') != "" && $valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor2') && $valorcompra < Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3')):
-                    $valorcompra = $data['valor'];
+                }
+                if ($valorcompra < Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3'))
+                {
                     $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_desc2') / 100;
-                endif;
-                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3')):
-                    $valorcompra = $data['valor'];
+                }
+                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3')){
                     $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_desc3') / 100;
-                endif;
+                };
             endif;
         endif;
 
         if ($meio == "DebitoBancario"):
             $valorcompra = $data['valor'];
             if (Mage::getStoreConfig('o2tiall/pagamento_avancado/transf_desc')):
-                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor')):
-                    $valorcompra = $data['valor'];
+                $valorcompra = $data['valor'];
+                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor'))
+                {
                     $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_desc') / 100;
-                endif;
-                if (Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor2') != "" && $valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor2') && $valorcompra < Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3')):
-                    $valorcompra = $data['valor'];
+                }
+                if ($valorcompra < Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3'))
+                {
                     $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_desc2') / 100;
-                endif;
-                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3')):
-                    $valorcompra = $data['valor'];
+                }
+                if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor3')){
                     $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_desc3') / 100;
-                endif;
+                };
             endif;
         endif;
 
@@ -92,7 +92,7 @@ class O2TI_Moip_Model_Api {
         else 
             $alterapedido = "";
         
-        $id_proprio = $pgto['conta_moip'].'_'.$data['id_transacao'];
+        $id_proprio = $alterapedido.$pgto['conta_moip'].'_'.$data['id_transacao'];
        
     #    $xml = $this->generateXml($json);
         $xml = new SimpleXMLElement('<?xml version = "1.0" encoding = "UTF-8"?><EnviarInstrucao/>');
@@ -244,7 +244,7 @@ class O2TI_Moip_Model_Api {
                     $primeiro++;
                  }
              }
-        $json_parcelas = json_encode($json_parcelas);
+        $json_parcelas = Mage::helper('core')->jsonEncode((object)$json_parcelas);
         return $json_parcelas;
 
     }
@@ -286,7 +286,7 @@ class O2TI_Moip_Model_Api {
                                             );
                      }
              }
-        $json_parcelas = json_encode($json_parcelas);
+        $json_parcelas = Mage::helper('core')->jsonEncode((object)$json_parcelas);
         return $json_parcelas;
 
     }
@@ -311,9 +311,11 @@ class O2TI_Moip_Model_Api {
     }
 
     public function getJurosComposto($valor, $juros, $parcela) {
-        $taxa = $juros / 100;
-        $valParcela = $valor * pow((1 + $taxa), $parcela);
-        $valParcela = $valParcela/$parcela;
+
+        $principal = $valor;
+        $taxa =  $juros/100; 
+        $valParcela = ($principal * $taxa)/(1 - (pow(1/(1+$taxa), $parcela)));
+        
         return $valParcela;
     }
 

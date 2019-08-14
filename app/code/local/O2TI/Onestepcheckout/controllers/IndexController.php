@@ -697,7 +697,7 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 				$data_save_shipping['same_as_billing']=1;
 			}
 			$customeraddressid = $this->getrequest()->getpost($ship.'_address_id', false);
-			if ($isclick || ($this->getRequest()->getPost('shipping_address_id') != "" && $data_save_shipping['save_in_address_book'] == 0)) {
+			if ($isclick || ($this->getRequest()->getPost('shipping_address_id') != "")) {
 				$customeraddressid  = "";
 			}
 
@@ -1038,8 +1038,9 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 	}
 	 public function saveAddress($type,$data)
     {		 	
-    	
-			 	$save_in_address_book = $data['save_in_address_book'];			 	
+    			$save_in_address_book = '';
+			 	$save_in_address_book = $data['save_in_address_book'];
+			 	
 			 	$addressId = $this->getRequest()->getPost($type.'_address_id');
 			 	
 			 	
@@ -1048,7 +1049,7 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 
 			 	if($save_in_address_book && $addressId != "")
 			 	{			 		
-
+			 		
 			 			   // Save data				      
 				           
 				            
@@ -1073,7 +1074,7 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 				                $addressForm->compactData($addressData);
 				                $address->setCustomerId($customer->getId())
 				                    ->setIsDefaultBilling($this->getRequest()->getParam('default_billing', false))
-				                    ->setIsDefaultShipping($this->getRequest()->getParam('default_shipping', false))	;
+				                    ->setIsDefaultShipping($this->getRequest()->getParam('default_shipping', false))->setSaveInAddressBook('1');
 				
 				                $addressErrors = $address->validate();
 				                
@@ -1095,7 +1096,7 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			 	} 
 			 	
 
-			 	if(Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling()) {
+			 	if(Mage::getSingleton('customer/session')->getCustomer()->getDefaultShipping() && $save_in_address_book != '0') {
 			 		
 			 		
 				 		$customer = Mage::getSingleton('customer/session')->getCustomer();	
@@ -1115,6 +1116,4 @@ class O2TI_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 				 	
 			 	}
 	}
-   
-
 }

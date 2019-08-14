@@ -4,7 +4,7 @@
 .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 { display: block; width: 65%; margin-left: 2%; float: left; }
 .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .o2ti-osc-column-middle { display: block; width: 47%; float: left; min-width: 290px !important; }
 .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .o2ti-osc-column-right { display: block; width: 48%; float: left; margin-left: 2%; min-width: 283px !important; }
-.o2ti-osc-checkoutcontainer .o2ti-osc-block-title h3 { margin: 0; padding: 5px; }
+.o2ti-osc-checkoutcontainer .o2ti-osc-block-title h3 { margin: 0; padding: 5px; line-height: 1.50; }
 .o2ti-osc-checkoutcontainer .o2ti-osc-block-content { border: 1px solid #ccc; border-radius: 0 0 5px 5px; padding: 15px; }
 .o2ti-osc-checkoutcontainer .review { float: left; width: 97%; clear: both; margin-top: 20px; }
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .shipping-payment { width: 45%; float: left; min-width: 290px !important; }
@@ -13,12 +13,21 @@
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .review .o2ti-osc-column-middle { width: 100%; clear: both; margin: 0; }
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .review .o2ti-osc-column-middle #id_comments { width: 100%; border-radius: 5px; clear: both; margin: 0; }
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .review .o2ti-osc-column-right { width: 100%; clear: both; margin: 0; }
+.coluna_1_checkout.span4.grid12-4 {
+float: left;
+width: 35%;
+}
+.checkbox {z-index: 9;}
+.coluna_2_checkout.span8.grid12-8 {
+float: left;
+width: 65%;
+}
 /* form list */
 .form-list .field { float: left !important; width: 47.5% !important; }
 .form-list .field.odd { margin-left: 5%; }
 .form-list .wide,
 .form-list .fields { width: 100%; clear: both; }
-.form-list label { float: left; position: relative; clear: both; }
+.form-list label {  position: relative; clear: both; }
 .form-list label em { position: absolute; top: 0; right: 0; color: red; }
 .form-list .input-box { width: 100% !important; }
 .form-list .input-box input,
@@ -42,3 +51,11 @@
 #shipping_show {
 margin-top: 10px !important;
 }
+.checkout-onepage-index .col-main {
+width: 100% !important;
+}
+label.label_pf_pj {
+float: none;
+}
+h2{line-height: 1.50;}
+.onestepcheckout-numbers{background-position: 14px 6px !important;}

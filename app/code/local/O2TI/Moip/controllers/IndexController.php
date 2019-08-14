@@ -74,7 +74,7 @@ class O2TI_Moip_IndexController extends Mage_Core_Controller_Front_Action
 										),
 					);
 			}
-			echo json_encode($json);
+			echo Mage::helper('core')->jsonEncode((object)$json);
 		}
 	}
 	public function RepagAction() {
@@ -99,7 +99,7 @@ class O2TI_Moip_IndexController extends Mage_Core_Controller_Front_Action
 										),
 					);
 		}
-		echo json_encode($json);
+		echo Mage::helper('core')->jsonEncode((object)$json);
 		var_dump($json);
 		return true;
 	}

@@ -49,23 +49,24 @@
 						   </div>
 					   </li>
 						<?php echo $this->getChildHtml('shipping_form');?>
-
-						<?php if ($this->isCustomerLoggedIn() && $this->customerHasAddresses() && Mage::helper('onestepcheckout')->showAddressBook()):?>
+						<ul class="form-list">
+							<?php if ($this->isCustomerLoggedIn() && $this->customerHasAddresses() && Mage::helper('onestepcheckout')->showAddressBook()):?>
+								<li class="control">
+									<input type="checkbox" style="_float:left;" name="shipping[save_in_address_book]" value="1" title="<?php echo $this->__('Save in address book') ?>" id="shipping:save_in_address_book" onchange="shipping.setSameAsBilling(false);"<?php if ($this->getAddress()->getSaveInAddressBook()):?> checked="checked"<?php endif;?> class="checkbox" /><label for="shipping:save_in_address_book" style="_width:150px;"><?php echo $this->__('Save in address book') ?></label>
+								</li>
+							<?php elseif ($this->isCustomerLoggedIn() && $this->customerHasAddresses() && !Mage::helper('onestepcheckout')->showAddressBook()):?>				
+								<li class="no-display">
+									<input type="hidden" name="shipping[save_in_address_book]" value="0" />
+								</li>
+							<?php else:?>
+								<li class="no-display">
+									<input type="hidden" name="shipping[save_in_address_book]" value="1" />
+								</li>
+							<?php endif;?>						
 							<li class="control">
-								<input type="checkbox" style="_float:left;" name="shipping[save_in_address_book]" value="0" title="<?php echo $this->__('Save in address book') ?>" id="shipping:save_in_address_book" onchange="shipping.setSameAsBilling(false);"<?php if ($this->getAddress()->getSaveInAddressBook()):?> checked="checked"<?php endif;?> class="checkbox" /><label for="shipping:save_in_address_book" style="_width:150px;"><?php echo $this->__('Save in address book') ?></label>
+								<input type="checkbox" name="shipping[same_as_billing]" id="shipping:same_as_billing" value="1"<?php if($this->getAddress()->getSameAsBilling()): ?> checked="checked"<?php endif; ?> title="<?php echo $this->__('Use Billing Address') ?>" onclick="shipping.setSameAsBilling(this.checked);" class="checkbox" /><label for="shipping:same_as_billing" style="float:none;"><?php echo $this->__('Use Billing Address') ?></label>
 							</li>
-						<?php elseif ($this->isCustomerLoggedIn() && $this->customerHasAddresses() && !Mage::helper('onestepcheckout')->showAddressBook()):?>				
-							<li class="no-display">
-								<input type="hidden" name="shipping[save_in_address_book]" value="0" />
-							</li>
-						<?php else:?>
-							<li class="no-display">
-								<input type="hidden" name="shipping[save_in_address_book]" value="1" />
-							</li>
-						<?php endif;?>						
-						<li class="control samebilling" >
-							<input type="checkbox" name="shipping[same_as_billing]" id="shipping:same_as_billing" value="1"<?php if($this->getAddress()->getSameAsBilling()): ?> checked="checked"<?php endif; ?> title="<?php echo $this->__('Use Billing Address') ?>" onclick="shipping.setSameAsBilling(this.checked);" class="checkbox" /><label for="shipping:same_as_billing" style="float:none;"><?php echo $this->__('Use Billing Address') ?></label>
-						</li>
+						</ul>
 			</ul>		
 		</div>
 

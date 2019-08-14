@@ -517,8 +517,8 @@ function updateEmailmsg(val){
 	div.o2ti-osc-block-title{border-bottom:4px solid <?php echo $color;?>;}
 	.onestepcheckout-numbers{background:<?php echo $color;?>;}
 	p.o2ti-osc-block-title{color:<?php echo $color;?>;}
-	.o2ti-osc-threecolumns button.button span{background:<?php echo $botao_color?>; border: 1px solid <?php echo $botao_color;?>;}
-	.onestepcheckout-numbers { border-radius: 6px 6px 0 0;background-repeat:no-repeat;float: left;height: 30px;margin-right: 4px;width: 28px;background-position: 9px 6px;font-weight:normal;  padding-left:10px; padding-top:3px;}
+	.o2ti-osc-threecolumns button.button span, .o2ti-osc-threecolumns button.button span span, button.button.btn-checkout, .cart .buttons-set .button{background:<?php echo $botao_color?>; border: 1px solid <?php echo $botao_color;?>;}
+	.onestepcheckout-numbers { border-radius: 6px 6px 0 0;background-repeat:no-repeat;float: left;height: 35px;margin-right: 4px;width: 40px;background-position: 14px 6px;font-weight:normal;  padding-left:10px; padding-top:3px;}
 	.onestepcheckout-numbers-1{background-image:url("<?php echo $this->getSkinUrl('O2TI/onestepcheckout/images/01.png') ?>");}
 	.onestepcheckout-numbers-2{background-image:url("<?php echo $this->getSkinUrl('O2TI/onestepcheckout/images/02.png') ?>");}
 	.onestepcheckout-numbers-3{background-image:url("<?php echo $this->getSkinUrl('O2TI/onestepcheckout/images/03.png') ?>");}
@@ -529,7 +529,7 @@ function updateEmailmsg(val){
 	.o2ti-osc-title-login{background: <?php echo $color;?>;}
 	div#fancybox-wrap .col2-set .col-2 #login-form fieldset .col-2 .buttons-set button span,
 	div#fancybox-wrap #form-validate div.buttons-set #btforgotpass span{background:<?php echo $color;?>; border: 1px solid <?php echo $color;?>;}
-	.o2ti-osc-fancybox-wrap button.button span{background:<?php echo $color;?>; border: 1px solid <?php echo $color;?>;}
+	.o2ti-osc-fancybox-wrap button.button span, .o2ti-osc-fancybox-wrap button.button span span{background:<?php echo $color;?>; border: 1px solid <?php echo $color;?>;}
 	</style>
 <?php endif;?>
 	<h1 class="o2ti-osc-page-tittle"><?php echo $this->__(Mage::getStoreConfig('onestepcheckout/layout/page_titulo'))?></h1>

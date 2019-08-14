@@ -269,7 +269,7 @@ class O2TI_Moip_Block_Standard_Form extends Mage_Payment_Block_Form {
 
 		if ($cartTotal > 5) {
 			$parcelamento = $api->getParcelamento($cartTotal);
-			$parcela_decode = json_decode($parcelamento,true);
+			$parcela_decode = Mage::helper('core')->jsonDecode($parcelamento,true);
 			foreach ($parcela_decode as $key => $value) {
 				
 				if ($key <= Mage::getSingleton('moip/standard')->getConfigData('nummaxparcelamax')) {
