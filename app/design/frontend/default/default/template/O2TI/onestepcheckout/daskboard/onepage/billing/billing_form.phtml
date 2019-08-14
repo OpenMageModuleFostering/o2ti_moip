@@ -2,11 +2,16 @@
 $myStatus = Mage::getSingleton('customer/session')->isLoggedIn();
 if (Mage::getSingleton('customer/session')->isLoggedIn()) {
     $customer = Mage::getSingleton('customer/session')->getCustomer();
-    $fullname = $customer->getName();
     $firstname = $customer->getFirstname();
     $lastname = $customer->getLastname();
    	$region_select = $this->escapeHtml($this->getAddress()->getRegion());
     $taxvat = $customer->getTaxvat();
+ } else {
+ 	$fullname = "";
+    $firstname = "";
+    $lastname = "";
+   	$region_select = "";
+    $taxvat = "";
  }
  $_dob = $this->getLayout()->createBlock('customer/widget_dob');
  $_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat');
@@ -19,7 +24,7 @@ if (Mage::getSingleton('customer/session')->isLoggedIn()) {
 		<li class="customer-name field">
 			<label for="billing:firstname" class="required"><em>*</em>Nome</label>
 			<div class="input-box">
-				<input type="text" id="billing:firstname" name="billing[firstname]" value="<?php echo  $fullname; ?>" title="Nome" class="input-text required-entry" autocomplete="off">
+				<input type="text" id="billing:firstname" name="billing[firstname]" value="<?php echo  $firstname; ?>" title="Nome" class="input-text required-entry" autocomplete="off">
 			</div>
 		</li>
 		<li class="field name-lastname">

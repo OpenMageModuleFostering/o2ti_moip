@@ -75,10 +75,11 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 			}
 			$this->_redirect('Moip/standard/redirect/', array('_secure' => true));
 		} else {
-			$data = $this->getRequest()->getPost();
+			$data_validacao = Mage::app()->getRequest()->getParam('validacao');
+			$data = $this->getRequest()->getPost();	
 			$login = $standard->getConfigData('conta_moip');
-			$order->loadByIncrementId(ereg_replace($login, "", $data['id_transacao']));
-			$LastRealOrderId = ereg_replace($login, "", $data['id_transacao']);
+			$order->loadByIncrementId(str_replace($login, "", $data['id_transacao']));
+			$LastRealOrderId = str_replace($login, "", $data['id_transacao']);
 			$conn = Mage::getSingleton('core/resource')->getConnection('core_read');
 			$sql = "SELECT * FROM moip WHERE sale_id IN (".$LastRealOrderId.") AND status ='Sucesso'";
 			$_venda = $conn->fetchAll($sql);
@@ -111,7 +112,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 			}
 			switch ($data['status_pagamento']) {
 			case 1:
-				if ($_SERVER['SERVER_ADDR'] == "208.82.206.66" || $_SERVER['SERVER_ADDR'] == "69.162.91.38") {
+				if ($data_validacao == $standard->getConfigData('validador_retorno')) {
 					$connRW = Mage::getSingleton('core/resource')->getConnection('core_write');
 					$query = array("UPDATE `moip` SET num_parcelas='".$data['parcelas']."', ult_dig='".$data['cartao_final']."' WHERE sale_id IN (".$LastRealOrderId.");");
 					$state = Mage_Sales_Model_Order::STATE_PROCESSING;
@@ -192,7 +193,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 			if($status == 'authorized'){
 				Mage::dispatchEvent('moip_order_authorize', array("order" => $order));
 			}
-			echo 'Processo de retorno concluido para o pedido #'.$data['id_transacao'];
+			echo 'Processo de retorno concluido para o pedido #'.$data['id_transacao'].$data_validacao;
 		}
 	}
 

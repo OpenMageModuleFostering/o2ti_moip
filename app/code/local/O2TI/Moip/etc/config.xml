@@ -116,16 +116,6 @@
 		</moip>
 	</updates>
 	</layout>
-		<events>
-			<adminhtml_block_html_before>
-				<observers>
-					<O2TI_Moip_OrderAuthorize>
-						<class>moip/observer</class>
-						<method>addOptionToSelect</method>
-					</O2TI_Moip_OrderAuthorize>
-				</observers>
-			</adminhtml_block_html_before>
-		</events>
 	</adminhtml>
 	<crontab>
 		<jobs>
@@ -155,7 +145,7 @@
 				<tipoderecebimento>1</tipoderecebimento>
 				<pagamento_direto>1</pagamento_direto>
 				<parcelamento>1</parcelamento>
-				<parcelamento_de1>1</parcelamento_de1>
+				<parcelamento_de1>2</parcelamento_de1>
 				<parcelamento_ate1>12</parcelamento_ate1>
 				<parcelamento_juros1>1.99</parcelamento_juros1>
 				<nummaxparcelamax>12</nummaxparcelamax>

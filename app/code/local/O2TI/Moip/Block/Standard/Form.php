@@ -121,7 +121,7 @@ class O2TI_Moip_Block_Standard_Form extends Mage_Payment_Block_Form {
 		}
 		if ($dataToReturn == 'preview') {
 			return $textoresumo;
-		} else if (!$validateBoleto['error']) {
+		} else if ($dataToReturn == "texto" ) {
 				return $descontotexto;
 			}
 	}
@@ -150,7 +150,7 @@ class O2TI_Moip_Block_Standard_Form extends Mage_Payment_Block_Form {
 		}
 		if ($dataToReturn == 'preview') {
 			return $textoresumo;
-		} else if (!$validateBoleto['error']) {
+		} else if ($dataToReturn == "texto") {
 				return $descontotexto;
 			}
 	}

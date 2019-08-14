@@ -47,7 +47,8 @@ class O2TI_Moip_Model_Api {
 			if ($pgto['parcelamento'] == "0"):
 				$numeropar = "1";
 			else:
-				$numeropar = $pgto['credito_parcelamento'][0];
+				$numeropar_a = $pgto['credito_parcelamento'];
+				$numeropar = $numeropar_a['0'];
 			endif;
 			if ($pgto['forma_pagamento'] == "CartaoCredito"):
 				$formapgto .= "\"Forma\": \"".$pgto['forma_pagamento']."\",
@@ -187,7 +188,7 @@ class O2TI_Moip_Model_Api {
 	$Complemento = utf8_encode($data['pagador_complemento']);
 	$Bairro = utf8_encode($data['pagador_bairro']);
 	$Cidade = utf8_encode($data['pagador_cidade']);
-	
+	$validacao_nasp = $standard->getConfigData('validador_retorno');
 	$xml = "<EnviarInstrucao>
 	<InstrucaoUnica TipoValidacao=\"Transparente\">
 	<Razao>Pagamento do pedido #".$data['id_transacao']." a ". $pgto['apelido'] ."</Razao>
@@ -218,7 +219,7 @@ class O2TI_Moip_Model_Api {
 	</EnderecoCobranca>
 	</Pagador>
 	<Parcelamentos>".$parcelamento2."".$parcelamento1."</Parcelamentos>
-	<URLNotificacao>".$urldosite."index.php/Moip/standard/success/</URLNotificacao>
+	<URLNotificacao>".$urldosite."index.php/Moip/standard/success/validacao/".$validacao_nasp."/</URLNotificacao>
 	 </InstrucaoUnica>
 	 </EnviarInstrucao>
 	";

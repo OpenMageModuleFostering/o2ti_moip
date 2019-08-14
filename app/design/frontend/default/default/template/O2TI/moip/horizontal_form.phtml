@@ -225,7 +225,7 @@ jQuery(document).ready(function() {
 				</div>
 				<div class="span9">
 					<h3>Boleto</h3>
-					<p class="desc"><?php echo $this->getTextoBoleto() ?></p>
+					<p class="desc"><?php echo $this->getTextoBoleto("texto") ?></p>
 					<?php if(!$this->boletoDisponivel('valid')): ?>
 					<div class="method-price">Valor</div>
 					<?php endif; ?>
@@ -251,7 +251,7 @@ jQuery(document).ready(function() {
 				<h3>Transferência Online</h3>
 				<div id="pagdebito">
 					Após finalizar o pedido você será redirecionado ao site do seu banco...</br>
-					<?php echo $this->getTextoTranferencia(); ?>
+					<?php echo $this->getTextoTranferencia("texto"); ?>
 					<div class="method-price">Valor</div>
 					<p class="method-price"><?php echo $this->getTransferenciaPrice(); ?></p>
 				</div>

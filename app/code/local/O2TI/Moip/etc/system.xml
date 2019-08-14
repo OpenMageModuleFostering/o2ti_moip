@@ -69,7 +69,7 @@
             </order_status>
             <conta_moip translate="label">
               <label>Login MoIP</label>
-<comment>
+              <comment>
                 <![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
                     <p>Não utilize o email e sim o login.</p>
                 </div></div>]]>
@@ -80,10 +80,33 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </conta_moip>
+             <ambiente translate="label">
+              <label>Ambiente</label>
+              <comment>
+                <![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
+                    <p>Ambiente de teste só pode ser usado pela O2TI.</p>
+                </div></div>]]>
+              </comment>
+              <frontend_type>select</frontend_type>
+              <source_model>O2TI_Moip_Model_Source_Ambiente</source_model>
+              <sort_order>5</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </ambiente>
+            <validador_retorno>
+              <label>Chave de validacao para o retorno do Status</label>
+              <comment>Informe um código que será analisado no retorno</comment>
+              <frontend_type>text</frontend_type>
+              <sort_order>6</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </validador_retorno>
             <apelido translate="label">
               <label>Nome Fantasia da Loja</label>
               <frontend_type>text</frontend_type>
-              <sort_order>5</sort_order>
+              <sort_order>7</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -96,7 +119,7 @@
               </comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>6</sort_order>
+              <sort_order>8</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -105,7 +128,7 @@
               <label>Usar Transparente</label>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>6</sort_order>
+              <sort_order>9</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -114,7 +137,7 @@
               <label>Formas de Pagamento</label>
               <frontend_type>multiselect</frontend_type>
               <source_model>O2TI_Moip_Model_Source_FormasPagamento</source_model>
-              <sort_order>7</sort_order>
+              <sort_order>10</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -123,7 +146,7 @@
               <label>Ativar parcelamento?</label>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
-              <sort_order>8</sort_order>
+              <sort_order>11</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -131,7 +154,7 @@
             <parcelamento_de1 translate="label">
               <label>1° - Parcelas de:</label>
               <frontend_type>text</frontend_type>
-              <sort_order>10</sort_order>
+              <sort_order>12</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -139,7 +162,7 @@
             <parcelamento_ate1 translate="label">
               <label>1° - Parcelas até:</label>
               <frontend_type>text</frontend_type>
-              <sort_order>11</sort_order>
+              <sort_order>13</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -151,7 +174,7 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>12</sort_order>
+              <sort_order>14</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -163,7 +186,7 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>13</sort_order>
+              <sort_order>15</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -175,7 +198,7 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>14</sort_order>
+              <sort_order>16</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -187,7 +210,7 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>15</sort_order>
+              <sort_order>17</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
@@ -200,24 +223,16 @@
                 </div></div>]]>
               </comment>
               <frontend_type>text</frontend_type>
-              <sort_order>16</sort_order>
+              <sort_order>18</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </estoqueboleto>
-            <ambiente translate="label">
-              <label>Ambiente</label>
-              <frontend_type>select</frontend_type>
-              <source_model>O2TI_Moip_Model_Source_Ambiente</source_model>
-              <sort_order>19</sort_order>
-              <show_in_default>1</show_in_default>
-              <show_in_website>1</show_in_website>
-              <show_in_store>1</show_in_store>
-            </ambiente>
+           
             <allowspecific translate="label">
               <label>Pagamento a partir de países aplicáveis</label>
               <frontend_type>allowspecific</frontend_type>
-              <sort_order>20</sort_order>
+              <sort_order>19</sort_order>
               <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
