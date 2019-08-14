@@ -39,18 +39,19 @@ class O2TI_Moip_Model_Api {
 		            $pgto['credito_parcelamento'] = explode("|", $pgto['credito_parcelamento']);
 		            $parcelamento = "\"2\"";                  
 		        endif;
-			if($pgto['tipoderecebimento'] =="0"):
-				$tipoderecebimento = "Parcelado";
-			else:
-				 $tipoderecebimento = "AVista";	
-			endif;            
-			if ($pgto['parcelamento'] == "0"):
-				$numeropar = "1";
-			else:
-				$numeropar_a = $pgto['credito_parcelamento'];
-				$numeropar = $numeropar_a['0'];
-			endif;
+			
 			if ($pgto['forma_pagamento'] == "CartaoCredito"):
+				if($pgto['tipoderecebimento'] =="0"):
+				$tipoderecebimento = "Parcelado";
+				else:
+					 $tipoderecebimento = "AVista";	
+				endif;            
+				if ($pgto['parcelamento'] == "0"):
+					$numeropar = "1";
+				else:
+					$numeropar_a = $pgto['credito_parcelamento'];
+					$numeropar = $numeropar_a['0'];
+				endif;
 				$formapgto .= "\"Forma\": \"".$pgto['forma_pagamento']."\",
 	       			\"Instituicao\": \"".$pgto['credito_instituicao']."\",
 				\"Parcelas\": \"".$numeropar."\",

@@ -88,8 +88,8 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 				$Formadepagamento = $venda['formapg'];
 				$bandeira = $venda['bandeira'];
 			}
-
-
+			$connRW = Mage::getSingleton('core/resource')->getConnection('core_write');
+			$results = $connRW->query("UPDATE `moip` SET num_parcelas='".$data['parcelas']."', ult_dig='".$data['cartao_final']."' WHERE sale_id IN (".$LastRealOrderId.");");
 			if ($order->isCanceled() && $data['status_pagamento'] != 5) {
 				if (Mage::helper('sales/reorder')->canReorder($order)) {
 					$orderId = $order['entity_id'];
@@ -113,9 +113,8 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 			switch ($data['status_pagamento']) {
 			case 1:
 				if ($data_validacao == $standard->getConfigData('validador_retorno')) {
-					$connRW = Mage::getSingleton('core/resource')->getConnection('core_write');
-					$query = array("UPDATE `moip` SET num_parcelas='".$data['parcelas']."', ult_dig='".$data['cartao_final']."' WHERE sale_id IN (".$LastRealOrderId.");");
-					$state = Mage_Sales_Model_Order::STATE_PROCESSING;
+					if($order->getStatus() != "Autorizado"){
+										$state = Mage_Sales_Model_Order::STATE_PROCESSING;
 					$status = 'authorized';
 					$comment = $this->getStatusPagamentoMoip($data['status_pagamento']);
 					$comment = $comment ." Pagamento realizado por: ". $this->getNomePagamento($Formadepagamento);
@@ -134,8 +133,9 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
                                 $invoice->setEmailSent(true);
                                 $invoice->save();
 
-				$order->setState($state, $status, '', $notified = true, $includeComment = false);
-				$order->save();
+					$order->setState($state, $status, '', $notified = true, $includeComment = false);
+					$order->save();
+					}
 				}
 				else {
 					$state = Mage_Sales_Model_Order::STATE_CANCELED;

@@ -6,23 +6,7 @@
         <o2ti_moip_standard translate="label"><!-- fieldset -->
           <label><![CDATA[MoIP Transparente - O2ti]]></label>
  <comment>
- <![CDATA[
-﻿<script type="text/javascript" src="//assets.zendesk.com/external/zenbox/v2.5/zenbox.js"></script>
-<style type="text/css" media="screen, projection">
-  @import url(//assets.zendesk.com/external/zenbox/v2.5/zenbox.css);
-</style>
-<script type="text/javascript">
-  if (typeof(Zenbox) !== "undefined") {
-    Zenbox.init({
-      dropboxID:   "20116862",
-      url:         "https://o2ti.zendesk.com",
-      tabID:       "Suporte | Especialistas Magento",
-      tabColor:    "#2c3996",
-      tabPosition: "Right"
-    });
-  }
-</script>
-]]></comment>
+</comment>
           <sort_order>420</sort_order><!-- position between other payment methods -->
           <show_in_default>1</show_in_default><!-- do not show this configuration options in store scope -->
           <show_in_website>1</show_in_website>
@@ -253,7 +237,7 @@
       </groups>
     </payment>
     <o2tiall translate="label" module="o2tiall">
-        <label><![CDATA[ <div style="height: 33px; "><img src="//imagem.o2ti.com/moip_o2ti.png" style="float:left; "/><div style="padding-top:8px;color:#2f3850">MoIP Avançado!<sup style="float: right;">v2.0.0</sup></div></div>]]></label>
+        <label><![CDATA[ <div style="height: 33px; "><img src="http://imagem.o2ti.com/moip_o2ti.png" style="float:left; "/><div style="padding-top:8px;color:#2f3850">MoIP Avançado!<sup style="float: right;">v2.0.0</sup></div></div>]]></label>
         <tab>o2ti</tab>
         <frontend_type>text</frontend_type>
         <sort_order>200</sort_order>
@@ -264,23 +248,9 @@
             <config translate="label">
             <comment>
  <![CDATA[
-﻿<script type="text/javascript" src="//assets.zendesk.com/external/zenbox/v2.5/zenbox.js"></script>
-<style type="text/css" media="screen, projection">
-  @import url(//assets.zendesk.com/external/zenbox/v2.5/zenbox.css);
-</style>
-<script type="text/javascript">
-  if (typeof(Zenbox) !== "undefined") {
-    Zenbox.init({
-      dropboxID:   "20116862",
-      url:         "https://o2ti.zendesk.com",
-      tabID:       "Suporte | Especialistas Magento",
-      tabColor:    "#2c3996",
-      tabPosition: "Right"
-    });
-  }
-</script>
+
 <div>
-<a style="float: left;text-decoration:none;width:100%" href="//www.o2ti.com/magento.php" target="_blank" style="float: left;"><img src="//imagem.o2ti.com/moip_o2ti.png" style="float:left;"/><h1 style="float:left;">MoIP Recursos Avançados!</h1><sup>v2.0.0</sup>
+<a style="float: left;text-decoration:none;width:100%" href="http://www.o2ti.com/magento.php" target="_blank" style="float: left;"><img src="http://imagem.o2ti.com/moip_o2ti.png" style="float:left;"/><h1 style="float:left;">MoIP Recursos Avançados!</h1><sup>v2.0.0</sup>
 </a>
 <div style="float: left; color:#2f3850">
 <label style="font-size: 34px">Vers&atilde;o: <strong>Gratuita!</strong></label>
@@ -289,7 +259,7 @@
 <br style="clear: both;"/>
 
 <p>Essa versão tem o download gratuito desde que mantidos os créditos a O2TI.</p>
-<p>Criado por: <a href=//www.o2ti.com" target="_blank">O2ti Soluções em Web LTDA</a></p>
+<p>Criado por: <a href="http://www.o2ti.com" target="_blank">O2ti Soluções em Web LTDA</a></p>
 
 <hr>
 </div>
