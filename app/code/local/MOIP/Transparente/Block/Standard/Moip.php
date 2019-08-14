@@ -1,22 +1,17 @@
 <?php
-class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onepage_Success
+class MOIP_Transparente_Block_Standard_Moip extends Mage_Checkout_Block_Onepage_Success
 {
     public function __construct()
     {
-        $this->_expireCart();
-        $session = Mage::getSingleton('checkout/session');
-        Mage::dispatchEvent('checkout_onepage_controller_success_action', array(
-            'order_ids' => array(
-                $session->getLastOrderId()
-            )
-        ));
+        
+        $this->getSaveDate();
         parent::__construct();
+        return $this;
     }
 
     public function getSaveDate()
     {
         $order            = $this->getOrder();
-        $info             = $order->getPayment();
         $pgto             = $this->getMoipPayment();
         $responseMoipJson = $pgto['response_moip'];
         $responseMoip     = $pgto['response_moip'];
@@ -80,11 +75,9 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
             $model->setMoipCardInstallment($moip_card_installmentCount)->setMoipCardBrand($moip_card_brand)->setMoipCardId($moip_card_id)->setMoipCardFirst6($moip_card_first6)->setMoipCardLast4($moip_card_last4)->setMoipCardBirthdate($moip_card_birthdate)->setMoipCardTaxdocument($moip_card_taxDocument)->setMoipCardFullname($moip_card_fullname);
             $model->save();
         }
+        $order->setState(Mage_Sales_Model_Order::STATE_HOLDED, $state_onhold, $comment, $notified = false, $includeComment = true);
         $order->sendNewOrderEmail();
         $order->setEmailSent(true);
-        $order->save();
-
-        $order->setState(Mage_Sales_Model_Order::STATE_HOLDED, $state_onhold, $comment, $notified = false, $includeComment = true);
         $order->save();
         #$order->sendOrderUpdateEmail(true, $comment);
 
@@ -140,10 +133,7 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
             return $responseMoipJson->_links->payOnlineBankDebitBanrisul->redirectHref;
         }
     }
-    public function setDataMoip()
-    {
-        $this->getSaveDate();
-    }
+   
     public function getDataMoip()
     {
         return $this->$_MoipData;
@@ -165,6 +155,7 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
     }
     public function getOrder()
     {
+        $final = "";
         $orderId       = Mage::getSingleton('checkout/session')->getLastRealOrderId();
         $current_order = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('increment_id', $orderId);
         if ($current_order) {
