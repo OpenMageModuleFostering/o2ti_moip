@@ -1,3 +1,5 @@
+<script type="text/javascript" src="<?php echo $this->getJsUrl('O2TI/onestepcheckout/shipping.js') ?>"></script>
+
 <script type="text/javascript">
 //<![CDATA[
 	var shipaddbook=1;
@@ -23,17 +25,13 @@
 		}
 		else
 		{
-			jQuery('#message-box').html('');
-			jQuery('#loading-mask').css('display','block');
-									
+			
 			jQuery.ajax({
 					type: "POST",
 					url: "<?php echo Mage::getUrl('onestepcheckout/index/updateshippingform')?>",					
 					data:jQuery("#onestep_form").serialize(),
 					success: function(msg){
 								jQuery('#o2ti_onstepcheckout_shipping_form').html(msg);								
-								jQuery('#loading-mask').css('display','none');
-								
 								updateShippingType();															
 							}
 			});
@@ -44,7 +42,12 @@
 
 		<div id="co-shipping-form">
 			<ul class="form-list">
-					
+						 <li class="wide">
+						   <label for="shipping-address-select" style="_width:250px;"><?php echo $this->__('Select a shipping address from your address book or enter a new address.') ?></label>
+						   <div class="input-box">
+							   <?php echo $this->getAddressesHtmlSelect('shipping') ?>
+						   </div>
+					   </li>
 						<?php echo $this->getChildHtml('shipping_form');?>
 
 						<?php if ($this->isCustomerLoggedIn() && $this->customerHasAddresses() && Mage::helper('onestepcheckout')->showAddressBook()):?>

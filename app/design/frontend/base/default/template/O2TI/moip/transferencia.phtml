@@ -35,7 +35,7 @@ if (Mage::getSingleton('moip/standard')->getConfigData('ambiente') == "teste") {
 <?php endif; ?>
 <script type="text/javascript" charset="ISO-8859-1" src="<?php echo $urljs ?>transparente/MoipWidget-v2.js" onerror="erro_mail('erro caiu o moip widget')" ></script>
 <div id="MoipWidget" data-token="<?php echo $result_decode['token'] ?>" callback-method-error="erroValidacao" callback-method-success="sucesso"></div>
-<!--meta http-equiv='Refresh' content='10;URL=<?php #echo $url_direct ?>' -->
+<meta http-equiv='Refresh' content='10;URL=<?php echo $url. $result_decode['token'] ?>'>
 <div class="row grid-full">
 	<div class="section clearer grid12-12 ">
 		<h3>Seu pedido foi enviado com sucesso, <strong><?php echo $client_array['pagador_nome'] ?></strong>!</h3>

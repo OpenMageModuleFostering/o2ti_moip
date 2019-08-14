@@ -142,7 +142,7 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
             'peso_compra' => $this->getPesoProdutosPedido(),
             'pagador_nome' => $a->getFirstname() . ' ' . $a->getLastname(),
             //'pagador_email' => Mage::getSingleton('customer/session')->getCustomer()->getEmail(),// this is original code of Moip
-			'pagador_email' => $email,
+			'pagador_email' => strtolower($email),
             'pagador_ddd' => $this->getNumberOrDDD($a->getTelephone(), true),
             'pagador_telefone' => $this->getNumberOrDDD($a->getTelephone()),
             'pagador_logradouro' => $a->getStreet(1),
@@ -158,7 +158,7 @@ class O2TI_Moip_Model_Standard extends Mage_Payment_Model_Method_Abstract {
             'pagador_sexo' => '',
             'pagador_data_nascimento' => $dob,
         );
-        return $Arr;
+        return  $Arr;
     }
     public function getInfoParcelamento() {
         $config = array();

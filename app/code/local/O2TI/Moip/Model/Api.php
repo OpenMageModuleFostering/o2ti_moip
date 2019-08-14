@@ -24,55 +24,7 @@ class O2TI_Moip_Model_Api {
         $this->ambiente = $ambiente;
     }
 
-    public function generateXml($data, $rootNodeName = 'ENVIARINSTRUCAO', $xml = null) {
-
-        if (ini_get('zend.ze1_compatibility_mode') == 1)
-            {
-              ini_set ('zend.ze1_compatibility_mode', 0);
-            }
-        // turn off compatibility mode as simple xml throws a wobbly if you don't.
-
-        if ($xml == null) {
-            $xml = new SimpleXmlElement('<?xml version="1.0" encoding="utf-8" ?><EnviarInstrucao></EnviarInstrucao>');
-        }
-
-        // loop through the data passed in.
-        foreach ($data as $key => $value) {
-
-            if (is_array($value)) {
-                $node = $xml->addChild($key);
-                $this->generateXml($value, $rootNodeName, $node);
-            } else {
-                $value = $this->decode($value);
-                $xml->addChild($key, $value);
-            }
-        }
-        $return = $this->convert_encoding($xml->asXML(), true);
-
-        return str_ireplace("\n", "", $return);
-    }
-
-    private function convert_encoding($text, $post = false) {
-        if ($post) {
-            return mb_convert_encoding($text, 'UTF-8');
-        } else {
-            /* No need to convert if its already in utf-8 */
-            if ($this->encoding === 'UTF-8') {
-                return $text;
-            }
-            $texto = mb_convert_encoding($text, $this->encoding, 'UTF-8');
-            return strtoupper($texto);
-        }
-    }
-
-    public function decode($string) {
-
-        $find = array('&Aacute;', '&aacute;', '&Acirc;', '&acirc;', '&Agrave;', '&agrave;', '&Aring;', '&aring;', '&Atilde;', '&atilde;', '&Auml;', '&auml;', '&AElig;', '&aelig;', '&Eacute;', '&eacute;', '&Ecirc;', '&ecirc;', '&Egrave;', '&egrave;', '&Euml;', '&euml;', '&ETH;', '&eth;', '&Iacute;', '&iacute;', '&Icirc;', '&icirc;', '&Igrave;', '&igrave;', '&Iuml;', '&iuml;', '&Oacute;', '&oacute;', '&Ocirc;', '&ocirc;', '&Ccedil;', '&Ograve;', '&ccedil;', '&ograve;', '&Oslash;', '&Ntilde;', '&oslash;', '&ntilde;', '&Otilde;', '&otilde;', '&Yacute;', '&Ouml;', '&yacute;', '&ouml;', '&quot;', '&Uacute;', '&lt;', '&uacute;', '&gt;', '&Ucirc;', '&amp;', '&ucirc;', '&Ugrave;', '&reg;', '&ugrave;', '&copy;', '&Oacute;', '&Uuml;', '&THORN;', '&oacute;', '&uuml;', '&thorn;', '&Ocirc;', '&szlig;');
-        $replace = array('Á', 'á', 'Â', 'â', 'À', 'à', 'Å', 'å', 'Ã', 'ã', 'Ä', 'ä', 'Æ', 'æ', 'É', 'é', 'Ê', 'ê', 'È', 'è', 'Ë', 'ë', 'Ð', 'ð', 'Í', 'í', 'Î', 'î', 'Ì', 'ì', 'Ï', 'ï', 'Ó', 'ó', 'Ô', 'ô', 'Ç', 'Ò', 'ç', 'ò', 'Ø', 'Ñ', 'ø', 'ñ', 'Õ', 'õ', 'Ý', 'Ö', 'ý', 'ö', '"', 'Ú', '<', 'ú', '>', 'Û', '&', 'û', 'Ù', '®', 'ù', '©', 'Ó', 'Ü', 'Þ', 'ó', 'ü', 'þ', 'Ô', 'ß');
-
-        $decodedstring = str_replace($find, $replace, $string);
-        return $decodedstring;
-    }
+    
 
     public function generatePedido($data, $pgto) {
         if($pgto['credito_parcelamento'] == ""){
@@ -88,69 +40,17 @@ class O2TI_Moip_Model_Api {
         $valorcompra = $data['valor'];
         $vcmentoboleto = $standard->getConfigData('vcmentoboleto');
         $vcmento = date('c', strtotime("+" . $vcmentoboleto . " days"));
-        $forma_boleto = array('DataVencimento' => $vcmento);
+        
         if($pgto['tipoderecebimento'] =="0"):
           $tipoderecebimento = "Parcelado";
         else:
            $tipoderecebimento = "Avista"; 
         endif;
         $parcelamento = $standard->getInfoParcelamento();
-         $tipo_parcelamento = Mage::getSingleton('moip/standard')->getConfigData('jurostipo');
-        
-        if($tipo_parcelamento == 1){
-            
-                $max_parcelas = $parcelamento['c_ate1'];
-                $min_parcelas = $parcelamento['c_de1'];
-                $juros = $parcelamento['c_juros1'];
+        $tipo_parcelamento = Mage::getSingleton('moip/standard')->getConfigData('jurostipo');
 
-                if($max_parcelas == 12){
-                  $pacelamento_xml = array(
-                                      'Parcelamento' => array(
-                                              'MinimoParcelas' => $min_parcelas,
-                                              'MaximoParcelas' => $max_parcelas,
-                                              'Recebimento'=>$tipoderecebimento,
-                                              'Juros' => $juros,
-                                      ),
-                                    );
-                } else{
-                  $pacelamento_xml = array(
-                        'Parcelamento' => array(
-                                            'MinimoParcelas' => $min_parcelas,
-                                            'MaximoParcelas' => $max_parcelas,
-                                            'Recebimento'=>$tipoderecebimento,
-                                            'Juros' => $juros,
-                                      ),
-                        'Parcelamento' => array(
-                                            'MinimoParcelas' => $max_parcelas+1,
-                                            'MaximoParcelas' => '12',
-                                            'Recebimento'=>$tipoderecebimento,
-                                            'Juros' => '1.99',
-                                      ),
-                                    );
-                }
-        } else {
-            $parcelas = array('');
-            for ($i=1; $i <= 12; $i++) {
-                $juros_parcela = 's_juros'.$i;
-                $parcelas[$i] = array('Parcelamento' => array(
-                                            'MinimoParcelas' => $i,
-                                            'MaximoParcelas' => $i+1,
-                                            'Juros' => $parcelamento[$juros_parcela],
-                                            'Repassar' => 'true',
-                                      ),
-                );
-                if($i == 12){
-                    for ($i=2; $i <= 12; $i++) {
-                        $pacelamento_xml[$i] = $parcelas[$pgto['credito_parcelamento']];
-                    }
-                }
+        $comissionamento = Mage::getStoreConfig('o2tiall/mktplace/comissionamento');
 
-             }
-            $pacelamento_xml = end($pacelamento_xml);
-
-        }
-
-        
 
         if ($meio == "BoletoBancario"):
             if (Mage::getStoreConfig('o2tiall/pagamento_avancado/pagamento_boleto')):
@@ -169,7 +69,7 @@ class O2TI_Moip_Model_Api {
             endif;
         endif;
 
-        if ($pgto['forma_pagamento'] == "DebitoBancario"):
+        if ($meio == "DebitoBancario"):
             $valorcompra = $data['valor'];
             if (Mage::getStoreConfig('o2tiall/pagamento_avancado/transf_desc')):
                 if ($valorcompra >= Mage::getStoreConfig('o2tiall/pagamento_avancado/boleto_valor')):
@@ -191,41 +91,103 @@ class O2TI_Moip_Model_Api {
             $alterapedido = rand(999999, 99999999);
         else 
             $alterapedido = "";
-        $recebedor = array(
-            'LoginMoIP' => $pgto['conta_moip'],
-            'Apelido' => $pgto['apelido'],
-        );
-        $addresses = array(
-            "Logradouro" => $data['pagador_logradouro'],
-            "Numero" => $data['pagador_complemento'],
-            "Complemento" => $data['pagador_complemento'],
-            "Bairro" => $data['pagador_bairro'],
-            "Cidade" => $data['pagador_cidade'],
-            "Estado" => $data['pagador_estado'],
-            "Pais" => 'BRA',
-            "CEP" => $data['pagador_cep'],
-            "TelefoneFixo" => $data['pagador_ddd'] . $data['pagador_telefone']
-        );
+        
         $id_proprio = $pgto['conta_moip'].'_'.$data['id_transacao'];
-        $dados = array(
-            "Razao" => "Pagamento do pedido #" . $data['id_transacao'],
-            "Valores" => array('Valor' => number_format($valorcompra, 2, '.', '')),
-            "Recebedor" => $recebedor,
-            "IdProprio" => $id_proprio,
-            "Pagador" => array(
-                "Nome" => $data['pagador_nome'],
-                "Email" => $data['pagador_email'],
-                "IdPagador" => $data['pagador_email'],
-                "EnderecoCobranca" => $addresses,
-            ),
-            "Parcelamentos" => $pacelamento_xml,
-            "Boleto" => $forma_boleto,
-            "URLNotificacao" => $url_retorno,
-                #"mensagem" => $standard->getListaProdutos(),
-        );
-        $json = array('InstrucaoUnica' => $dados);
-        $xml = $this->generateXml($json);
-        return $xml;
+       
+    #    $xml = $this->generateXml($json);
+        $xml = new SimpleXMLElement('<?xml version = "1.0" encoding = "UTF-8"?><EnviarInstrucao/>');
+        $InstrucaoUnica = $xml->addChild('InstrucaoUnica');
+        $InstrucaoUnica->addAttribute('TipoValidacao', 'Transparente');
+        $InstrucaoUnica->addChild('Razao', 'Pagamento do Pedido #'.$data['id_transacao']);
+        $Valores = $InstrucaoUnica->addChild('Valores');
+        $Valor = $Valores->addChild('Valor',  number_format($valorcompra, 2, '.', ''));
+        $Valor->addAttribute('moeda', 'BRL');
+        $Recebedor = $InstrucaoUnica->addChild('Recebedor');
+        $Recebedor->addChild('LoginMoIP', $pgto['conta_moip']);
+        $Recebedor->addChild('Apelido', $pgto['apelido']);
+
+        if($comissionamento){
+            $Comissoes = $InstrucaoUnica->addChild('Comissoes');
+                $Comissionamento = $Comissoes->addChild('Comissionamento');
+                    $Comissionamento->addChild('Razao',  'Pagamento do Pedido #'.$data['id_transacao'].' da Loja '.$pgto['apelido']);
+                    $Comissionado = $Comissionamento->addChild('Comissionado');
+                        $Comissionado->addChild('LoginMoIP', Mage::getStoreConfig('o2tiall/mktplace/logincomissionamento'));
+                    $Comissionamento->addChild('ValorPercentual', Mage::getStoreConfig('o2tiall/mktplace/porc_comissionamento'));
+                 if(Mage::getStoreConfig('o2tiall/mktplace/pagadordataxa')){
+                    $PagadorTaxa = $Comissoes->addChild('PagadorTaxa');
+                    $PagadorTaxa->addChild('LoginMoIP',Mage::getStoreConfig('o2tiall/mktplace/logincomissionamento')); 
+                 }
+        }
+
+        $InstrucaoUnica->addChild('IdProprio', $id_proprio);
+        $Pagador = $InstrucaoUnica->addChild('Pagador');
+        $Pagador->addChild('Nome',$data['pagador_nome']);
+        $Pagador->addChild('Email',$data['pagador_email']);
+        $Pagador->addChild('IdPagador',$data['pagador_email']);
+        $EnderecoCobranca = $Pagador->addChild('EnderecoCobranca');
+        $EnderecoCobranca->addChild('Logradouro', $data['pagador_logradouro']);
+        $EnderecoCobranca->addChild('Numero', $data['pagador_complemento']);
+        $EnderecoCobranca->addChild('Complemento', $data['pagador_complemento']);
+        $EnderecoCobranca->addChild('Bairro', $data['pagador_bairro']);
+        $EnderecoCobranca->addChild('Cidade', $data['pagador_cidade']);
+        $EnderecoCobranca->addChild('Estado', $data['pagador_estado']);
+        $EnderecoCobranca->addChild('Pais', 'BRA');
+        $EnderecoCobranca->addChild('CEP', $data['pagador_cep']);
+        $EnderecoCobranca->addChild('TelefoneFixo', $data['pagador_ddd'] . $data['pagador_telefone']);
+        $Parcelamentos = $InstrucaoUnica->addChild('Parcelamentos', $vcmento);
+        if($tipo_parcelamento == 1){
+                $max_parcelas = $parcelamento['c_ate1'];
+                $min_parcelas = $parcelamento['c_de1'];
+                $juros = $parcelamento['c_juros1'];
+                if($max_parcelas == 12){
+                  $Parcelamento = $Parcelamentos->addChild('Parcelamento');
+                  $Parcelamento->addChild('MinimoParcelas',$min_parcelas);
+                  $Parcelamento->addChild('MaximoParcelas',$max_parcelas);
+                  $Parcelamento->addChild('Recebimento',$tipoderecebimento);
+                  $Parcelamento->addChild('Juros',$juros);
+                } else{
+                       $Parcelamento = $Parcelamentos->addChild('Parcelamento');
+                       $Parcelamento->addChild('MinimoParcelas',$min_parcelas);
+                       $Parcelamento->addChild('MaximoParcelas',$max_parcelas);
+                       $Parcelamento->addChild('Recebimento',$tipoderecebimento);
+                       $Parcelamento->addChild('Juros',$juros);
+
+                       $Parcelamento = $Parcelamentos->addChild('Parcelamento');
+                       $Parcelamento->addChild('MinimoParcelas',$max_parcelas+1);
+                       $Parcelamento->addChild('MaximoParcelas',12);
+                       $Parcelamento->addChild('Recebimento',$tipoderecebimento);
+                       $Parcelamento->addChild('Juros',1.99); 
+                }
+        } else {
+            for ($i=2; $i <= 12; $i++) {
+                $Parcelamento = $Parcelamentos->addChild('Parcelamento');
+                $juros_parcela = 's_juros'.$i;
+                $Parcelamento->addChild('MinimoParcelas',$i);
+                $Parcelamento->addChild('MaximoParcelas',$i);
+                $Parcelamento->addChild('Recebimento',$tipoderecebimento);
+                $Parcelamento->addChild('Juros',$parcelamento[$juros_parcela]);
+                $Parcelamento->addChild('Repassar','true');
+             }
+        }
+        $FormasPagamento = $InstrucaoUnica->addChild('FormasPagamento');
+        $FormasPagamento->addChild('FormaPagamento', 'CartaoCredito' );
+        $FormasPagamento->addChild('FormaPagamento', 'CartaoDebito' );
+        $FormasPagamento->addChild('FormaPagamento', 'DebitoBancario' );
+        $FormasPagamento->addChild('FormaPagamento', 'BoletoBancario' );
+        $FormasPagamento->addChild('FormaPagamento', 'FinanciamentoBancario');
+        if ($meio == "BoletoBancario"){
+            $Boleto_xml = $InstrucaoUnica->addChild('Boleto');
+            $Boleto_xml->addChild('Instrucao1', 'Pagamento do Pedido #'.$data['id_transacao']);
+            $Boleto_xml->addChild('Instrucao2', 'NÃO RECEBER APÓS O VENCIMENTO');
+            $Boleto_xml->addChild('Instrucao3', '+ Info em: '.Mage::getBaseUrl());
+            $Boleto_xml->addChild('DataVencimento');
+        }
+        $InstrucaoUnica->addChild('URLNotificacao', $url_retorno);
+        $request = $xml->asXML();
+        $request = utf8_decode($request);
+        $request = utf8_encode($request);
+        #var_dump($request); die();
+        return $request;
     }
     public function generateUrl($token) {
         if ($this->getAmbiente() == "teste")

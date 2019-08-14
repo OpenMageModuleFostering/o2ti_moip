@@ -79,6 +79,8 @@ jQuery('.buttons-set .button').css('display','none');
 			jQuery('.buttons-set .button').css('display','block');
 			jQuery('#login-please-wait').css('display','none');
 			jQuery('#dados_incorretos').css('display','block');
+			jQuery("#inline1").css("height","<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxheight')+65?>px");
+			jQuery(".col1-set").css("height","<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxheight')+45?>px");
 			jQuery('#errorlogin').css('display','block');
 			jQuery('#login-email').addClass('validation-failed');
 			jQuery('#login-password').addClass('validation-failed');

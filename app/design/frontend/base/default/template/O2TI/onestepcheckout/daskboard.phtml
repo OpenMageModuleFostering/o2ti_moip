@@ -2,7 +2,8 @@
 <?php 	$standad = Mage::getSingleton('moip/standard');
 $api = Mage::getSingleton('moip/api');
 $api->setContaMoip($standad->getConfigData('conta_moip'));
-$api->setAmbiente($standad->getConfigData('ambiente'));$data = $standad->getQuote()->getShippingAddress();
+$api->setAmbiente($standad->getConfigData('ambiente'));
+$data = $standad->getQuote()->getShippingAddress();
 $valuegetGrandTotal = $data->getGrandTotal();
 ?>
 <script type="text/javascript">
@@ -105,6 +106,7 @@ function buscarEndereco(whatform) {
 	});
 };
 function updateShippingMethod() {
+	if(document.getElementById('shipping:postcode') != "" && document.getElementById('shipping:postcode') != "." ){
 	jQuery.ajax({
 		url: urls,
 		type: "POST",
@@ -122,6 +124,7 @@ function updateShippingMethod() {
 	.always(function() {
 
 	});
+	}
 };
 function updateShippingType(str_value){
 	jQuery('#message-box').html('');
@@ -310,6 +313,8 @@ function reDrawOnepage(versao)
 			'openSpeed': '150',
 			'closeEffect': 'elastic',
 			'closeSpeed': '150',
+			'width': '<?php echo Mage::getStoreConfig("onestepcheckout/termcondition/boxwidth");?>px',
+			'height': '<?php echo Mage::getStoreConfig("onestepcheckout/termcondition/boxheight"); ?>px',
 		});
 		jQuery("#loginbox").fancybox({
 			'titlePosition': 'inside',
@@ -483,11 +488,11 @@ function updateEmailmsg(val){
 			url: "<?php echo Mage::getUrl('onestepcheckout/index/updateemailmsg')?>",
 			data:"email="+val,
 			success: function(msg){
-				var error="<div  class=\"validation-advice\" style=\"position:relative;\">Email já cadastrado, por favor <a  href=\"#inline1\" id=\"loginbox\">Clique aqui e faça o login</a></div>";
+				var error="<div id=\"message-box\"><div  class=\"validation-advice\" style=\"position:relative;\">Email já cadastrado, por favor <a  href=\"#inline1\" id=\"loginbox\">Clique aqui e faça o login</a></div></div>";
 				if(msg==0){
 					jQuery('#billing\\:email').after(error);
 					jQuery('#message-box').html(error);
-					jQuery('#billing\\:email').addClass('validation-failed');
+					
 					asyncdata='0';
 				}else{
 					if(logined()!=1){
@@ -620,7 +625,7 @@ function updateEmailmsg(val){
 		</form>
 		
 				<div style="display: none;">
-	                <div id="inlinecorreio" style="width:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxwidth')?>;height:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxheight')?>;overflow:auto;">
+	                <div id="inlinecorreio" style="width:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxwidth')?>px;height:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxheight')?>px;overflow:auto;">
 						<div class="o2ti-osc-title-login">
 							<h1>Busque seu CEP</h1>
 						</div>

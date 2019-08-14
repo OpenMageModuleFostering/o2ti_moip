@@ -313,14 +313,18 @@ class O2TI_Moip_Block_Standard_Form extends Mage_Payment_Block_Form {
 		}
 	}
 	public function getTextoParcelas() {
-		$parcelamento =  Mage::getSingleton('moip/standard')->getInfoParcelamento();
-		if ($parcelamento['c_juros1'] == 0) {
-			echo "<div id=\"addparcelasdesc\"> Sem juros até ".$parcelamento['c_ate1']." parcelas";
-			if ($parcelamento['ate1'] < 13) {
-				return ", após juros de 1,99% ao mês.</div>";
+		if( $tipo_parcelamento = Mage::getSingleton('moip/standard')->getConfigData('jurostipo') == 1){
+			$parcelamento =  Mage::getSingleton('moip/standard')->getInfoParcelamento();
+			if ($parcelamento['c_juros1'] == 0) {
+				echo "<div id=\"addparcelasdesc\"> Sem juros até ".$parcelamento['c_ate1']." parcelas";
+				if ($parcelamento['ate1'] < 13) {
+					return ", após juros de 1,99% ao mês.</div>";
+				}
+			}else {
+				return "<div id=\"addparcelasdesc\"> Com juros de ".$parcelamento['c_juros1']."% ao mês.</div>";
 			}
-		}else {
-			return "<div id=\"addparcelasdesc\"> Com juros de ".$parcelamento['c_juros1']."% ao mês.</div>";
+		} else {
+			return; 
 		}
 	}
 

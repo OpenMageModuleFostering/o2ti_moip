@@ -54,7 +54,7 @@ class O2TI_Moip_IndexController extends Mage_Core_Controller_Front_Action
 						'Forma' => 'DebitoBancario',
 						'Instituicao' => $post['instituicao'],
 					 );
-
+					
 				} else {
 
 			$json = array(

@@ -112,20 +112,15 @@ ou use <type>js</type> caso o js da pasta pasta_da_loja/js
 				<block type="checkout/onepage_payment_methods" name="root" template="O2TI/onestepcheckout/daskboard/onepage/payment/methods.phtml"/>
 		</reference>
 	</onestepcheckout_index_updatepaymenttype>
-	<onestepcheckout_index_updatebillingform>
-		<reference name="root">
-			<action method="setTemplate"><template>O2TI/onestepcheckout/emptyupdate.phtml</template></action>
-		</reference>
 
-	</onestepcheckout_index_updatebillingform>
-	<onestepcheckout_index_updatebilling_formform>
+	<onestepcheckout_index_updatebillingform>		
 		<reference name="root">
 			<action method="setTemplate"><template>O2TI/onestepcheckout/emptyupdate.phtml</template></action>
 		</reference>
 		<reference name="content">
-				<block type="onestepcheckout/checkout_onepage_billing_billing_form" name="checkout.onepage.billing.billing_form" as="billing_form" template="O2TI/onestepcheckout/daskboard/onepage/billing/billing_form.phtml"/>
-		</reference>
-	</onestepcheckout_index_updatebilling_formform>
+			<block type="onestepcheckout/checkout_onepage_billing_sortbilling" name="checkout.onepage.billing.disablesortbilling" as="disablesortbilling" template="O2TI/onestepcheckout/daskboard/onepage/billing/billing_form.phtml"/>		
+		</reference>		
+	</onestepcheckout_index_updatebillingform>
 	<sales_order_view>
 		<reference name="sales.order.info">
 			<action method="setTemplate"><template>O2TI/onestepcheckout/sales/order/info.phtml</template></action>

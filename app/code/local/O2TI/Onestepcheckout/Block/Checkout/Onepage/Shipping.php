@@ -3,7 +3,7 @@ class O2TI_Onestepcheckout_Block_Checkout_Onepage_Shipping extends Mage_Checkout
 {
     public function getAddressesHtmlSelect($type)
     {
-	
+
         if ($this->isCustomerLoggedIn()) {
             $options = array();
             foreach ($this->getCustomer()->getAddresses() as $address) {

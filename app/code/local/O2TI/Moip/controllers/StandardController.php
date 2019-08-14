@@ -138,6 +138,9 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 				if($states_atual == 'processing'){
 								$naexecuta = 1;
 				}
+				if($states_atual == 'canceled' && $data['status_pagamento']==5){
+								$naexecuta = 1;
+				}
 				Mage::log("Nasp acionou para o pedido ".$order_magento. " - Status - " .$data['status_pagamento'], null, 'O2TI_Moip.log', true);
 				if ($order->isCanceled() && $data['status_pagamento'] != "5") {
 					if (Mage::helper('sales/reorder')->canReorder($order)) {

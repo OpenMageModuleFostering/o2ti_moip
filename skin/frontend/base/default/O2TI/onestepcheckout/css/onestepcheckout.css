@@ -6,7 +6,7 @@
 .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .o2ti-osc-column-right { display: block; width: 48%; float: left; margin-left: 2%; min-width: 283px !important; }
 .o2ti-osc-checkoutcontainer .o2ti-osc-block-title h3 { margin: 0; padding: 5px; }
 .o2ti-osc-checkoutcontainer .o2ti-osc-block-content { border: 1px solid #ccc; border-radius: 0 0 5px 5px; padding: 15px; }
-.o2ti-osc-checkoutcontainer .review { float: left; width: 100%; clear: both; margin-top: 20px; }
+.o2ti-osc-checkoutcontainer .review { float: left; width: 97%; clear: both; margin-top: 20px; }
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .shipping-payment { width: 45%; float: left; min-width: 290px !important; }
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .shipping-payment .o2ti-osc-column { width: 100%; margin: 0 0 15px 0; }
 .o2ti-opc-2columns .o2ti-osc-checkoutcontainer .o2ti-osc-column-2 .review { width: 52%; clear: none; margin-left: 1%; margin-top: 0; }
@@ -39,3 +39,6 @@
 .sp-methods .form-list { padding-left: 0px !important; }
 #checkout-review-table-wrapper { overflow-x: visible !important; }
 .o2ti-osc-block { min-width: 290px !important; }
+#shipping_show {
+margin-top: 10px !important;
+}
