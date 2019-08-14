@@ -16,8 +16,8 @@ $css_email_img = "position: absolute !important;left: -70px !important;top: -20p
 	</div>
 	<div class="cartao" style="width:100%">
 		<div class="image" style="width:30%; float:left;">
-			<?php $imagem = $info['brand']; ?>
-			<div class="image" style="padding:5px"><img src="<?php echo $this->getSkinUrl('O2TI/moip/imagem/'); echo "Visa"; echo ".png"; ?>"></div>
+			<?php $imagem = $info['image']; ?>
+			<div class="image" style="padding:5px"><img src="<?php echo $imagem; ?>"></div>
 		</div>
 		<div class="dados" style="width:70%; float:left">
 			<label>6 Primeiros dígitos do cartão</label>

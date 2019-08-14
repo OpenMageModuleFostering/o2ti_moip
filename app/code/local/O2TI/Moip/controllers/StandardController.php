@@ -46,8 +46,8 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 
 		 	 $res = simplexml_load_string($res);
 		 	 if($res->Resposta->Status == "Sucesso"){
-		 	 	$result['status'] = $res->Resposta->Status->__toString();
-		 	 	$result['token'] = $res->Resposta->Token->__toString();
+		 	 	$result['status'] = (string)$res->Resposta->Status;
+		 	 	$result['token'] = (string)$res->Resposta->Token;
 		 	 	$session->setResult_decode($result);
 		 	 	
 		 	 	return $result;
