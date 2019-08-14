@@ -44,11 +44,11 @@ class MOIP_Transparente_Model_Api
         $documento = 'Content-Type: application/json; charset=utf-8';
         if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") {
             $url    = self::ENDPOINT_TEST."orders/{$IdMoip}/payments";
-            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_dev');
+            $oauth  = Mage::getStoreConfig('payment/moip_transparente_standard/oauth_dev');
             $header = "Authorization: OAuth " . $oauth;
         } else {
             $url    = self::ENDPOINT_PROD."orders/{$IdMoip}/payments";
-            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_prod');
+            $oauth  = Mage::getStoreConfig('payment/moip_transparente_standard/oauth_prod');
             $header = "Authorization: OAuth " . $oauth;
         }
         $result = array();
@@ -272,11 +272,11 @@ class MOIP_Transparente_Model_Api
         $documento = 'Content-Type: application/json; charset=utf-8';
         if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") {
             $url    = self::ENDPOINT_TEST."orders/";
-            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_dev');
+            $oauth  = Mage::getStoreConfig('payment/moip_transparente_standard/oauth_dev');
             $header = "Authorization: OAuth " . $oauth;
         } else {
             $url    = self::ENDPOINT_PROD."orders/";
-            $oauth  = Mage::getSingleton('transparente/standard')->getConfigData('oauth_prod');
+            $oauth  = Mage::getStoreConfig('payment/moip_transparente_standard/oauth_prod');
             $header = "Authorization: OAuth " . $oauth;
         }
         $result = array();

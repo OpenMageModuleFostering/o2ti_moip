@@ -17,14 +17,13 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 		parent::_construct();
 	}
 
-
 	
 	public function getPublicKey(){
-	if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") {
-                   return Mage::getSingleton('transparente/standard')->getConfigData('publickey_dev');
-                } else {
-                       return Mage::getSingleton('transparente/standard')->getConfigData('publickey_prod');
-                }
+		if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") {
+           return Mage::getSingleton('transparente/standard')->getConfigData('publickey_dev');
+        } else {
+               return Mage::getSingleton('transparente/standard')->getConfigData('publickey_prod');
+        }
 	}
 
 	
@@ -73,8 +72,8 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 			
 
 	return $parcelas;
-
 	}
+	
 	public function getVisaImage() {
 		if (Mage::getStoreConfig('moipall/config/trocar_bandeira_cartao')) {
 			return Mage::getBaseUrl('media') . "moip/alltransparente/". Mage::getStoreConfig('moipall/config/cartao_visa');
@@ -82,6 +81,7 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 			return $this->getSkinUrl('MOIP/transparente/imagem/Visa.png');
 		}
 	}
+
 	public function getMastercardImage() {
 		if (Mage::getStoreConfig('moipall/config/trocar_bandeira_cartao')) {
 			return Mage::getBaseUrl('media') . "moip/alltransparente/". Mage::getStoreConfig('moipall/config/cartao_master');
@@ -89,6 +89,7 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 			return $this->getSkinUrl('MOIP/transparente/imagem/Mastercard.png');
 		}
 	}
+
 	public function getDinersImage() {
 		if (Mage::getStoreConfig('moipall/config/trocar_bandeira_cartao')) {
 			return Mage::getBaseUrl('media') . "moip/alltransparente/". Mage::getStoreConfig('moipall/config/cartao_diners');
@@ -96,6 +97,7 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 			return $this->getSkinUrl('MOIP/transparente/imagem/Diners.png');
 		}
 	}
+
 	public function getAmericanExpressImage() {
 		if (Mage::getStoreConfig('moipall/config/trocar_bandeira_cartao')) {
 			return Mage::getBaseUrl('media') . "moip/alltransparente/". Mage::getStoreConfig('moipall/config/cartao_american');
@@ -103,6 +105,7 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 			return $this->getSkinUrl('MOIP/transparente/imagem/AmericanExpress.png');
 		}
 	}
+
 	public function getHipercardImage() {
 		if (Mage::getStoreConfig('moipall/config/trocar_bandeira_cartao')) {
 			return Mage::getBaseUrl('media') . "moip/alltransparente/". Mage::getStoreConfig('moipall/config/cartao_hipercard');
@@ -147,6 +150,7 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 		}
 		return $image_brand;
 	}
+
 	public function getCofre() {
 		if (Mage::getSingleton('customer/session')->isLoggedIn()) {
 			$data_array = array();
@@ -201,7 +205,6 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
 	}
 
 	public function getNumberOrDDD($param_telefone, $param_ddd = false) {
-
             $cust_ddd = '11';
             $cust_telephone = preg_replace("/[^0-9]/", "", $param_telefone);
             $st = strlen($cust_telephone) - 8;
@@ -217,7 +220,8 @@ class MOIP_Transparente_Block_Form_Cc extends Mage_Payment_Block_Form {
             }
 
             return $retorno;
-        }
+    }
+
 	public function getCheckout() {
 		return Mage::getSingleton('checkout/session');
 	}

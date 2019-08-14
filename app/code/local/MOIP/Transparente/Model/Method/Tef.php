@@ -18,6 +18,22 @@ class MOIP_Transparente_Model_Method_Tef extends Mage_Payment_Model_Method_Abstr
     protected $_canSaveCc = false;
     protected $_allowCurrencyCode = array('BRL');
     protected $_canFetchTransactionInfo = true;
+     public function getPayment()
+    {
+        return $this->getQuote()->getPayment();
+    }
+    public function getSession()
+    {
+        return Mage::getSingleton('transparente/session');
+    }
+    public function getCheckout()
+    {
+        return Mage::getSingleton('checkout/session');
+    }
+    public function getQuote()
+    {
+        return $this->getCheckout()->getQuote();
+    }
     public function assignData($data)
     {
         if (!($data instanceof Varien_Object)) {
