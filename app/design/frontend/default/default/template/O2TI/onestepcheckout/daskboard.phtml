@@ -399,65 +399,12 @@ $taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
 	}
 	jQuery('.btn-checkout').removeAttr('disabled');
 	jQuery('.btn-checkout').bind("click",function(e){
-		if(jQuery('#onestep_form').find('.o2ti-osc-column-2.span8').size()<1){
-			jQuery('.o2ti-osc-column-2.span8').appendTo('#onestep_form');
-		}
-		if(document.getElementById('billing:telephone').value.length <= 12 ){
-			logic=false;
-			document.getElementById('billing:telephone').value = "";
-			document.getElementById('credito_portador_telefone').value = "";
-			jQuery(document).scrollTop(jQuery('#checkout-payment-method-load').offset().top );
-		}
 
-		if(jQuery('input[name=payment\\[method\\]]:checked').val() == "o2ti_moip_standard"){
-			if(!jQuery("input[name=payment\\[forma_pagamento\\]]:checked").val()){
-				if(!jQuery('#advice-required-o2ti').length)
-					{
-						logic=false;
-						jQuery('#checkout-payment-o2ti').css({display:"block"});
-						jQuery('#checkout-payment-o2ti').html('Selecione a forma de pagamento.');
-						jQuery(document).scrollTop(jQuery('#checkout-payment-method-load').offset().top );
-						return false;
-					}
-				}
-				else
-				jQuery('#checkout-payment-o2ti').css({display:"none"});
-				jQuery('#advice-required-entry_payment_o2ti').remove();
-			}
-			if(jQuery("input[name=payment\\[forma_pagamento\\]]:checked").val() == "CartaoCredito")
-				{
-				if(!jQuery("input[name=payment\\[credito_instituicao\\]]:checked").val())
-					{
-					if(!jQuery('#advice-required-o2ti').length)
-					{
-						logic=false;
-						jQuery('#checkout-payment-bandeira').css({display:"block"});
-						jQuery('#checkout-payment-bandeira').html('Selecione a bandeira do cart&atilde;o.');
-						jQuery(document).scrollTop(jQuery('#checkout-payment-method-load').offset().top );
-						return false;
-					}
-				}else{
-					jQuery('#checkout-payment-bandeira').css({display:"none"});
-					jQuery('#advice-required-entry_payment_bandeira').remove();
-				}
-			}
-			if(jQuery("input[name=payment\\[forma_pagamento\\]]:checked").val() == "DebitoBancario"){
-				if(!jQuery("input[name=payment\\[debito_instituicao\\]]:checked").val()){
-					if(!jQuery('#advice-required-o2ti').length){
-						logic=false;
-						jQuery('#checkout-payment-banco').css({display:"block"});
-						jQuery('#checkout-payment-banco').html('Selecione o seu banco.');
-						jQuery(document).scrollTop(jQuery('#checkout-payment-method-load').offset().top );
-						return false;
-					}
-				}else{
-					jQuery('#checkout-payment-banco').css({display:"none"});
-				}
-			}
+			var logic= true;
 
 			jQuery('#co-payment-form').show();
 			var form = new VarienForm('onestep_form');
-			var logic=true;
+			
 			<?php if(Mage::helper('onestepcheckout')->onlyProductDownloadable()):?>
 					var notshipmethod=1;
 			<?php else:?>
@@ -503,6 +450,7 @@ $taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
 						return false;
 					}
 				}
+			
 				if(logic){
 					jQuery('#onestep_form').submit();
 					jQuery('#loading-mask').show();
@@ -516,7 +464,6 @@ $taxvat =  Mage::getSingleton('customer/session')->getCustomer()->getTaxvat();
 		jQuery('.validation-advice').delay(1000).fadeOut();
 		jQuery('.validation-advice').delay(5000).fadeOut("slow");
 });
-
 
 </script>
 

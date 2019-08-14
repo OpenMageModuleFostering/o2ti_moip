@@ -18,7 +18,21 @@ if (Mage::getSingleton('moip/standard')->getConfigData('ambiente') == "teste") {
 ?>
 <?php $order = Mage::getModel('sales/order')->loadByIncrementId($pgtoArray['id_transacao']); ?>
 <?php $this->getSaveDate($pgtoArray['id_transacao'], $result_decode, $customerData, $pgtoArraya, $client_array); ?>
-
+<?php if (!Mage::helper('core/cookie')->isUserNotAllowSaveCookie()): ?>
+<?php $accountId = 'UA-33860171-1' ?>
+<script type="text/javascript">
+//<![CDATA[
+    var _gaq = _gaq || [];
+  	_gaq.push(['_setAccount', '<?php echo  Mage::getStoreConfig("o2tiall/google/idgoogle") ?>']);
+    <?php echo $this->getTrackingMoip($client_array);  ?>
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+//]]>
+</script>
+<?php endif; ?>
 <script type="text/javascript" charset="ISO-8859-1" src="<?php echo $urljs ?>/transparente/MoipWidget-v2.js" onerror="erro_mail('erro caiu o moip widget')" ></script>
 <div id="MoipWidget" data-token="<?php echo $result_decode['token'] ?>" callback-method-error="erroValidacao" callback-method-success="sucesso"></div>
 <!--meta http-equiv='Refresh' content='10;URL=<?php #echo $url_direct ?>' -->

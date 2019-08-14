@@ -1,36 +1,15 @@
 <?xml version="1.0"?>
 <layout version="0.1.0">
     <default></default>
-   <customer_account_create>
-	<reference name="head">
-	   	 		<action method="addJs"><script>O2TI/jquery.js</script></action>
-	   	 		<action method="addJs"><script>O2TI/onestepcheckout/noConflict.js</script></action>
-				<action method="addJs"><script>O2TI/onestepcheckout/novamascara.js</script></action>
-	   	 		<action method="addJs"><script>O2TI/onestepcheckout/validacao.js</script></action>
-	</reference>
-        <reference name="customer_form_register">
-            <action method="setTemplate"><template>O2TI/cadastro/persistent/customer/form/register.phtml</template></action>
-        </reference>
-    </customer_account_create>
-    <customer_account_edit>
-	<reference name="head">
-	   	 		<action method="addJs"><script>O2TI/jquery.js</script></action>
-	   	 		<action method="addJs"><script>O2TI/onestepcheckout/noConflict.js</script></action>
-				<action method="addJs"><script>O2TI/onestepcheckout/novamascara.js</script></action>
-	   	 		<action method="addJs"><script>O2TI/onestepcheckout/validacao.js</script></action>
-	</reference>
-    	<reference name='customer_edit'>
-    		<action method="setTemplate"><template>O2TI/cadastro/customer/form/edit.phtml</template></action>
-    	</reference>
-    </customer_account_edit>
+   
     <checkout_onepage_index>
 		<reference name="head">
 	   	 		<action method="addJs"><script>O2TI/jquery.js</script></action>
-	   	 		<action method="addJs"><script>O2TI/onestepcheckout/noConflict.js</script></action>
+	   	 		<action method="addJs"><script>O2TI/jquery_noconflict.js</script></action>
 	   	 		<action method="addJs"><script>O2TI/onestepcheckout/jquery.fancybox-1.3.1.js</script></action>
 	   	 		<action method="addJs"><script>O2TI/onestepcheckout/change-events.js</script></action>
-	   	 		<action method="addJs"><script>O2TI/onestepcheckout/novamascara.js</script></action>
-	   	 		<action method="addJs"><script>O2TI/onestepcheckout/validacao.js</script></action>
+	   	 		<action method="addJs"><script>O2TI/novamascara.js</script></action>
+	   	 		<action method="addJs"><script>O2TI/validacao.js</script></action>
 	   	 		<action method="addCss"><stylesheet>O2TI/onestepcheckout/css/onestepcheckout.css</stylesheet></action>
 	   	 		<action method="addCss"><stylesheet>O2TI/onestepcheckout/css/jquery.fancybox-1.3.1.css</stylesheet></action>
 

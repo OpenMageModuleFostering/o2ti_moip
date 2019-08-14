@@ -77,6 +77,7 @@ class O2TI_Moip_Block_Standard_Redirect extends Mage_Checkout_Block_Onepage_Succ
 		
 	}
 	public function getOrder_dados($order_dados){
+	
 		return $order_dados;
 	}
 	
@@ -102,6 +103,44 @@ class O2TI_Moip_Block_Standard_Redirect extends Mage_Checkout_Block_Onepage_Succ
 			return false;
 		
 	}
+	 public function getTrackingMoip($order_dados)
+    {
+    	
+    	$order = Mage::getModel('sales/order')->loadByIncrementId($order_dados['id_transacao']);
+        $orderIds = $order->getId();       
+        $collection = Mage::getResourceModel('sales/order_collection')
+            ->addFieldToFilter('entity_id', array('in' => $orderIds))
+        ;
+        $result = array();
+        foreach ($collection as $order) {
+            if ($order->getIsVirtual()) {
+                $address = $order->getBillingAddress();
+            } else {
+                $address = $order->getShippingAddress();
+            }
+            $result[] = sprintf("_gaq.push(['_addTrans', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s']);",
+                $order->getIncrementId(),
+                $this->jsQuoteEscape(Mage::app()->getStore()->getFrontendName()),
+                $order->getBaseGrandTotal(),
+                $order->getBaseTaxAmount(),
+                $order->getBaseShippingAmount(),
+                $this->jsQuoteEscape(Mage::helper('core')->escapeHtml($address->getCity())),
+                $this->jsQuoteEscape(Mage::helper('core')->escapeHtml($address->getRegion())),
+                $this->jsQuoteEscape(Mage::helper('core')->escapeHtml($address->getCountry()))
+            );
+            foreach ($order->getAllVisibleItems() as $item) {
+                $result[] = sprintf("_gaq.push(['_addItem', '%s', '%s', '%s', '%s', '%s', '%s']);",
+                    $order->getIncrementId(),
+                    $this->jsQuoteEscape($item->getSku()), $this->jsQuoteEscape($item->getName()),
+                    null, 
+                    $item->getBasePrice(), $item->getQtyOrdered()
+                );
+            }
+            $result[] = "_gaq.push(['_trackTrans']);";
+        }
+        
+        return implode("\n", $result);
+    }
 
 	public function getTrans_Moip($result_decode, $pagamento)
 	{	

@@ -166,7 +166,7 @@ class O2TI_Moip_Model_Api {
             "Complemento" => $data['pagador_complemento'],
             "Bairro" => $data['pagador_bairro'],
             "Cidade" => $data['pagador_cidade'],
-            "Estado" => 'SP',
+            "Estado" => $data['pagador_estado'],
             "Pais" => 'BRA',
             "CEP" => $data['pagador_cep'],
             "TelefoneFixo" => $data['pagador_ddd'] . $data['pagador_telefone']
