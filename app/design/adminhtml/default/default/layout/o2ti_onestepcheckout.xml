@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <onestepcheckout_adminhtml_onestepcheckout_index>
+        <reference name="content">
+            <block type="onestepcheckout/adminhtml_onestepcheckout" name="onestepcheckout" />
+        </reference>
+    </onestepcheckout_adminhtml_onestepcheckout_index>
+</layout>

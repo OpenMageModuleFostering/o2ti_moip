@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/o2ti_moip",
+    "type": "magento-module",
+    "license": "Free-to-use-with-MoIp",
+    "homepage": "",
+    "description": "Transparent Moip  100% homologated and with a OneStepCheckout free to use with Moip",
+    "authors": [
+    {
+        "name": "O2ti",
+        "email": "contato@o2ti.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
