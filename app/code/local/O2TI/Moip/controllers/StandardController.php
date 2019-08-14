@@ -46,14 +46,14 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 
 		 	 $res = simplexml_load_string($res);
 		 	 if($res->Resposta->Status == "Sucesso"){
-		 	 	$result['status'] = $res->Resposta->Status->__toString();
-		 	 	$result['token'] = $res->Resposta->Token->__toString();
+		 	 	$result['status'] = (string)$res->Resposta->Status;
+		 	 	$result['token'] = (string)$res->Resposta->Token;
 		 	 	$session->setResult_decode($result);
 		 	 	return $result;
 		 	 	}
 		 	 else {
-		 	 	$result['status'] = $res->Resposta->Status->__toString();
-		 	 	$result['erro'] = $res->Resposta->Erro->__toString();
+		 	 	$result['status'] = (string)$res->Resposta->Status;
+		 	 	$result['erro'] = (string)$res->Resposta->Erro;
 		 	 	return $result;
 		 	 } 
 		    
@@ -104,7 +104,7 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 		$standard = $this->getStandard();
 		$naexecuta = "";
 		$validacao = $this->getRequest()->getParams();
-		if($validacao['validacao'] == "elisei13"){
+		if($validacao['validacao'] == $standard->getConfigData('validador_retorno')){
 				$data = $this->getRequest()->getPost();
 				$login = $standard->getConfigData('conta_moip');
 				$data_moip = trim($data['id_transacao']);
@@ -114,6 +114,12 @@ class O2TI_Moip_StandardController extends Mage_Core_Controller_Front_Action {
 				$order = Mage::getModel('sales/order')->load($order_magento, 'increment_id');
 				$id_order = $order->getId();
 				$states_atual = $order->getStatus();
+				if($states_atual == "pending"  && $data['status_pagamento'] != "2"){
+					try{
+						$order->sendNewOrderEmail();
+					}
+					catch (Exception $ex) {  };
+				}
 				if ($order->isCanceled() && $data['status_pagamento'] != "5") {
 					if (Mage::helper('sales/reorder')->canReorder($order)) {
 						$order->setState(Mage_Sales_Model_Order::STATE_NEW);
