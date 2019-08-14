@@ -1,15 +1,13 @@
 {
     "name": "OpenMageModuleFostering/o2ti_moip",
     "type": "magento-module",
-    "license": "Free-to-use-with-TRANSPARENTE",
+    "license": "Exclusivo-para-clientes-Moip-Pagamentos-S/A",
     "homepage": "",
-    "description": "Moip Transparente - OFICIAL da empresa Moip Pagamentos S/A.
-Pagamentos por cartão de crédito, boleto e transferência.
-Checkout On Page by Moip S/A",
+    "description": "Módulo oficial do Moip Pagamentos S/A.",
     "authors": [
     {
         "name": "MOIP",
-        "email": "contato@moip.com"
+        "email": "contato@o2ti.com"
     }
 ],
     "suggest": {

@@ -9,7 +9,7 @@ class MOIP_Transparente_Model_Standard extends Mage_Payment_Model_Method_Abstrac
     protected $_canCapturePartial = true;
     protected $_canRefund = true;
     protected $_canVoid = true;
-    protected $_canUseInternal = true;
+    protected $_canUseInternal = false;
     protected $_canUseCheckout = true;
     protected $_canUseForMultishipping = true;
     protected $_canSaveCc = false;
@@ -44,6 +44,9 @@ class MOIP_Transparente_Model_Standard extends Mage_Payment_Model_Method_Abstrac
         $info->setCreditoPortadorCpf($data->getCreditoPortadorCpf());
         $info->setCreditoPortadorTelefone($data->getCreditoPortadorTelefone());
         $info->setCreditoPortadorNascimento($data->getCreditoPortadorNascimento());
+
+        Mage::dispatchEvent('transparente_sales_quote_assign_data_after', array('quote'=>Mage::getSingleton('checkout/session')->getQuote()));
+
         return $this;
     }
 
@@ -128,14 +131,14 @@ class MOIP_Transparente_Model_Standard extends Mage_Payment_Model_Method_Abstrac
         $website_id = Mage::app()->getWebsite()->getId();
         $website_name = Mage::app()->getWebsite()->getName();
         $store_name = Mage::app()->getStore()->getName();
-        
+         $info = $this->getInfoInstance();
         $Arr = array(
             'id_carteira' => $this->getConfigData('conta_transparente'),
             'id_transacao' => $this->getQuote()->getReservedOrderId(),
             'nome' => 'Pagamento a ' . $website_name,
             'descricao' => $this->getListaProdutos(),
             'pagador_nome' => $a->getFirstname() . ' ' . $a->getLastname(),
-			'pagador_email' => strtolower($email),
+            'pagador_email' => strtolower($email),
             'pagador_ddd' => $this->getNumberOrDDD($a->getTelephone(), true),
             'pagador_telefone' => $this->getNumberOrDDD($a->getTelephone()),
             'pagador_logradouro' => $a->getStreet(1),
@@ -210,6 +213,7 @@ class MOIP_Transparente_Model_Standard extends Mage_Payment_Model_Method_Abstrac
         
         return $produtos;
     }
+    
     private function getNumEndereco($endereco) {
         $numEndereco = '';
 

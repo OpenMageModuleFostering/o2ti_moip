@@ -60,9 +60,8 @@ class MOIP_Transparente_Block_Standard_CartSave extends Mage_Checkout_Block_Onep
 			$data_array = array();
 			$customerData = Mage::getSingleton('customer/session')->getCustomer();
 			$resource = Mage::getSingleton('core/resource');
-
 			$readConnection = $resource->getConnection('core_read');
-			$table = $readConnection->getTableName('moip_transparente');
+			$table = (string) Mage::getConfig()->getTablePrefix().'moip_transparente';
 			$query = 'SELECT * FROM ' . $table .' WHERE customer_id='.$customerData->getID().' AND cofre IS NOT NULL';
 			$results = $readConnection->fetchAll($query);
 			if($results){
@@ -70,7 +69,6 @@ class MOIP_Transparente_Block_Standard_CartSave extends Mage_Checkout_Block_Onep
 			} else {
 				return 'false';	
 			}
-			
 		} else {
 			return 'false';
 		}

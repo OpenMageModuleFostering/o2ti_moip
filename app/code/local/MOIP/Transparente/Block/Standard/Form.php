@@ -13,16 +13,20 @@
 class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 
 	protected function _construct() {
-		
-		$transparente_layout = Mage::getStoreConfig('moipall/config/transparente_layout');
-		if ($transparente_layout == "Horizontal"):
+		#$transparente_layout = Mage::getStoreConfig('moipall/config/transparente_layout');
+		#if ($transparente_layout == "Horizontal"):
 			$this->setTemplate('MOIP/transparente/horizontal_form.phtml');
-		else:
-			$this->setTemplate('MOIP/transparente/vertical_form.phtml');
-		endif;
+		#else:
+		#	$this->setTemplate('MOIP/transparente/vertical_form.phtml');
+		#endif;
 		parent::_construct();
 	}
 
+
+	protected function _prepareLayout() {
+		$this->setChild('scripts', $this->getLayout()->createBlock('core/template') ->setTemplate('MOIP/transparente/script.phtml'));
+		return parent::_prepareLayout();
+	}
 	public function boletoDisponivel($dataToReturn) {
 
 		$_Produtos = Mage::getSingleton('checkout/cart')->getQuote()->getAllItems();
@@ -99,26 +103,36 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 	//textos de desconto
 	public function getTextoBoleto($dataToReturn) {
 		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getGrandTotal();
+		$textoresumo = "";
 		if (Mage::getStoreConfig('moipall/pagamento_avancado/pagamento_boleto')) {
-			if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor')) {
-				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc')."%.";
-			}
-			$descontotexto = $textoresumo ."<br/>Págavel em qualquer banco, casas lotéricas ou via internet bank.";
 
 
-			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') != "" &&  $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2')  && $valor_pedido < Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
-				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2')."%.";
-				$descontotexto = $textoresumo ."<br/>Págavel em qualquer banco, casas lotéricas ou via internet bank.";
+				if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor'))
+                {
+
+                    if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') && (int)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') != 0)
+                	{
+
+	                	$textoresumo = "Desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2')."%.";
+						$descontotexto = $textoresumo ."<br/>Págavel em qualquer banco, casas lotéricas ou via internet bank.";
+                	}
+
+	                else {
+
+	                	$textoresumo = "Desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc')."%.";
+						$descontotexto = $textoresumo ."<br/>Págavel em qualquer banco, casas lotéricas ou via internet bank.";
+	                }
+                }
+                else {
+					$textoresumo = "Págavel em qualquer banco";
+					$descontotexto = "Págavel em qualquer banco, casas lotéricas ou via internet bank.";
+				}
+
+			} else {
+				$textoresumo = "Págavel em qualquer banco";
+				$descontotexto = "Págavel em qualquer banco, casas lotéricas ou via internet bank.";
 			}
 
-			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') != "" && $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
-				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3')."%.";
-				$descontotexto = $textoresumo ."<br/>Págavel em qualquer banco, casas lotéricas ou via internet bank.";
-			}
-		}else {
-			$textoresumo = "Págavel em qualquer banco";
-			$descontotexto = "Págavel em qualquer banco, casas lotéricas ou via internet bank.";
-		}
 		if ($dataToReturn == 'preview') {
 			return $textoresumo;
 		} else if ($dataToReturn == "texto" ) {
@@ -128,21 +142,22 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 	public function getTextoTranferencia($dataToReturn) {
 		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getGrandTotal();
 		if (Mage::getStoreConfig('moipall/pagamento_avancado/transf_desc')) {
-			if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor')) {
-				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc')."%.";
-			}
-			$descontotexto = $textoresumo ."<br/>Via internet bank.";
+			if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor'))
+                {
 
+                    if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') && (int)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') != 0)
+                	{
 
-			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') != "" &&  $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2')  && $valor_pedido < Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
-				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2')."%.";
-				$descontotexto = $textoresumo ."<br/>Via internet bank.";
-			}
+	                	$textoresumo = "Desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2')."%.";
+						$descontotexto = $textoresumo;
+                	}
 
-			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') != "" && $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
-				$textoresumo = "Com desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3')."%.";
-				$descontotexto = $textoresumo ."<br/>Via internet bank.";
-			}
+	                else {
+
+	                	$textoresumo = "Desconto de: ".Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc')."%.";
+						$descontotexto = $textoresumo;
+	                }
+                }
 
 		}else {
 			$textoresumo = "Via internet bank.";
@@ -271,19 +286,31 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 			$parcelamento = $api->getParcelamento($cartTotal);
 			$parcela_decode = Mage::helper('core')->jsonDecode($parcelamento,true);
 			foreach ($parcela_decode as $key => $value) {
-				
+
 				if ($key <= Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax')) {
-					
-					
-						$juros = $parcela_decode[$key]['juros'];
-						$parcelas_result = $parcela_decode[$key]['parcela'];
-						$total_parcelado = $parcela_decode[$key]['total_parcelado'];
-						if($juros > 0)
-							$asterisco = '*';
-						else 
-							$asterisco = '';
-						$parcelas[]= '<option value="'.$key.'">'.$key.'x de '.$parcelas_result.' no total de '.$total_parcelado.' '.$asterisco.'</option>';
-					
+
+						if (Mage::getStoreConfig('moipall/config/transparente_layout') == "Horizontal")
+						{
+							$juros = $parcela_decode[$key]['juros'];
+							$parcelas_result = $parcela_decode[$key]['parcela'];
+							$total_parcelado = $parcela_decode[$key]['total_parcelado'];
+							if($juros > 0)
+								$asterisco = '*';
+							else
+								$asterisco = '';
+							$parcelas[]= '<option value="'.$key.'">'.$key.'x de '.$parcelas_result.' no total de '.$total_parcelado.' '.$asterisco.'</option>';
+						} else {
+							$juros = $parcela_decode[$key]['juros'];
+							$parcelas_result = $parcela_decode[$key]['parcela'];
+							$total_parcelado = $parcela_decode[$key]['total_parcelado'];
+							if($juros > 0)
+								$asterisco = '*';
+							else
+								$asterisco = '';
+
+							$parcelas[]= '<li><input type="radio" name="payment[credito_parcelamento]" title="Selecione as Parcelas" id="credito_parcelamento" class="input-radio  validate-one-required-by-name" value="'.$key.'"><label>'.$key.'x de '.$parcelas_result.' no total de '.$total_parcelado.' '.$asterisco.'</label></li>';
+						}
+
 					}
 				}
 		}else {
@@ -333,16 +360,16 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 			$resource = Mage::getSingleton('core/resource');
 
 			$readConnection = $resource->getConnection('core_read');
-			$tablePrefix = (string) Mage::getConfig()->getTablePrefix()."moip_transparente";
-			$table = $readConnection->getTableName($tablePrefix);
+			$table = (string) Mage::getConfig()->getTablePrefix().'moip_transparente';
+
 			$query = 'SELECT * FROM ' . $table .' WHERE customer_id='.$customerData->getID().' AND cofre IS NOT NULL';
 			$results = $readConnection->fetchAll($query);
 			if($results){
 				return Mage::helper('core')->jsonEncode((object)$results);
 			} else {
-				return 'false';	
+				return 'false';
 			}
-			
+
 		} else {
 			return 'false';
 		}
@@ -368,32 +395,13 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 	}
 
 	public function getBoletoPrice() {
+
 		$desconto = 0;
-		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getGrandTotal();
-		if (Mage::getStoreConfig('moipall/pagamento_avancado/pagamento_boleto')) {
-			if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor')) {
-				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc');
-			}
-			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') != "" &&  $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2')  && $valor_pedido < Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
-				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2');
-			}
-
-			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') != "" && $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
-				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3');
-			}
-			return "R$".number_format((float)$valor_pedido-((float)$valor_pedido/100*$desconto), 2);
-		}
-
-		else {
-			return "R$".number_format((float)$valor_pedido, 2);
-		}
-
-
-	}
-
-	public function getTransferenciaPrice() {
-		$desconto = 0;
-		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getGrandTotal();
+		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getSubtotal();
+		$cart = Mage::getModel('checkout/session')->getQuote();
+		$shippingMethod = $cart->getShippingAddress();
+		$price_shipping = $shippingMethod['shipping_amount'];
+		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getSubtotal();
 		if (Mage::getStoreConfig('moipall/pagamento_avancado/transf_desc')) {
 			if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor')) {
 				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc');
@@ -405,12 +413,60 @@ class MOIP_Transparente_Block_Standard_Form extends Mage_Payment_Block_Form {
 			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') != "" && $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
 				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3');
 			}
-			return "R$".number_format((float)$valor_pedido-((float)$valor_pedido/100*$desconto), 2);
+			$valor_pre = (float)$valor_pedido-((float)$valor_pedido/100*$desconto);
+			$valor_pedido = $valor_pre + $price_shipping;
+			return Mage::helper('core')->currency($valor_pedido,true,false);
 		}
 
 		else {
-			return "R$".number_format((float)$valor_pedido, 2);
+			return Mage::helper('core')->currency($valor_pedido,true,false);
 		}
 
+
+
+
+
+	}
+
+	public function getTransferenciaPrice() {
+		$desconto = 0;
+		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getSubtotal();
+		$cart = Mage::getModel('checkout/session')->getQuote();
+		$shippingMethod = $cart->getShippingAddress();
+		$price_shipping = $shippingMethod['shipping_amount'];
+		$valor_pedido = Mage::getModel('checkout/session')->getQuote()->getSubtotal();
+		if (Mage::getStoreConfig('moipall/pagamento_avancado/transf_desc')) {
+			if ($valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor')) {
+				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc');
+			}
+			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2') != "" &&  $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor2')  && $valor_pedido < Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
+				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2');
+			}
+
+			if (Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') != "" && $valor_pedido >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3') ) {
+				$desconto = (float)Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3');
+			}
+			$valor_pre = (float)$valor_pedido-((float)$valor_pedido/100*$desconto);
+			$valor_pedido = $valor_pre + $price_shipping;
+			return Mage::helper('core')->currency($valor_pedido,true,false);
+		}
+
+		else {
+			return Mage::helper('core')->currency($valor_pedido,true,false);
+		}
+
+	}
+	public function getCheckout() {
+		return Mage::getSingleton('checkout/session');
+	}
+
+
+	public function getQuote() {
+		return $this->getCheckout()->getQuote();
+	}
+
+
+	public function getOnepage() {
+		return (string)Mage::getSingleton('checkout/type_onepage');
 	}
 }

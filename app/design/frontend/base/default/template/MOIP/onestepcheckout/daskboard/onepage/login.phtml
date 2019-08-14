@@ -1,17 +1,13 @@
-		<div class="col1-set" style="width:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxwidth')-10?>px;height:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxheight')?>px;overflow: hidden;">
+		<div class="col1-set">
 			<?php echo $this->getChildHtml('login_before')?>
 			<div >
-				
+
 				<?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
-				<div class="moip-osc-title-login">
 
-							<h1>Acesse sua conta!</h1>
-
-						</div>
 				<form id="login-form-checkout" method="post">
 				<fieldset>
 					<div >
-						<ul class="form-list" style="width:<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxwidth')-20?>px;">
+						<ul class="form-list">
 							<li>
 								<label for="login-email" class="required" >E-mail<em>*</em></label>
 								<div class="input-box" style="float:left;">
@@ -24,20 +20,29 @@
 									<input type="password"  class="input-text required-entry" id="login-password" name="login[password]" />
 								</div>
 							</li>
+							<li>
+								<a  href="#" data-toggle="modal" data-target="#EsqueceuSenha"  class="f-left link-recuperar-senha"><?php echo $this->__('Forgot your password?') ?></a>
+							</li>
 						</ul>
 					</div>
 					<div id="dados_incorretos" style="display:none; height:90px;position: relative">
 						<ul class="messages"> <li class="error-msg">Dados incorretos, por favor tente novamente.<li><ul>
 					</div>
-					
+					<div class="logando_aguarde" style="display:none">
+						<span>Por favor, aguarde!</span>
+						    <p id="loading_mask_loader" class="loader"><img alt="Loading..." src="<?php echo $this->getSkinUrl('MOIP/onestepcheckout/images/ajax-loader-tr.gif')?>">.</p>
+
+					</div>
+
 						<div class="buttons-set">
-			
-							<a id="forgotpassword" href="#inline3" class="f-left link-recuperar-senha"><?php echo $this->__('Forgot your password?') ?></a>
+
+
 							<button type="button" class="button" onclick="onepageLogin(this)"><span ><span ><?php echo $this->__('Login') ?></span></span></button>
-						    
-						
+
+
+
 						</div>
-					
+
 				</fieldset>
 				</form>
 			</div>
@@ -73,20 +78,18 @@ jQuery('.buttons-set .button').css('display','none');
 	url: "<?php echo Mage::getUrl('onestepcheckout/index/updatelogin')?>",
 	data: "email="+email+"&"+"password="+password,
 	success: function(msg){
-		//alert(msg);
 		if(msg==0){
 			jQuery('.buttons-set .button').css('display','block');
 			jQuery('#login-please-wait').css('display','none');
 			jQuery('#dados_incorretos').css('display','block');
-			jQuery("#inline1").css("height","<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxheight')+65?>px");
-			jQuery(".col1-set").css("height","<?php echo Mage::getStoreConfig('onestepcheckout/termcondition/boxheight')+45?>px");
 			jQuery('#errorlogin').css('display','block');
 			jQuery('#login-email').addClass('validation-failed');
 			jQuery('#login-password').addClass('validation-failed');
 			}
 		else{
-			var url="<?php echo Mage::getUrl('checkout/onepage'); ?>";    
-			jQuery(location).attr('href',url);
+			jQuery('.logando_aguarde').show();
+			var url="<?php echo Mage::getUrl('checkout/onepage'); ?>";
+				jQuery(location).attr('href',url);
 			}
 		}
 	});

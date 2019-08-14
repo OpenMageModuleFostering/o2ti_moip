@@ -10,19 +10,19 @@
 
         <label for="p_method_<?php echo $_code ?>"><?php echo $_method->getTitle() ?> <?php echo $this->getMethodLabelAfterHtml($_method) ?></label>
     </dt>
-	
+
 		<?php if ($html = $this->getPaymentMethodFormHtml($_method)): ?>
 			<dd>
 				<?php echo $html; ?>
 			</dd>
 		<?php endif; ?>
-	
+
 	<div style="clear:both !important"></div>
 <?php endforeach; ?>
 </dl>
 <script type="text/javascript">
 //<![CDATA[
-<?php echo $this->getChildChildHtml('scripts'); ?>
+<?php echo $this->getChildHtml('scripts'); ?>
 payment.init();
 //]]>
 </script>

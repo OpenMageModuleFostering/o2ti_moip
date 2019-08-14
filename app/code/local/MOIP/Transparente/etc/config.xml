@@ -6,6 +6,17 @@
 		</MOIP_Transparente>
 	</modules>
 	<global>
+		<fieldsets>
+	             <sales_convert_quote_payment>
+	                <forma_pagamento>
+	                    <to_order_payment>*</to_order_payment>
+	                </forma_pagamento>
+	                <credito_parcela>
+	                    <to_order_payment>*</to_order_payment>
+	                </credito_parcela>
+	             </sales_convert_quote_payment>
+	        </fieldsets>
+
 		<models>
 			<transparente>
                 <class>MOIP_Transparente_Model</class>
@@ -49,9 +60,43 @@
 			<transparente>
 				<class>MOIP_Transparente_Helper</class>
 			</transparente>
-		</helpers>	
+		</helpers>
+
+		<events>
+		        	<transparente_sales_quote_assign_data_after>
+		        		<observers>
+		        			<get_transparente>
+		        				<type>singleton</type>
+		        				<class>transparente/observer</class>
+		        				<method>getMethod</method>
+		        			</get_transparente>
+		        		</observers>
+		        	</transparente_sales_quote_assign_data_after>
+
+		        	<!--sales_order_save_before>
+		        		<observers>
+		        			<get_token>
+		        				<type>singleton</type>
+		        				<class>transparente/observer</class>
+		        				<method>getTokenCheckout</method>
+		        			</get_token>
+		        		</observers>
+	        	</sales_order_save_before-->
+	        	</events>
+	        	<template>
+		            <email>
+		                <moip_envio  translate="label">
+		                    <label>Pedido Pago</label>
+		                    <file>vendedor.html</file>
+		                    <type>html</type>
+		                </moip_envio>
+		            </email>
+		</template>
 	</global>
 	<frontend>
+		<secure_url>
+		            <Transparente>/Transparente/</Transparente>
+		        </secure_url>
 		<routers>
 			<transparente>
 				<use>standard</use>
@@ -108,16 +153,12 @@
 		</layout>
 	</adminhtml>
 	<crontab>
-		<jobs>
-			<cancelarBoleto>
-				<schedule>
-					<cron_expr>00 01 * * *</cron_expr>
-				</schedule>
-				<run>
-					<model>Transparente/Orders::cancel</model>
-				</run>
-			</cancelarBoleto>
-		</jobs>
+	        <jobs>
+	            <transparente>
+	                <schedule><cron_expr>* * * * *</cron_expr></schedule>
+	                <run><model>transparente/observer::setStatus</model></run>
+	            </transparente>
+	      </jobs>
 	</crontab>
 	<default>
 		<payment>

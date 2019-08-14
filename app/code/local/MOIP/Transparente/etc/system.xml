@@ -27,7 +27,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </title>
-	   
+
             <order_status translate="label">
               <label>Status dos novos pedidos</label>
               <frontend_type>select</frontend_type>
@@ -103,7 +103,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </tipoderecebimento>
-           
+
             <formas_pagamento translate="label">
               <label>Formas de Pagamento</label>
               <frontend_type>multiselect</frontend_type>
@@ -150,7 +150,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </parcelamento_c_ate1>
-            
+
             <parcelamento_c_juros1 translate="label">
               <label>1° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -200,7 +200,7 @@
               <show_in_store>1</show_in_store>
             </parcelamento_s_juros2>
 
-           
+
             <parcelamento_s_juros3 translate="label">
               <label>3° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -218,7 +218,7 @@
             </parcelamento_s_juros3>
 
 
-           
+
             <parcelamento_s_juros4 translate="label">
               <label>4° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -237,7 +237,7 @@
 
 
 
-          
+
             <parcelamento_s_juros5 translate="label">
               <label>5° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -272,7 +272,7 @@
             </parcelamento_s_juros6>
 
 
-           
+
             <parcelamento_s_juros7 translate="label">
               <label>7° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -291,7 +291,7 @@
 
 
 
-           
+
             <parcelamento_s_juros8 translate="label">
               <label>8° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -310,7 +310,7 @@
 
 
 
-          
+
             <parcelamento_s_juros9 translate="label">
               <label>9° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -346,7 +346,7 @@
 
 
 
-      
+
             <parcelamento_s_juros11 translate="label">
               <label>11° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -364,7 +364,7 @@
             </parcelamento_s_juros11>
 
 
-           
+
             <parcelamento_s_juros12 translate="label">
               <label>12° - Juros de (%):</label>
               <comment><![CDATA[<br /><div class="custom-options"><div class="box" style="width:243px;">
@@ -410,6 +410,10 @@
 
             <jurostipo translate="label">
               <label>Usar juros composto?</label>
+                <comment><![CDATA[<div class="custom-options"><div class="box" style="width:243px;">
+                    <p>PARA CONFIGURAR PAGAMENTO PARCELAMENTO SEM JUROS VEJA O VIDEO: http://youtu.be/1ZnubvLmOTM</p>
+                </div></div>]]>
+              </comment>
               <frontend_type>select</frontend_type>
               <source_model>adminhtml/system_config_source_yesno</source_model>
               <sort_order>12</sort_order>
@@ -417,7 +421,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </jurostipo>
-            
+
 
 
 
@@ -452,7 +456,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </estoqueboleto>
-           
+
             <allowspecific translate="label">
               <label>Pagamento a partir de países aplicáveis</label>
               <frontend_type>allowspecific</frontend_type>
@@ -471,7 +475,7 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </specificcountry>
-           
+
           </fields>
         </moip_transparente_standard>
       </groups>
@@ -947,7 +951,7 @@
                         <frontend_type>text</frontend_type>
                         <comment>A primeira faixa de desconto será válida para pagamentos acima de qual valor? Você pode usar valor 0 para aplicar a qualquer pedido</comment>
                         <frontend_type>text</frontend_type>
-                        <sort_order>2</sort_order>
+                        <sort_order>4</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
                         <show_in_store>1</show_in_store>
@@ -973,37 +977,12 @@
                         <frontend_type>text</frontend_type>
                         <comment>A Segunda faixa de desconto será válida para pagamentos acima de qual valor? Obrigatoriamente deverá ser maior que a primeira.</comment>
                         <frontend_type>text</frontend_type>
-                        <sort_order>4</sort_order>
-                        <show_in_default>1</show_in_default>
-                        <show_in_website>1</show_in_website>
-                        <show_in_store>1</show_in_store>
-                    </boleto_valor2>
-                   	<boleto_desc3 translate="label comment">
-		                    <depends>
-                            <pagamento_boleto>1</pagamento_boleto>
-                        </depends>
-                        <label>3º Valor de desconto: </label>
-                        <frontend_type>text</frontend_type>
-                        <comment>Em Percentual use somente o número sem o "%"</comment>
-                        <frontend_type>text</frontend_type>
-                        <sort_order>7</sort_order>
-                        <show_in_default>1</show_in_default>
-                        <show_in_website>1</show_in_website>
-                        <show_in_store>1</show_in_store>
-                    </boleto_desc3>
-                    <boleto_valor3 translate="label comment">
-		                    <depends>
-                            <pagamento_boleto>1</pagamento_boleto>
-                        </depends>
-                        <label>Para nos pedidos acima de: </label>
-                        <frontend_type>text</frontend_type>
-                        <comment>A Terceira faixa de desconto será válida para pagamentos acima da segunda faixa.</comment>
-                        <frontend_type>text</frontend_type>
                         <sort_order>6</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
                         <show_in_store>1</show_in_store>
-                    </boleto_valor3>
+                    </boleto_valor2>
+
                     <transf_desc translate="label comment">
 		                    <depends>
                             <pagamento_boleto>1</pagamento_boleto>
@@ -1012,7 +991,7 @@
                         <frontend_type>select</frontend_type>
                         <source_model>adminhtml/system_config_source_yesno</source_model>
                         <comment>Caso marque sim o pagamento por transferência estará sujeito as mesmas regras do boleto</comment>
-                        <sort_order>8</sort_order>
+                        <sort_order>9</sort_order>
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
                         <show_in_store>1</show_in_store>

@@ -8,14 +8,14 @@ class MOIP_Transparente_Block_Info extends Mage_Payment_Block_Info
         $this->setTemplate('MOIP/transparente/info.phtml');
     }
 
-   
-	
+
+
     public function getTransparente()
     {
         return Mage::getSingleton('transparente/api');
     }
 
-   
+
     public function getBoletoImage() {
         if (Mage::getStoreConfig('moipall/config/trocar_bandeira_cartao')) {
             return Mage::getBaseUrl('media') . "moip/alltransparente/". Mage::getStoreConfig('moipall/config/boleto');
@@ -132,20 +132,37 @@ class MOIP_Transparente_Block_Info extends Mage_Payment_Block_Info
 		return $nome;
 	}
 
+       public function toPdf()
+    {
+        $this->setTemplate('MOIP/transparente/info/pdf.phtml');
+        return $this->toHtml();
+    }
 
     protected function _prepareInfo()
     {
-            
-                $order_get = Mage::app()->getRequest()->getParam('order_id');              
+
+                $order_get = Mage::app()->getRequest()->getParam('order_id');
                 $order = $this->getInfo()->getOrder();
+
+                $customer_order = Mage::getModel('customer/customer')->load($order->getCustomerId());
                 $order =  $order->getIncrementId();
+
                 $model = Mage::getModel('transparente/write');
                 $result = $model->load($order, 'realorder_id');
                 $dados = array();
+
+                if((int)$customer_order->getTipopessoa()!= 1){
+                    $dados['compra_pj'] = 1;
+                    $dados['cnpj'] = $customer_order->getCnpj();
+                    $dados['razaosocial'] = $customer_order->getRazaosocial();
+                    $dados['nomefantasia'] = $customer_order->getNomefantasia();
+                    $dados['insestadual'] = $customer_order->getInsestadual();
+                }
+
                 $dados['result_meio'] = $this->getNomePagamento($result->getMeio_pg());
                 $dados['meio_pago'] = $this->getNomePagamento($result->getMeio_pg());
                 $dados['realorder_id'] = $result->getRealorder_id();
-                $dados['order_idtransparente'] = $result->getorder_idtransparente(); 
+                $dados['order_idtransparente'] = $result->getorder_idtransparente();
                 $dados['boleto_line'] = $result->getBoleto_line();
                 $dados['customer_id'] = $result->getCustomerId();
                 $dados['brand'] = $result->getBrand();

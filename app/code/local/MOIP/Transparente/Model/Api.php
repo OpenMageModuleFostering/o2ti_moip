@@ -24,7 +24,22 @@ class MOIP_Transparente_Model_Api {
         $this->ambiente = $ambiente;
     }
 
-    
+    public function getListaComissoesAvancadas($order, $meio) {
+       $valor_comissao = 20/100;
+
+       foreach ($order->getAllVisibleItems() as $key => $item)
+        {
+               $product = Mage::getModel('catalog/product')->load($item->getProductId());
+               $comissao_valor= $item->getPrice()-($item->getPrice()*$valor_comissao);
+                $comissoes[] = array (
+                                                        'Razao' => 'Produto '.$item->getName().' x '.$item->getQtyToInvoice().' sku: '. $item->getSku(),
+                                                        'LoginMoIP' => $product->getAttributeText('loginmoip'),
+                                                        'ValorFixo' => $comissao_valor
+                                                    );
+        }
+
+        return $comissoes;
+    }
 
     public function generatePedido($data, $pgto) {
         if($pgto['credito_parcelamento'] == ""){
@@ -44,58 +59,25 @@ class MOIP_Transparente_Model_Api {
         $valorcompra = $amout;
         $vcmentoboleto = $standard->getConfigData('vcmentoboleto');
         $vcmento = date('c', strtotime("+" . $vcmentoboleto . " days"));
-        
+
         if($pgto['tipoderecebimento'] =="0"):
           $tipoderecebimento = "Parcelado";
         else:
-           $tipoderecebimento = "Avista"; 
+           $tipoderecebimento = "Avista";
         endif;
-        $parcelamento = $standard->getInfoParcelamento();
+
         $tipo_parcelamento = Mage::getSingleton('transparente/standard')->getConfigData('jurostipo');
 
         $comissionamento = Mage::getStoreConfig('moipall/mktplace/comissionamento');
 
 
-        if ($meio == "BoletoBancario"):
-            if (Mage::getStoreConfig('moipall/pagamento_avancado/pagamento_boleto')):
-                $valorcompra = $amout;
-                if ($valorcompra >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor'))
-                {
-                    $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc') / 100;
-                }
-                if ($valorcompra < Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3'))
-                {
-                    $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2') / 100;
-                }
-                if ($valorcompra >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3')){
-                    $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3') / 100;
-                };
-            endif;
-        endif;
 
-        if ($meio == "DebitoBancario"):
-            $valorcompra = $amout;
-            if (Mage::getStoreConfig('moipall/pagamento_avancado/transf_desc')):
-                $valorcompra = $amout;
-                if ($valorcompra >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor'))
-                {
-                    $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc') / 100;
-                }
-                if ($valorcompra < Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3'))
-                {
-                    $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc2') / 100;
-                }
-                if ($valorcompra >= Mage::getStoreConfig('moipall/pagamento_avancado/boleto_valor3')){
-                    $valorcompra = $valorcompra - $valorcompra * Mage::getStoreConfig('moipall/pagamento_avancado/boleto_desc3') / 100;
-                };
-            endif;
-        endif;
 
-        
+
         $rand = rand(1000,9999999999);
-        
+
         $id_proprio = $rand.$pgto['conta_transparente'].'_'.$data['id_transacao'];
-        
+
     #    $xml = $this->generateXml($json);
         $xml = new SimpleXMLElement('<?xml version = "1.0" encoding = "UTF-8"?><EnviarInstrucao/>');
         $InstrucaoUnica = $xml->addChild('InstrucaoUnica');
@@ -108,6 +90,7 @@ class MOIP_Transparente_Model_Api {
         $Recebedor->addChild('LoginMoIP', $pgto['conta_transparente']);
         $Recebedor->addChild('Apelido', $pgto['apelido']);
 
+
         if($comissionamento){
             $Comissoes = $InstrucaoUnica->addChild('Comissoes');
                 $Comissionamento = $Comissoes->addChild('Comissionamento');
@@ -117,10 +100,20 @@ class MOIP_Transparente_Model_Api {
                     $Comissionamento->addChild('ValorPercentual', Mage::getStoreConfig('moipall/mktplace/porc_comissionamento'));
                  if(Mage::getStoreConfig('moipall/mktplace/pagadordataxa')){
                     $PagadorTaxa = $Comissoes->addChild('PagadorTaxa');
-                    $PagadorTaxa->addChild('LoginMoIP',Mage::getStoreConfig('moipall/mktplace/logincomissionamento')); 
+                    $PagadorTaxa->addChild('LoginMoIP',Mage::getStoreConfig('moipall/mktplace/logincomissionamento'));
                  }
         }
-
+         /* suprimido para comissionamento simples
+          $comissioes_avancadas = $this->getListaComissoesAvancadas($order, $pgto['forma_pagamento']);
+        $Comissoes = $InstrucaoUnica->addChild('Comissoes');
+         foreach ($comissioes_avancadas as $key => $value) {
+                $Comissionamento = $Comissoes->addChild('Comissionamento');
+                $Comissionamento->addChild('Razao',  $value['Razao']);
+                $Comissionado =     $Comissionamento->addChild('Comissionado');
+                                                 $Comissionado->addChild('LoginMoIP', $value['LoginMoIP']);
+                $Comissionamento->addChild('ValorFixo', $value['ValorFixo']);
+        }
+         */
         $InstrucaoUnica->addChild('IdProprio', $id_proprio);
         $Pagador = $InstrucaoUnica->addChild('Pagador');
         $Pagador->addChild('Nome',$data['pagador_nome']);
@@ -128,7 +121,7 @@ class MOIP_Transparente_Model_Api {
         $Pagador->addChild('IdPagador',$data['pagador_email']);
         $EnderecoCobranca = $Pagador->addChild('EnderecoCobranca');
         $EnderecoCobranca->addChild('Logradouro', $data['pagador_logradouro']);
-        $EnderecoCobranca->addChild('Numero', $data['pagador_numero']);
+        $EnderecoCobranca->addChild('Numero', 'n '.$data['pagador_numero']);
         $EnderecoCobranca->addChild('Complemento', $data['pagador_complemento']);
         $EnderecoCobranca->addChild('Bairro', $data['pagador_bairro']);
         $EnderecoCobranca->addChild('Cidade', $data['pagador_cidade']);
@@ -158,7 +151,7 @@ class MOIP_Transparente_Model_Api {
                        $Parcelamento->addChild('MinimoParcelas',$max_parcelas+1);
                        $Parcelamento->addChild('MaximoParcelas',12);
                        $Parcelamento->addChild('Recebimento',$tipoderecebimento);
-                       $Parcelamento->addChild('Juros',1.99); 
+                       $Parcelamento->addChild('Juros',1.99);
                 }
         } else {
             for ($i=2; $i <= 12; $i++) {
@@ -208,7 +201,7 @@ class MOIP_Transparente_Model_Api {
         $primeiro = 1;
         $max_div = $valor/(int)Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela');
         $valor_juros= Mage::getSingleton('transparente/standard')->getConfigData('parcelamento_c_juros1');
-        
+
         if($valor <= Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela')){
             $json_parcelas[1] = array(
                                         'parcela' => Mage::helper('core')->currency($valor, true, false),
@@ -235,9 +228,9 @@ class MOIP_Transparente_Model_Api {
                     $juros[$i] = 0;
                 }
                 if($i <= Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax')){
-                    $json_parcelas[$i] = array( 
+                    $json_parcelas[$i] = array(
                                                 'parcela' => Mage::helper('core')->currency($parcelas[$i], true, false),
-                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false), 
+                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false),
                                                 'juros' => $juros[$i]
                                             );
                     $primeiro++;
@@ -250,10 +243,10 @@ class MOIP_Transparente_Model_Api {
                     $parcelas[$primeiro] = $this->getJurosComposto($valor, '2.99', $primeiro);
                     $total_parcelado[$primeiro] =  $parcelas[$primeiro]*$primeiro;
                     $juros[$primeiro] = '2.99';
-                    
-                    $json_parcelas[$primeiro] = array( 
+
+                    $json_parcelas[$primeiro] = array(
                                                 'parcela' => Mage::helper('core')->currency($parcelas[$primeiro], true, false),
-                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$primeiro], true, false), 
+                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$primeiro], true, false),
                                                 'juros' => '2.99'
                                             );
                     $primeiro++;
@@ -271,7 +264,7 @@ class MOIP_Transparente_Model_Api {
         $juros = array();
         $primeiro = 1;
         $max_div = (int)($valor/Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela'));
-        
+
         if($valor <= Mage::getSingleton('transparente/standard')->getConfigData('valorminimoparcela')){
             $json_parcelas[1] = array(
                                         'parcela' => Mage::helper('core')->currency($valor, true, false),
@@ -289,7 +282,7 @@ class MOIP_Transparente_Model_Api {
 
         for ($i=1; $i <= $max_div; $i++) {
                 $juros_parcela = 's_juros'.$i;
-              
+
                 if($i > 1){
                     $taxa = $parcelamento[$juros_parcela] / 100;
                     $valor_add = $valor * $taxa;
@@ -303,9 +296,9 @@ class MOIP_Transparente_Model_Api {
                     $juros[$i] = 0;
                 }
                 if($i <= Mage::getSingleton('transparente/standard')->getConfigData('nummaxparcelamax')){
-                    $json_parcelas[$i] = array( 
+                    $json_parcelas[$i] = array(
                                                 'parcela' => Mage::helper('core')->currency($parcelas[$i], true, false),
-                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false), 
+                                                'total_parcelado' =>  Mage::helper('core')->currency($total_parcelado[$i], true, false),
                                                 'juros' => $juros[$i]
                                             );
                      }
@@ -316,7 +309,7 @@ class MOIP_Transparente_Model_Api {
     }
 
     public function getParcelamento($valor) {
-      
+
         $tipo_parcelamento = Mage::getSingleton('transparente/standard')->getConfigData('jurostipo');
 
         if($tipo_parcelamento == 1){
@@ -326,23 +319,23 @@ class MOIP_Transparente_Model_Api {
         }
 
         return $tipo;
-        
+
     }
 
     public function getJurosSimples($valor, $juros, $parcela) {
-        
+
         return $valParcela;
     }
 
     public function getJurosComposto($valor, $juros, $parcela) {
         $principal = $valor;
         if($juros != 0){
-            $taxa =  $juros/100; 
+            $taxa =  $juros/100;
             $valParcela = ($principal * $taxa)/(1 - (pow(1/(1+$taxa), $parcela)));
         } else {
             $valParcela = $principal/$parcela;
         }
-        
+
         return $valParcela;
     }
 

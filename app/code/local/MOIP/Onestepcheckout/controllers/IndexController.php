@@ -16,7 +16,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		return Mage::getSingleton('checkout/cart')->getQuote();
 	}
 	public function indexAction() {
-		
+
 		if (!Mage::getStoreConfig('onestepcheckout/config/allowguestcheckout')) {
 			if (!Mage::getSingleton('customer/session')->isLoggedIn()) {
 				$this->_redirect('customer/account/login');
@@ -24,11 +24,11 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}
 		}
 		if ($this->_initAction()) {
-			
+
 				if ($blocks=$this->getLayout()->getBlock('checkout.onepage')) {
 					$blocks=$this->getLayout()->getBlock('checkout.onepage')->unsetChildren();
 				}
-			
+
 			$this->renderLayout();
 		}
 		else
@@ -54,7 +54,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		Mage::getSingleton('customer/session')->setBeforeAuthUrl(Mage::getUrl('*/*/*', array('_secure'=>true)));
 		$this->initInfoaddress();
 		$this->getOnepage()->initCheckout();
-		
+
 		$defaultpaymentmethod=$this->initpaymentmethod();
 		if ($defaultpaymentmethod) {
 			try{
@@ -64,20 +64,19 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}catch(Exception $e) {
 			}
 		}
-		
+
 		$applyrule=$this->getQuote()->getAppliedRuleIds();
 		$applyaction=Mage::getModel('salesrule/rule')->load($applyrule)->getSimpleAction();
 
 		if ($applyaction!='cart_fixed') {
-			Mage::getSingleton('checkout/session')->getQuote()->setTotalsCollectedFlag(false);
+			Mage::getSingleton('checkout/session')->getQuote()->setTotalsCollectedFlag(true);
 		}
 		$this->loadLayout();
 		$this->_initLayoutMessages('customer/session');
 		$this->_initLayoutMessages('checkout/session');
 		$this->_initLayoutMessages('catalog/session');
-		Mage::getSingleton('catalog/session')->getData('messages')->clear();
-		Mage::getSingleton('checkout/session')->getData('messages')->clear();
-		$this->getLayout()->getBlock('head')->setTitle($this->__('Checkout'));
+
+		$this->getLayout()->getBlock('head')->setTitle($this->__(Mage::getStoreConfig('onestepcheckout/layout/page_titulo')));
 
 		return true;
 	}
@@ -156,13 +155,14 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}
 			return;
 		}catch (Exception $e) {
-			echo $e->getMessage();die;
+
+				return $this->getResponse()->setBody($e->getMessage());
 		}
 	}
 	public function initInfoaddress() {
 		$coutryid='';$postcode='';$region='';$regionid='';$city='';$customerAddressId='';
 		$coutryid = 'BR';
-		
+
 		$postData=array(
 			'address_id'=>'',
 			'firstname'=>'',
@@ -185,13 +185,13 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 
 			$postData = $this->filterdata($postData);
 			if (version_compare(Mage::getVersion(), '1.4.0.1', '>=')){
-					if (isset($postData['email'])) 
+					if (isset($postData['email']))
 						$postData['email'] = trim($postData['email']);
 					$data = $this->_filterPostData($postData);
 			}
-			
+
 			else{
-					if (isset($postData['email'])) 
+					if (isset($postData['email']))
 						$postData['email'] = trim($postData['email']);
 					$data=$postData;
 			}
@@ -201,7 +201,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			$this->saveShipping($data, $customerAddressId);
 		}
 		else {
-			
+
 			$this->_getQuote()->getShippingAddress()
 			->setCountryId('')
 			->setPostcode('')
@@ -210,7 +210,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			$this->loadLayout()->renderLayout();
 			return;
 		}
-		
+
 	}
 	public function saveShipping($data, $customerAddressId) {
 		if (empty($data)) {
@@ -276,7 +276,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		if ($this->getQuote()->getCheckoutMethod()=='register') {
 			$customer = Mage::getModel('customer/customer');
 			$this->getQuote()->setPasswordHash($customer->encryptPassword($address->getCustomerPassword()));
-			foreach (array(
+			$customer_data = array(
 					'firstname'    => 'firstname',
 					'lastname'     => 'lastname',
 					'email'        => 'email',
@@ -284,7 +284,8 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 					'confirmation' => 'confirm_password',
 					'taxvat'       => 'taxvat',
 					'gender'       => 'gender',
-				) as $key => $dataKey) {
+				) ;
+			foreach ($customer_data as $key => $dataKey) {
 				$customer->setData($key, $address->getData($dataKey));
 			}
 			if ($dob) {
@@ -311,25 +312,53 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 	public function updateshippingmethodAction() {
 		$data = $this->getRequest()->getPost('shipping_method', '');
 		$result = $this->getOnepage()->saveShippingMethod($data);
-		if (!$result) {
+
+		if (!isset($result['error'])) {
 			Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method',
 				array('request'=>$this->getRequest(),
 					'quote'=>$this->getOnepage()->getQuote()));
 			$this->getOnepage()->getQuote()->collectTotals();
-			$this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+			$this->getOnePage()->getQuote()->getShippingAddress()->setShippingMethod($data)->save();
 		}
+
 		$this->getOnepage()->getQuote()->collectTotals()->save();
-		$this->loadLayout()->renderLayout();
+		$this->updatereviewmethodAction();
+
 	}
 	public function updatepaymentmethodAction() {
-		$data=$this->getRequest()->getPost('payment');
+		$shipping = $this->getRequest()->getPost('shipping_method', '');
+
+		$data=$this->getRequest()->getPost('payment','');
+
+		$result = $this->getOnepage()->saveShippingMethod($shipping);
+
+		if (!isset($result['error'])) {
+			Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method',
+				array('request'=>$this->getRequest(),
+					'quote'=>$this->getOnepage()->getQuote()));
+
+			$this->getOnePage()->getQuote()->getShippingAddress()->setShippingMethod($shipping)->save();
+		}
+
+		$this->getOnepage()->getQuote()->collectTotals()->save();
+
 		try{
 			$this->getOnepage()->savePayment($data);
+
+            		}
+	        	catch (Exception $e) {
+				$this->_getQuote()->save();
 		}
-		catch (Exception $e) {
-			$this->_getQuote()->save();
-		}
+
+		$this->updatereviewmethodAction();
+	}
+
+	public function updatereviewmethodAction() {
+
+
 		$this->loadLayout()->renderLayout();
+
+
 	}
 	public function updateemailmsgAction() {
 		$email = (string) $this->getRequest()->getParam('email');
@@ -340,10 +369,10 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		$customer->setStore($store);
 		$customer->loadByEmail($email);
 		if ($customer->getId()) {
-			echo "0";
+			return $this->getResponse()->setBody(0);
 		}
 		else {
-			echo "1";
+			return $this->getResponse()->setBody(1);
 		}
 		return;
 	}
@@ -375,16 +404,31 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}
 		}
 	}
-	
+	public function updateqtyAction() {
+
+            		$datacart = $this->getRequest()->getParam('cartControl');
+
+	                $filter = new Zend_Filter_LocalizedToNormalized(
+	                    array('locale' => Mage::app()->getLocale()->getLocaleCode())
+	                );
+	                foreach ($datacart as $index => $data) {
+	                    if (isset($data['qty'])) {
+	                        $datacart[$index]['qty'] = $filter->filter($data['qty']);
+	                    }
+	                }
+	                $cart = Mage::getSingleton('checkout/cart');
+
+	                $cart->updateItems($datacart)
+	                    ->save();
+
+	            Mage::getSingleton('checkout/session')->setCartWasUpdated(true);
+
+	}
 	public function updatecouponAction() {
 		$this->_initLayoutMessages('checkout/session');
-		if (!$this->_getQuote()->getItemsCount()) {
-
-			echo '{"r":"0","coupon":'.json_encode($this->renderCoupon()).',"view":' . json_encode($this->renderReview()).'}';die;
-			return;
-		}
-		$couponCode = (string) $this->getRequest()->getParam('coupon_code');
-		if ($this->getRequest()->getParam('remove') == 1) {
+		$data = $this->getRequest()->getPost('shipping_method', '');
+		$couponCode = (string) $this->getRequest()->getPost('coupon_code');
+		if ($this->getRequest()->getPost('remove') == 1) {
 			$couponCode = '';
 		}
 		$oldCouponCode = $this->_getQuote()->getCouponCode();
@@ -393,7 +437,16 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			return;
 		}
 		try {
+			$result = $this->getOnepage()->saveShippingMethod($data);
+			if (!$result) {
+				Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method',
+					array('request'=>$this->getRequest(),
+						'quote'=>$this->getOnepage()->getQuote()));
+				$this->getOnepage()->getQuote()->collectTotals();
+				$this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+			}
 			$this->_getQuote()->getShippingAddress()->setCollectShippingRates(true);
+			$this->getOnePage()->getQuote()->getShippingAddress()->setShippingMethod($data)->save();
 			$this->_getQuote()->setCouponCode(strlen($couponCode) ? $couponCode : '')
 			->collectTotals()
 			->save();
@@ -429,7 +482,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		$update->load('checkout_onepage_index');
 		$layout->generateXml();
 		$layout->generateBlocks();
-		$output=$layout->getBlock('info')->toHtml();
+		$output=$layout->getBlock('root')->toHtml();
 		return $output;
 	}
 	public function renderCoupon() {
@@ -452,12 +505,9 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		return $output;
 	}
 	public function updatepaymenttypeAction() {
-		if ($this->notshiptype==1) {
+
 			$this->loadLayout()->renderLayout();
-		}
-		else {
-			$this->updateshippingtypeAction();
-		}
+
 	}
 	public function updateshippingtypeAction() {
 		$this->notshiptype=1;
@@ -471,7 +521,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}
 			$postData=$this->getRequest()->getPost($isbilling, array());
 			$customerAddressId = $this->getRequest()->getPost($isbilling.'_address_id', false);
-			
+
 			if (($postData['country_id']!='')  or $customerAddressId) {
 
 				$postData = $this->filterdata($postData);
@@ -488,18 +538,68 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 				else
 					$result = $this->getOnepage()->saveShipping($data, '');
 			}
-			
+
 		}
-		$this->_getQuote()->getShippingAddress()
-			->setCountryId('BR')
-			->setPostcode($postData['postcode'])
-			->setCollectShippingRates(true);
+
+
+			$this->_getQuote()->getShippingAddress()
+				->setCountryId('BR')
+				->setPostcode($postData['postcode'])
+				->collectTotals()
+				->setCollectShippingRates(true)
+				->collectShippingRates();
 			$this->_getQuote()->save();
 			$this->loadLayout()->renderLayout();
 	}
-	
+
 	public function _getSession() {
 		Mage::getSingleton('customer/session');
+	}
+	public function CreataAccountInitAction(){
+		$this->getOnepage()->getQuote()->setCheckoutMethod('register');
+		$postData = $this->getRequest()->getPost('billing', array());
+		$postData['email'] = trim($postData['email']);
+		$dob = Mage::app()->getLocale()->date($postData['dob'], null, null, false)->toString('yyyy-MM-dd');
+		$websiteId = Mage::app()->getWebsite()->getId();
+		$store = Mage::app()->getStore();
+		$customer = Mage::getModel("customer/customer");
+		$customer ->setWebsiteId($websiteId)
+		            ->setStore($store)
+		            ->setFirstname($postData['firstname'])
+		            ->setLastname($postData['lastname'])
+		            ->setEmail($postData['email'])
+			->setTaxvat($postData['taxvat'])
+			->setDob($dob)
+			->setGender($postData['gender'])
+			->setTipopessoa($postData['tipopessoa'])
+			->setCnpj($postData['cnpj'])
+			->setinsestadual($postData['insestadual'])
+			->setNomefantasia($postData['nomefantasia'])
+			->setRazaosocial($postData['razaosocial'])
+			->setPassword($postData['confirm_password']);
+			$customer->save();
+
+		try{
+
+
+			Mage::getSingleton('customer/session')->loginById($customer->getId());
+			$this->saveAddress('billing', $postData);
+			try {
+				$this->_redirect('checkout/onepage/');
+				return;
+			} catch (Exception $e) {
+				$this->_redirect('checkout/onepage/');
+				return;
+			}
+
+
+
+		}
+		catch (Exception $e) {
+		    	$this->_redirect('checkout/onepage/');
+				return;
+		}
+
 	}
 	public function updateloginAction() {
 		$email=$this->getRequest()->getPost('email');
@@ -518,10 +618,10 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}
 		}
 		if (Mage::getSingleton('customer/session')->isLoggedIn()) {
-			echo "1";
+				return $this->getResponse()->setBody(1);
 		}
 		else {
-			echo "0";
+			return $this->getResponse()->setBody(0);
 		}
 	}
 	public function forgotpassAction() {
@@ -531,8 +631,8 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			if (!Zend_Validate::is($email, 'EmailAddress')) {
 				$this->_getSession()->setForgottenEmail($email);
 				$emailerror="0";
-				echo $emailerror;
-				return $emailerror;
+				return $this->getResponse()->setBody($emailerror);
+
 			}
 			$customer = Mage::getModel('customer/customer')
 			->setWebsiteId(Mage::app()->getStore()->getWebsiteId())
@@ -543,8 +643,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 					$customer->changePassword($newPassword, false);
 					$customer->sendPasswordReminderEmail();
 					$emailerror="1";
-					echo $emailerror;
-					return $emailerror;
+					return $this->getResponse()->setBody($emailerror);
 				}
 				catch (Exception $e) {
 				}
@@ -552,84 +651,99 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			else {
 				$emailerror="2";
 				Mage::getSingleton('customer/session')->setForgottenEmail($email);
-				echo $emailerror;
-				return;
+				return $this->getResponse()->setBody($emailerror);
 			}
 		} else {
 			$emailerror="0";
-			echo $emailerror;
-			return $emailerror;
+			return $this->getResponse()->setBody($emailerror);
 		}
 	}
 	public function updateordermethodAction() {
 		if (!$this->isCustomerLoggedIn()) {
 			$result_save_method = $this->getOnepage()->saveCheckoutMethod('register');
 		}
-		if ($this->getRequest()->isPost()) {
-			if ($this->isCustomerLoggedIn()) {
-				$postData = $this->getRequest()->getPost('billing', array());
-				$_dob = $this->getLayout()->createBlock('customer/widget_dob');
-				$_gender = $this->getLayout()->createBlock('customer/widget_gender');
-				$_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat');
-				$customer =  Mage::getSingleton('customer/session')->getCustomer();
-				$customerForm = Mage::getModel('customer/form');
-				$customerForm->setFormCode('customer_account_edit')->setEntity($customer);
-				if ($_dob->isEnabled()) {
-					$dob = $postData['dob'];
-					$customer->setDob($dob);
-				}
-				if ($_gender->isEnabled()) {
-					$gender = $postData['gender'];
-					$customer->setGender($gender);
-				}
-
-				if ($_taxvat->isEnabled()) {
-					$taxvat = $postData['taxvat'];
-					$customer->setTaxvat($taxvat);
-				}
-				
-					
-				if (isset($postData['suffix']) && $customer->getSuffix()=='' ) {
-					$suffix =  $postData['suffix'];
-					$customer->setSuffix($suffix);
-				}
-
-				if (isset($postData['prefix']) && $customer->getPrefix()=='' ) {
-					$prefix =  $postData['prefix'];
-					$customer->setPrefix($prefix);
-				}
-				if (isset($postData['middlename']) && $customer->getMiddlename()=='' ) {
-					$middle =  $postData['middlename'];
-					$customer->setMiddlename($middle);
-				}
-				$customer->save();
+		$data_save_billing = $this->getRequest()->getPost('billing', array());
+		$data_save_billing['email'] = trim($data_save_billing['email']);
+		if ($this->isCustomerLoggedIn()) {
+			$postData = $this->getRequest()->getPost('billing', array());
+			$_dob = $this->getLayout()->createBlock('customer/widget_dob');
+			$_gender = $this->getLayout()->createBlock('customer/widget_gender');
+			$_taxvat = $this->getLayout()->createBlock('customer/widget_taxvat');
+			$customer =  Mage::getSingleton('customer/session')->getCustomer();
+			$customerForm = Mage::getModel('customer/form');
+			$customerForm->setFormCode('customer_account_edit')->setEntity($customer);
+			if ($_dob->isEnabled()) {
+				$dob = $postData['dob'];
+				$customer->setDob($dob);
 			}
-		
-				$data_save_billing = $this->getRequest()->getPost('billing', array());
+			if ($_gender->isEnabled()) {
+				$gender = $postData['gender'];
+				$customer->setGender($gender);
+			}
 
-			if ($this->isCustomerLoggedIn()) {
-				$this->saveAddress('billing', $data_save_billing);
+			if ($_taxvat->isEnabled()) {
+				$taxvat = $postData['taxvat'];
+				$customer->setTaxvat($taxvat);
 			}
-			$request_data = Mage::app()->getRequest()->getPost();
-			
-						
-				$customerAddressId  = "";			
-			
-			
-			if (isset($data_save_billing['email'])) {
-				$data_save_billing['email'] = trim($data_save_billing['email']);
-			}
-			if ($this->getRequest()->getPost('subscribe_newsletter')=='1') {
-				if ($this->isCustomerLoggedIn()) {
-					$customer = Mage::getSingleton('customer/session')->getCustomer();
-					$customer->setIsSubscribed(1);
-				}else {
-					$this->savesubscibe($data_save_billing['email']);
-				}
-			}
-			$result_save_billing = $this->getOnepage()->saveBilling($data_save_billing, $customerAddressId);
 
+
+			if (isset($postData['suffix']) && $customer->getSuffix()=='' ) {
+				$suffix =  $postData['suffix'];
+				$customer->setSuffix($suffix);
+			}
+
+			if (isset($postData['prefix']) && $customer->getPrefix()=='' ) {
+				$prefix =  $postData['prefix'];
+				$customer->setPrefix($prefix);
+			}
+			if (isset($postData['middlename']) && $customer->getMiddlename()=='' ) {
+				$middle =  $postData['middlename'];
+				$customer->setMiddlename($middle);
+			}
+			$customer->save();
+			$this->saveAddress('billing', $data_save_billing);
+		} else {
+			$this->getOnepage()->getQuote()->setCheckoutMethod('register');
+			$postData = $this->getRequest()->getPost('billing', array());
+			$dob = Mage::app()->getLocale()->date($postData['dob'], null, null, false)->toString('yyyy-MM-dd');
+			$websiteId = Mage::app()->getWebsite()->getId();
+			$store = Mage::app()->getStore();
+			$customer = Mage::getModel("customer/customer");
+
+			$customer ->setWebsiteId($websiteId)
+			            ->setStore($store)
+			            ->setFirstname($postData['firstname'])
+			            ->setLastname($postData['lastname'])
+			            ->setEmail($postData['email'])
+				->setTaxvat($postData['taxvat'])
+				->setDob($dob)
+				->setGender($postData['gender'])
+				->setTipopessoa($postData['tipopessoa'])
+				->setRazaosocial($postData['razaosocial'])
+				->setNomefantasia($postData['nomefantasia'])
+				->setcnpj($postData['cnpj'])
+				->setinsestadual($postData['insestadual'])
+				->setPassword($postData['confirm_password']);
+
+
+			try{
+
+			    	$customer->save();
+				Mage::getSingleton('customer/session')->loginById($customer->getId());
+			    	$this->saveAddress('billing', $data_save_billing);
+			}
+			catch (Exception $e) {
+			    	$this->getResponse()->setBody($e->getMessage());
+			}
 		}
+
+		$customerAddressId  = "";
+
+
+
+
+		$result_save_billing = $this->getOnepage()->saveBilling($data_save_billing, $customerAddressId);
+
 		$isclick=$this->getRequest()->getPost('ship_to_same_address');
 		$ship="billing";
 		if (!$isclick=='1') {
@@ -650,43 +764,63 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			if ($isclick || ($this->getRequest()->getPost('shipping_address_id') != "")) {
 				$customeraddressid  = "";
 			}
-
 			$result_save_shipping = $this->getonepage()->saveshipping($data_save_shipping, $customeraddressid);
 		}
-		if ($this->getRequest()->isPost()) {
+		if ($this->getRequest()->isPost('shipping_method')) {
 			$data_save_shipping_method = $this->getRequest()->getPost('shipping_method', '');
 			$result_save_shipping_method = $this->getOnepage()->saveShippingMethod($data_save_shipping_method);
 			if (!$result_save_shipping_method) {
 				Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method', array('request'=>$this->getRequest(), 'quote'=>$this->getOnepage()->getQuote()));
+				$this->getOnePage()->getQuote()->getShippingAddress()->setShippingMethod($data_save_shipping_method)->save();
 			}
+			try{
+				$this->getOnePage()->getQuote()->getShippingAddress()->setShippingMethod($data_save_shipping_method)->save();
+			} catch(Exception $e) {
+				$message = $e->getMessage();
+				Mage::getSingleton('checkout/session')->addError($this->__($message));
+				$this->_redirect('checkout/onepage/');
+				return;
+			}
+
 		}
+
 		$result_savepayment = array();
 		$data_savepayment = $this->getRequest()->getPost('payment', array());
-		try{
-			$result_savepayment = $this->getOnepage()->savePayment($data_savepayment);
-		} catch(Exception $e) {
-			$message = $e->getMessage();
-			Mage::getSingleton('checkout/session')->addError($this->__($message));
-			$this->_redirect('checkout/onepage/index');
-			return;
-		}
+			try{
+				$result_savepayment = $this->getOnepage()->savePayment($data_savepayment);
+			} catch(Exception $e) {
+				$message = $e->getMessage();
+				Mage::getSingleton('checkout/session')->addError($this->__($message));
+				$this->_redirect('checkout/onepage/');
+				return;
+			}
 		$redirectUrl = $this->getOnepage()->getQuote()->getPayment()->getCheckoutRedirectUrl();
-		if (isset($redirectUrl)) {
-			$this->_redirectUrl($redirectUrl);
-			return;
-		}
+			if (isset($redirectUrl)) {
+				$this->_redirectUrl($redirectUrl);
+				return;
+			}
 		$result_order = array();
-		if ($data_order = $this->getRequest()->getPost('payment', false)) {
-			$this->getOnepage()->getQuote()->getPayment()->importData($data_order);
-		}
-		try{
-			$this->getOnepage()->saveOrder();
-		}
-		catch (Exception $e) {
-			echo $e->getMessage();
-			echo "<script type='text/javascript'>setTimeout('window.location=\"".Mage::getUrl('checkout/onepage')."\"',2000)</script>";
-			return;
-		}
+			if ($data_order = $this->getRequest()->getPost('payment', false)) {
+				$this->getOnepage()->getQuote()->getPayment()->importData($data_order);
+			}
+			try{
+				$this->getOnepage()->saveOrder();
+				if ($this->getRequest()->getPost('subscribe_newsletter')=='1') {
+						if ($this->isCustomerLoggedIn()) {
+							$customer = Mage::getSingleton('customer/session')->getCustomer();
+							$customer->setIsSubscribed(1);
+						}else {
+							$this->savesubscibe($data_save_billing['email']);
+						}
+				}
+
+			}
+			catch (Exception $e) {
+				$message = $e->getMessage();
+				Mage::getSingleton('checkout/session')->addError($this->__($message));
+				$this->_redirect('checkout/onepage/');
+				return;
+			}
 		$session = $this->getOnepage()->getCheckout();
 		$lastOrderId = $session->getLastOrderId();
 		$data_customercomment ="";
@@ -695,23 +829,28 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			$order=Mage::getModel('onestepcheckout/onestepcheckout');
 			$order->setSalesOrderId($lastOrderId);
 			$order->setMoipCustomercommentInfo($data_customercomment);
-			
+
 			$order->save();
 		}
 		$redirectUrl = $this->getOnepage()->getCheckout()->getRedirectUrl();
 		$result_order['success'] = true;
 		$result_order['error']   = false;
-		$cart = Mage::getModel('checkout/cart');
-		$cartItems = $cart->getItems();
-		foreach ($cartItems as $item) {
-			$cart->removeItem($item->getId())->save();
-		}
+		 $quote = Mage::getSingleton('checkout/session')->getQuote();
+		 $allQuoteItems = $quote->getAllItems();
+		    foreach ($allQuoteItems as $_item) {
+		        $_product = $_item->getProduct();
+		      if ($_product->getIsPreparedToDelete()) {
+		          $quote->removeItem($_item->getId());
+		       }
+		    }
+		    $quote->save();
 		if (isset($redirectUrl)) {
 			$this->_redirectUrl($redirectUrl);
 			return;
 		}
 		$this->_redirect('checkout/onepage/success');
 	}
+
 
 	protected function filterdata($data, $filter="true") {
 
@@ -825,7 +964,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}
 			else {
 				$street=$value;
-				
+
 				if (isset($street[0])){
 
 					if(isset($street[1]) || $street[1] =="."){
@@ -845,10 +984,10 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 						$street_3 = "";
 					}
 
-					
+
 						$filterdata[$item]=array($street[0], $street_1,$street_2,$street_3);
 				}
-				
+
 			}
 		}
 		return $filterdata;
@@ -858,7 +997,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		return Mage::getSingleton('customer/session')->isLoggedIn();
 	}
 
-	
+
 	public function savesubscibe($mail) {
 		if ($mail) {
 			if (version_compare(Mage::getVersion(), '1.3.2.4', '>')) {
@@ -956,7 +1095,7 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 		$this->loadLayout()->renderLayout();
 
 	}
-	
+
 
 	public function updatebillingform() {
 		if ($this->getRequest()->isPost()) {
@@ -973,27 +1112,21 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 			}
 			$this->loadLayout()->renderLayout();
 		}
-		
+
 	}
 	 public function saveAddress($type,$data)
-    {		 	
-    			
+    	{
+
 			 	$addressId = $this->getRequest()->getPost($type.'_address_id');
-			 	
+
 			 	$save_address = $this->getRequest()->getPost('save_in_address_book');
-			 	
-			 	$customer = Mage::getSingleton('customer/session')->getCustomer();				          
+
+			 	$customer = Mage::getSingleton('customer/session')->getCustomer();
 				$address  = Mage::getModel('customer/address');
 
-			 	if(!Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling())
-			 	{			 		
-			 		
-			 			   // Save data				      
-				           
-				            
-				            
-				            $errors = array();				
-				            /* @var $addressForm Mage_Customer_Model_Form */
+			 	if(!Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling() || $save_address)
+			 	{
+				           $errors = array();
 				           $addressForm = Mage::getModel('customer/form');
 				           $addressForm->setFormCode('customer_address_edit')
 				               ->setEntity($address);
@@ -1001,39 +1134,14 @@ class MOIP_Onestepcheckout_IndexController extends Mage_Checkout_OnepageControll
 				           try {
 				                $addressForm->compactData($addressData);
 				                $address->setCustomerId($customer->getId())
-				                    ->setIsDefaultBilling($this->getRequest()->getParam('default_billing', true))
-				                    ->setIsDefaultShipping($this->getRequest()->getParam('default_shipping', true))->setSaveInAddressBook('1');
-				
-				                
-				                
-				           
+				                    ->setIsDefaultBilling(1)
+				                    ->setIsDefaultShipping(1)->setSaveInAddressBook('1');
 				                    $address->save();
-				                    
-				               
 				            } catch (Mage_Core_Exception $e) {
-				               Zend_Debug::dump($ex->getMessage());
+				               $this->getResponse()->setBody($e->getMessage());
 				            }
-			 	} 
-			 	
-
-			 	if(Mage::getSingleton('customer/session')->getCustomer()->getDefaultBilling() && $save_address) {
-			 		
-			 		
-				 		$customer = Mage::getSingleton('customer/session')->getCustomer();	
-				 		$customAddress = Mage::getModel('customer/address');
-						$addressData    = $this->getRequest()->getPost($type, array());
-						$customAddress->setData($addressData)
-						            ->setCustomerId($customer->getId())
-						            ->setIsDefaultBilling($this->getRequest()->getParam('default_billing', false))
-						            ->setIsDefaultShipping($this->getRequest()->getParam('default_shipping', false))
-						            ->setSaveInAddressBook('1');
-						try {
-						    $customAddress->save();
-						}
-						catch (Exception $ex) {
-						   Zend_Debug::dump($ex->getMessage());
-						}
-				 	
 			 	}
+
+
 	}
 }

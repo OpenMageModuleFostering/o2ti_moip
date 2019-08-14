@@ -10,13 +10,15 @@ ul.form-list.dados-titular > li > label{clear: none !important; width: 105px;flo
 ul.form-list.dados-titular > li > div{ width: 50% !important;clear: none !important; float: left;}
 #formcli > ul > li > label > em {right: 2px !important;}
 ul.inline li{float: left;width: 30%;margin-right: 2%; text-align: center;}
-ul.inline li img{width: 100%; height: auto; clear: both; display: block;margin-bottom: 5px;}
+ul.inline li img{width: 70%; height: auto; clear: both; display: block;margin-bottom: 5px;}
 
-.transparente-payment-method-content{display: none;clear: both; width: 1005;}
+.transparente-payment-method-content{display: none;clear: both; width: 100%;}
 
 ul.inline.input-switcher-4 > li{width: 23%}
-ul.inline.input-switcher-5 > li {width: 12%;cursor: pointer;opacity: 0.4;}
-
+ul.inline.input-switcher-5 > li  img{width: 45px;display: none;}
+.tab-pane.hide{
+				display: none;
+			}
 .tooltip-transparente-handler{position: relative !important;}
 .tooltip-transparente{display: none;position: absolute; right: 0px;top: auto;background: #cccccc;padding: 20px;border-radius: 10px;min-width:  245px;box-shadow: 0 0 10px #000;z-index:999;}
 .tooltip-transparente-visible{display: block;}
@@ -58,4 +60,7 @@ li.cofre {
 input#cartao_salvo {
 	margin-top: 20px;
 	margin-left: 6px;
+}
+.alerta_data {
+float: left;
 }

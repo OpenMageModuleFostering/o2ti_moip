@@ -5,17 +5,21 @@
 <?php $dn ="" ?>
 <script type="text/javascript">
 //<![CDATA[
-function showBlocks(){
-	jQuery('ul.transparente-payment-methods li').first().click();
-	jQuery('ul.transparente-payment-methods').css({'display':'block'});
-	<?php if($cofre =="false"): ?>
-	jQuery('#transparente-cartao, #transparente-boleto, #transparente-transferencia').children().show();
-	<?php else: ?>
-		jQuery('#transparente-boleto, #transparente-transferencia').children().show();
-		jQuery('#transparente-cartao, .form-list-cofre').show();
-	<?php endif; ?>
-}
+
 jQuery(document).ready(function() {
+	jQuery('.input-switcher > li').not('.transparente-payment-method-content').bind({
+	    click: function() {
+	      jQuery(this).parent().find('input[type="radio"]').prop('checked',false);
+	      jQuery('#checkout-payment-bandeira').hide();
+	      jQuery('#checkout-payment-banco').hide();
+	      jQuery(this).find('input[type="radio"]').prop('checked',true);
+	      <?php if(Mage::getStoreConfig('moipall/config/enable_carrinho')): ?>
+	        updatePaymentMethod('<?php echo $this->getMethodCode() ?>');
+	      <?php endif ?>
+
+	    }
+	});
+
 	<?php if(Mage::getStoreConfig('moipall/config/enable_carrinho')): ?>
 	if(jQuery("input.radio.payment_method_handle:checked").val() == "moip_transparente_standard"){
 		showBlocks();
@@ -40,11 +44,11 @@ jQuery(document).ready(function() {
 //]]>
 </script>
 <link rel="stylesheet" type="text/css" href="<?php echo $this->getSkinUrl('MOIP/transparente/css/vertical_form.css'); ?>"media="all">
-	<div id="payment_form_<?php echo $this->getMethodCode() ?>"  style="display:none">
+	<ul id="payment_form_<?php echo $this->getMethodCode() ?>">
 		<ul class="inline input-switcher transparente-payment-methods">
 			<?php if($this->mostraCartao()): ?>
 			<li data-target="transparente-cartao" class='transparente-payment-method-line'>
-				<input id="cartao_radio" type="radio" name="payment[forma_pagamento]" title="Cartão de Crédito" value="CartaoCredito" class="forma_pg input-text  validate-one-required-by-name">
+				<input id="cartao_radio" type="radio" name="payment[forma_pagamento]" title="Cartão de Crédito" value="CartaoCredito" class="forma_pg input-text  validate-one-required-by-name" <?php if(Mage::getStoreConfig('moipall/config/enable_carrinho')): ?>onclick="updatePaymentMethod('<?php echo $this->getMethodCode() ?>');"<?php endif ?>>
 				<img alt="Cartão de Crédito" src="<?php echo $this->getCartaoIcon(); ?>">
 				<div class="middle-method">
 					<div class="chamada">Cartão de Crédito</div>
@@ -56,7 +60,7 @@ jQuery(document).ready(function() {
 				</div>
 			</li>
 			<li class="transparente-payment-method-content row-fluid" id="transparente-cartao" style="display:none">
-			<h3>Cartão de Crédito</h3>	
+			<h3>Cartão de Crédito</h3>
 			<?php if($cofre !="false"): ?>
 				<?php $cofre = Mage::helper('core')->jsonDecode($cofre); ?>
 				<ul class="form-list-cofre">
@@ -86,8 +90,8 @@ jQuery(document).ready(function() {
 						<div class="cc">
 							<label class="required" for="credito_parcela">Parcelas<em>*</em></label>
 							<div class="input-box">
-								
-												              
+
+
 								<select name="payment[cofre_parcelamento]" id="credito_parcelamento" class="input-text required-entry" title="Número de Parcelas" >
 									<option value="" select>Selecione as parcelas</option>
 										<?php $parcelas = $this->getParcelamento('parcelas'); ?>
@@ -114,9 +118,9 @@ jQuery(document).ready(function() {
 
 				<?php endif; ?>
 
-			
+
 			<ul class="form-list cartao">
-									
+
 				<li class="wide cc-cvv">
 					<div class="cc">
 						<label class="required" for="credito_numero">Número<em>*</em></label>
@@ -195,12 +199,12 @@ jQuery(document).ready(function() {
 					</div>
 				</li>
 				<div class="alerta_data"></div>
-				
+
 				<li class="wide">
 					<label class="required" for="credito_parcela">Opções de pagamento<em>*</em></label>
 					<div class="input-box">
-						
-										              
+
+
 						<select name="payment[credito_parcelamento]" id="credito_parcelamento" class="input-text required-entry" title="Número de Parcelas de sua Compra" >
 							<option value="" select>Selecione as parcelas</option>
 								<?php $parcelas = $this->getParcelamento('parcelas'); ?>
@@ -211,13 +215,13 @@ jQuery(document).ready(function() {
 				        <?php echo $this->getTextoParcelas() ?>
 					</div>
 				</li>
-				
+
 				<li class="wide">
 					<label><input type="checkbox" name="payment[save_cart]"  title="Salvar Cartão para compras futuras?" id="save_cart" class="checkbox"> Salvar cartão para compras futuras?</label>
 				</li>
-				
+
 			</ul>
-			
+
 			<div id="formcli" style="display:none;">
 			<ul class="form-list dados-titular">
 			<h3>Dados do Titular</h3>
@@ -250,19 +254,19 @@ jQuery(document).ready(function() {
 				</li>
 			</ul>
 			</div>
-			
-			
 
-				
+
+
+
 			</li>
 			<?php endif; ?>
 			<?php if($this->mostraBoleto()): ?>
 			<li data-target="transparente-boleto" class='transparente-payment-method-line'>
-				<input type="radio" name="payment[forma_pagamento]" id="boleto_option" title="Boleto" <?php if(!$this->boletoDisponivel('valid')): ?>value="BoletoBancario" <?php endif; ?>class="forma_pg<?php if(!$this->boletoDisponivel('valid')): ?> invalid-boleto<?php endif; ?> input-text  validate-one-required-by-name">
+				<input type="radio" name="payment[forma_pagamento]" id="boleto_option" title="Boleto" <?php if(!$this->boletoDisponivel('valid')): ?>value="BoletoBancario" <?php endif; ?>class="forma_pg<?php if(!$this->boletoDisponivel('valid')): ?> invalid-boleto<?php endif; ?> input-text  validate-one-required-by-name" <?php if(Mage::getStoreConfig('moipall/config/enable_carrinho')): ?>onclick="updatePaymentMethod('<?php echo $this->getMethodCode() ?>');"<?php endif ?>>
 				<img alt="Boleto Bancário" src="<?php echo $this->getBoletoIcon(); ?>">
 				<div class="middle-method">
 					<div class="chamada">Boleto</div>
-				<div class="resume"><?php if(!$this->boletoDisponivel('valid')){echo $this->getTextoBoleto('preview');} ?></div>	
+				<div class="resume"><?php if(!$this->boletoDisponivel('valid')){echo $this->getTextoBoleto('preview');} ?></div>
 				</div>
 				<div class="method-price">
 					<?php if(!$this->boletoDisponivel('valid')): ?>
@@ -271,7 +275,7 @@ jQuery(document).ready(function() {
 					<p class="method-price-title"><?php if(!$this->boletoDisponivel('valid')){echo $this->getBoletoPrice();}else{echo "Indisponível";} ?></p>
 				</div>
 			</li>
-				
+
 			<li class="transparente-payment-method-content row-fluid" id="transparente-boleto" style="display:none">
 				<div class="span3 method-image">
 					<img alt="Boleto Bancário" id="imageboleto" src="<?php echo $this->getBoletoImage(); ?>">
@@ -289,7 +293,7 @@ jQuery(document).ready(function() {
 			<?php endif; ?>
 			<?php if($this->mostraTransferencia()): ?>
 			<li data-target="transparente-transferencia" class='transparente-payment-method-line'>
-				<input type="radio" class="forma_pg input-text  validate-one-required-by-name" id="ted" name="payment[forma_pagamento]" value="DebitoBancario" >
+				<input type="radio" class="forma_pg input-text  validate-one-required-by-name" id="ted" name="payment[forma_pagamento]" value="DebitoBancario" <?php if(Mage::getStoreConfig('moipall/config/enable_carrinho')): ?>onclick="updatePaymentMethod('<?php echo $this->getMethodCode() ?>');"<?php endif ?> >
 				<img alt="Transferência Bancária" id="imageboleto" src="<?php echo $this->getTransferenciaIcon(); ?>">
 				<div class="middle-method">
 					<div class="chamada">Transferência</div>
@@ -330,5 +334,5 @@ jQuery(document).ready(function() {
 			</li>
 			<?php endif; ?>
 		</ul>
-	</div>
-<script type="text/javascript" src="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_JS); ?>MOIP/transparente/checkout.js"></script>
+	</ul>
+

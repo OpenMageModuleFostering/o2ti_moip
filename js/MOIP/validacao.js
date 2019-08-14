@@ -1,4 +1,4 @@
-
+jQuery.noConflict();
 function validaCPF(cpf,pType){var cpf_filtrado="",valor_1=" ",valor_2=" ",ch="";var valido=false;for(i=0;i<cpf.length;i++){ch=cpf.substring(i,i+1);if(ch>="0"&&ch<="9"){cpf_filtrado=cpf_filtrado.toString()+ch.toString()
 valor_1=valor_2;valor_2=ch;}
 if((valor_1!=" ")&&(!valido))valido=!(valor_1==valor_2);}

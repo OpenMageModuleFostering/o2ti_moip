@@ -4,16 +4,16 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
 		parent::__construct();
 	}
 	public function getSaveDate($order, $result_decode, $customerData = null, $pgtoArray, $client_array){
-		
-	if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") { 
+
+	if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste") {
 	          $url = "https://desenvolvedor.moip.com.br/sandbox/Instrucao.do?token=";
 	      }
 	          else {
 	              $url = "https://www.moip.com.br/Instrucao.do?token=";
 	      }
-	
+
 		$model_del = Mage::getModel('transparente/write');
-		
+
 		$model_del->load($order, 'realorder_id');
 		if($model_del->getRealorder_id()){
 			Mage::getSingleton('core/session')->addError('A página não pode ser recarregada.');
@@ -33,8 +33,8 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
 			if($pgtoArray['use_cofre'] != 1){
 				$model->setbrand_transparente($brand);
 				$model->setCreditcard_parc($pgtoArray['credito_parcelamento']);
-				$model->setFirst6(substr($pgtoArray['credito_numero'], 0, 6));
-				$model->setLast4(substr($pgtoArray['credito_numero'],-4));
+				$model->setFirst6(substr((string)$pgtoArray['credito_numero'], 0, 6));
+				$model->setLast4(substr((string)$pgtoArray['credito_numero'],-4,4));
 			} else {
 				$model->setbrand_transparente($pgtoArray['cofre_brand']);
 				$model->setCreditcard_parc($pgtoArray['cofre_parcelamento']);
@@ -52,7 +52,7 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
 		$model->setToken($result_decode['token']);
 		$model->setStatus_token($result_decode['status']);
 		$model->save();
-		
+
 		try{
 			$order_send = Mage::getModel('sales/order')->load($order, 'increment_id');
 			$order_send->sendNewOrderEmail();
@@ -60,15 +60,35 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
 		catch (Exception $ex) {  };
 		return true;
 	}
-	
+
 	public function getUrlAmbiente(){
-		if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste")  
-		    $url = "https://desenvolvedor.moip.com.br/sandbox/";   
-		else 
+		if (Mage::getSingleton('transparente/standard')->getConfigData('ambiente') == "teste")
+		    $url = "https://desenvolvedor.moip.com.br/sandbox/";
+		else
 		    $url = "https://www.moip.com.br/";
-		
+
 		return $url;
 	}
+
+
+	 public function getOrder()
+	    {
+	        $orderId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+
+	        $current_order    =    Mage::getModel('sales/order')->getCollection()
+	                            ->addFieldToFilter('increment_id', $orderId);
+
+	        if($current_order) {
+	            foreach( $current_order as $order )    {
+	                $final = $order;
+	                break;
+	            }
+	        }
+
+	        return $final;
+	    }
+
+
 	public function getJson($pgtoArray){
 
 		if($pgtoArray['forma_pagamento'] == "BoletoBancario"){
@@ -115,19 +135,19 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
 				}
 	$json = Mage::helper('core')->jsonEncode((object)$json);
 	return $json;
-		
+
 	}
 	public function getOrder_dados($order_dados){
-	
+
 		return $order_dados;
 	}
-	
+
 	public function getErroCartao($result_decode)
 	{
 		if(array_key_exists('errors', $result_decode)){
 			$dados_ErroCartao = array();
 			$dados_ErroCartao['errors'] = $result_decode->errors;
-			foreach ($result_decode->errors as $key => $value) 
+			foreach ($result_decode->errors as $key => $value)
 			{
 				$dados_ErroCartao['code'] = $value->code;
 				$dados_ErroCartao['description'] = $value->description;
@@ -139,16 +159,16 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
 		}
 	}
 	public function getCartao($result_decode, $pagamento)
-	{	
-		
+	{
+
 			return false;
-		
+
 	}
 	 public function getTrackingTransparente($order_dados)
     {
-    	
+
     	$order = Mage::getModel('sales/order')->loadByIncrementId($order_dados['id_transacao']);
-        $orderIds = $order->getId();       
+        $orderIds = $order->getId();
         $collection = Mage::getResourceModel('sales/order_collection')
             ->addFieldToFilter('entity_id', array('in' => $orderIds))
         ;
@@ -170,44 +190,44 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
                 $this->jsQuoteEscape(Mage::helper('core')->escapeHtml($address->getCountry()))
             );
             foreach ($order->getAllVisibleItems() as $item) {
-            	$cProduct = Mage::getModel('catalog/product'); 
-				$cProductId = $cProduct->getIdBySku($item->getSku()); 
-				$cProduct->load($cProductId); 
-				$category_list = ""; 
-				$cats = $cProduct->getCategoryCollection()->exportToArray(); 
-				 
-				foreach($cats as $cat){ 
-				$category_list .= Mage::getModel('catalog/category')->load($cat['entity_id'])->getName()."|"; 
+            	$cProduct = Mage::getModel('catalog/product');
+				$cProductId = $cProduct->getIdBySku($item->getSku());
+				$cProduct->load($cProductId);
+				$category_list = "";
+				$cats = $cProduct->getCategoryCollection()->exportToArray();
+
+				foreach($cats as $cat){
+				$category_list .= Mage::getModel('catalog/category')->load($cat['entity_id'])->getName()."|";
 				}
-				
-				 
-				$category_list = rtrim($category_list,"|"); 
+
+
+				$category_list = rtrim($category_list,"|");
 
                 $result[] = sprintf("_gaq.push(['_addItem', '%s', '%s', '%s', '%s', '%s', '%s']);",
                     $order->getIncrementId(),
                     $this->jsQuoteEscape($item->getSku()), $this->jsQuoteEscape($item->getName()),
-                    $category_list, 
+                    $category_list,
                     $item->getBasePrice(), $item->getQtyOrdered()
                 );
             }
             $result[] = "_gaq.push(['_trackTrans']);";
         }
-        
+
         return implode("\n", $result);
     }
 
 	public function getTrans_Transparente($result_decode, $pagamento)
-	{	
-		
+	{
+
 		return true;
 	}
 
 	public function getBoleto_Transparente($result_decode)
-	{	
-			
+	{
+
 		return true;
 	}
-	
+
 	private function getBarcode($valor){
 		$fino = 1 ;
 		$largo = 3 ;
@@ -242,7 +262,7 @@ class MOIP_Transparente_Block_Standard_Redirect extends Mage_Checkout_Block_Onep
 		$texto = $valor ;
 		if((strlen($texto) % 2) <> 0){
 			$texto = "0" . $texto;
-		}			
+		}
 		while (strlen($texto) > 0) {
 			$i = round($this->esquerda($texto,2));
 			$texto = $this->direita($texto,strlen($texto)-2);
