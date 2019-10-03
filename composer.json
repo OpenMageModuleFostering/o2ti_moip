@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/o2ti_moip",
+    "name": "OpenMageModuleFostering\/o2ti_moip",
     "type": "magento-module",
-    "license": "Exclusivo-para-clientes-Moip-Pagamentos-S/A",
+    "license": "Exclusivo-para-clientes-Moip-Pagamentos-S\/A",
     "homepage": "",
-    "description": "Módulo oficial do Moip Pagamentos S/A.",
+    "description": "M\u00f3dulo oficial do Moip Pagamentos S\/A.",
     "authors": [
-    {
-        "name": "MOIP",
-        "email": "contato@o2ti.com"
-    }
-],
+        {
+            "name": "MOIP",
+            "email": "contato@o2ti.com"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
